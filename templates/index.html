@@ -2,248 +2,306 @@
 <html lang="pt-br">
 <head>
 
-<meta charset="UTF-8">
-<title>Futebol dos Amigos</title>
+    <meta charset="UTF-8">
+    <title>Futebol dos Amigos</title>
 
-<style>
+    <style>
 
-body{
-    background:#111;
-    color:white;
-    font-family:Arial;
-    padding:20px;
-}
+        body{
+            background:#0f172a;
+            color:white;
+            font-family:Arial;
+            padding:30px;
+        }
 
-.container{
-    max-width:1200px;
-    margin:auto;
-}
+        h1{
+            text-align:center;
+            margin-bottom:40px;
+        }
 
-.card{
-    background:#1f1f1f;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:20px;
-}
+        .box{
+            background:#1e293b;
+            padding:20px;
+            border-radius:12px;
+            margin-bottom:25px;
+        }
 
-input, select{
-    padding:10px;
-    margin:5px;
-    border:none;
-    border-radius:8px;
-}
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
 
-button{
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:bold;
-}
+        th, td{
+            padding:12px;
+            text-align:center;
+            border-bottom:1px solid #334155;
+        }
 
-.add{
-    background:#00c853;
-    color:white;
-}
+        th{
+            background:#334155;
+        }
 
-.edit{
-    background:#2962ff;
-    color:white;
-}
+        input, select{
+            padding:10px;
+            border:none;
+            border-radius:8px;
+            margin:5px;
+        }
 
-.delete{
-    background:#d50000;
-    color:white;
-}
+        button{
+            padding:10px 15px;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:bold;
+        }
 
-.goal{
-    background:#ffab00;
-}
+        .verde{
+            background:#22c55e;
+            color:white;
+        }
 
-.remove{
-    background:#616161;
-    color:white;
-}
+        .azul{
+            background:#3b82f6;
+            color:white;
+        }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-}
+        .vermelho{
+            background:#ef4444;
+            color:white;
+        }
 
-th, td{
-    padding:12px;
-    border-bottom:1px solid #333;
-    text-align:center;
-}
+        .amarelo{
+            background:#facc15;
+            color:black;
+        }
 
-h1,h2{
-    color:#00e676;
-}
+        .editar{
+            background:#8b5cf6;
+            color:white;
+        }
 
-</style>
+        .login{
+            text-align:right;
+            margin-bottom:20px;
+        }
+
+    </style>
 
 </head>
 <body>
 
-<div class="container">
+<h1>⚽ FUTEBOL DOS AMIGOS</h1>
 
-<h1>⚽ Futebol dos Amigos</h1>
+<div class="login">
 
-<div class="card">
+    {% if session.admin %}
 
-<h2>Cadastrar Jogador</h2>
+        <a href="/logout">
+            <button class="vermelho">Sair Admin</button>
+        </a>
 
-<form action="/adicionar" method="POST">
+    {% else %}
 
-<input type="text" name="nome" placeholder="Nome" required>
+    <form action="/login" method="POST">
 
-<select name="posicao">
+        <input type="password" name="senha" placeholder="Senha admin">
 
-<option value="Z">Z</option>
-<option value="A">A</option>
-<option value="M">M</option>
-<option value="G">G</option>
+        <button class="azul">
+            Entrar
+        </button>
 
-</select>
+    </form>
 
-<input type="number" step="0.1" name="nota" placeholder="Nota">
-
-<button class="add">
-Cadastrar
-</button>
-
-</form>
+    {% endif %}
 
 </div>
 
-<div class="card">
+<div class="box">
 
-<h2>👥 Jogadores</h2>
+    <h2>Adicionar Jogador</h2>
 
-<table>
+    <form action="/adicionar" method="POST">
 
-<tr>
-<th>Nome</th>
-<th>Posição</th>
-<th>Gols</th>
-<th>Nota</th>
-<th>Ações</th>
-</tr>
+        <input type="text" name="nome" placeholder="Nome" required>
 
-{% for j in jogadores %}
+        <input type="number" name="nota" placeholder="Nota" required>
 
-<tr>
+        <select name="posicao">
 
-<form action="/editar/{{j[0]}}" method="POST">
+            <option value="Z">Z</option>
+            <option value="A">A</option>
+            <option value="M">M</option>
+            <option value="G">G</option>
 
-<td>
-<input type="text" name="nome" value="{{j[1]}}">
-</td>
+        </select>
 
-<td>
+        <button class="verde">
+            Adicionar
+        </button>
 
-<select name="posicao">
-
-<option value="Z" {% if j[4]=='Z' %}selected{% endif %}>Z</option>
-<option value="A" {% if j[4]=='A' %}selected{% endif %}>A</option>
-<option value="M" {% if j[4]=='M' %}selected{% endif %}>M</option>
-<option value="G" {% if j[4]=='G' %}selected{% endif %}>G</option>
-
-</select>
-
-</td>
-
-<td>{{j[2]}}</td>
-
-<td>
-<input type="number" step="0.1" name="nota" value="{{j[3]}}">
-</td>
-
-<input type="hidden" name="gols" value="{{j[2]}}">
-
-<td>
-
-<button class="goal">
-<a href="/gol/{{j[0]}}" style="color:black;text-decoration:none;">
-+ Gol
-</a>
-</button>
-
-<button class="remove">
-<a href="/remover_gol/{{j[0]}}" style="color:white;text-decoration:none;">
-- Gol
-</a>
-</button>
-
-<button class="edit">
-Salvar
-</button>
-
-<button class="delete">
-<a href="/excluir/{{j[0]}}" style="color:white;text-decoration:none;">
-Excluir
-</a>
-</button>
-
-</td>
-
-</form>
-
-</tr>
-
-{% endfor %}
-
-</table>
+    </form>
 
 </div>
 
-<div class="card">
+<div class="box">
 
-<h2>🏆 Artilharia</h2>
+    <h2>🏆 Ranking de Jogadores</h2>
 
-<table>
+    <table>
 
-<tr>
-<th>Jogador</th>
-<th>Gols</th>
-</tr>
+        <tr>
+            <th>Nome</th>
+            <th>Posição</th>
+            <th>Nota</th>
+            <th>Gols</th>
+            <th>Vitórias</th>
+            <th>Derrotas</th>
+            <th>Ações</th>
+        </tr>
 
-{% for j in artilheiros %}
+        {% for j in jogadores %}
 
-<tr>
-<td>{{j[1]}}</td>
-<td>{{j[2]}}</td>
-</tr>
+        <tr>
 
-{% endfor %}
+            <form action="/editar/{{j[0]}}" method="POST">
 
-</table>
+            <td>
+
+                {% if session.admin %}
+                    <input type="text" name="nome" value="{{j[1]}}">
+                {% else %}
+                    {{j[1]}}
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if session.admin %}
+
+                <select name="posicao">
+
+                    <option {% if j[6]=='Z' %}selected{% endif %}>Z</option>
+                    <option {% if j[6]=='A' %}selected{% endif %}>A</option>
+                    <option {% if j[6]=='M' %}selected{% endif %}>M</option>
+                    <option {% if j[6]=='G' %}selected{% endif %}>G</option>
+
+                </select>
+
+                {% else %}
+                    {{j[6]}}
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if session.admin %}
+                    <input type="number" name="nota" value="{{j[5]}}">
+                {% else %}
+                    {{j[5]}}
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if session.admin %}
+                    <input type="number" name="gols" value="{{j[2]}}">
+                {% else %}
+                    {{j[2]}}
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if session.admin %}
+                    <input type="number" name="vitorias" value="{{j[3]}}">
+                {% else %}
+                    {{j[3]}}
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if session.admin %}
+                    <input type="number" name="derrotas" value="{{j[4]}}">
+                {% else %}
+                    {{j[4]}}
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                <a href="/gol/{{j[0]}}">
+                    <button type="button" class="verde">+Gol</button>
+                </a>
+
+                <a href="/menosgol/{{j[0]}}">
+                    <button type="button" class="amarelo">-Gol</button>
+                </a>
+
+                <a href="/vitoria/{{j[0]}}">
+                    <button type="button" class="azul">Vitória</button>
+                </a>
+
+                <a href="/derrota/{{j[0]}}">
+                    <button type="button" class="vermelho">Derrota</button>
+                </a>
+
+                {% if session.admin %}
+
+                <button class="editar">
+                    Salvar
+                </button>
+
+                <a href="/excluir/{{j[0]}}">
+                    <button type="button" class="vermelho">
+                        Excluir
+                    </button>
+                </a>
+
+                {% endif %}
+
+            </td>
+
+            </form>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
 
 </div>
 
-<div class="card">
+<div class="box">
 
-<h2>🧤 Menos Vazados</h2>
+    <h2>🧤 Ranking de Goleiros (Menos Vazados)</h2>
 
-<table>
+    <table>
 
-<tr>
-<th>Goleiro</th>
-<th>Gols Sofridos</th>
-</tr>
+        <tr>
+            <th>Nome</th>
+            <th>Gols Sofridos</th>
+        </tr>
 
-{% for j in goleiros %}
+        {% for g in goleiros %}
 
-<tr>
-<td>{{j[1]}}</td>
-<td>{{j[2]}}</td>
-</tr>
+        <tr>
 
-{% endfor %}
+            <td>{{g[1]}}</td>
+            <td>{{g[3]}}</td>
 
-</table>
+        </tr>
 
-</div>
+        {% endfor %}
+
+    </table>
 
 </div>
 
