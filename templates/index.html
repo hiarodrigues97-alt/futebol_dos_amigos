@@ -1,31 +1,231 @@
-<!-- GOLEIROS -->
+<!-- templates/index.html -->
 
-<div class="card p-4 shadow mb-4 mt-4">
+<!DOCTYPE html>
+<html lang="pt-br">
 
-    <h3>
-        🥅 Goleiros Menos Vazados
-    </h3>
+<head>
 
-    <table class="table table-dark table-hover mt-4">
+    <meta charset="UTF-8">
 
-        <thead>
+    <title>Futebol dos Amigos ⚽</title>
 
-            <tr>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-                <th>Goleiro</th>
-                <th>Gols Sofridos</th>
-                <th>Nota</th>
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
 
-                {% if tipo == "admin" %}
-                <th>Ações</th>
-                {% endif %}
+</head>
 
-            </tr>
+<body>
 
-        </thead>
+<div class="container py-5">
 
-        <tbody id="listaGoleiros"></tbody>
+    <!-- TOPO -->
 
-    </table>
+    <div class="text-center mb-5">
+
+        <h1 class="titulo">
+            ⚽ Futebol dos Amigos
+        </h1>
+
+        <p class="subtitulo">
+            Controle profissional da resenha
+        </p>
+
+        <p>
+            Bem-vindo, {{ nome }}
+        </p>
+
+        <a
+            href="/logout"
+            class="btn btn-danger btn-sm"
+        >
+            Sair
+        </a>
+
+    </div>
+
+    <!-- CADASTRO -->
+
+    {% if tipo == "admin" %}
+
+    <div class="card p-4 shadow mb-4">
+
+        <h3>
+            Adicionar Jogador
+        </h3>
+
+        <div class="d-flex gap-2 flex-wrap">
+
+            <input
+                id="nome"
+                class="form-control"
+                placeholder="Nome do jogador"
+            >
+
+            <input
+                id="nota"
+                type="number"
+                class="form-control"
+                placeholder="Nota"
+                step="0.1"
+            >
+
+            <select
+                id="posicao"
+                class="form-select"
+            >
+
+                <option value="">
+                    Posição
+                </option>
+
+                <option value="Z">
+                    Z - Zagueiro
+                </option>
+
+                <option value="A">
+                    A - Atacante
+                </option>
+
+                <option value="M">
+                    M - Meio Campo
+                </option>
+
+                <option value="G">
+                    G - Goleiro
+                </option>
+
+            </select>
+
+            <button
+                class="btn btn-success"
+                onclick="addJogador()"
+            >
+                Adicionar
+            </button>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+    <!-- TABELA -->
+
+    <div class="card p-4 shadow mb-4">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+
+                <h3>
+                    Ranking 🔥
+                </h3>
+
+                <p id="contadorSelecionados">
+                    Selecionados: 0
+                </p>
+
+            </div>
+
+            <button
+                class="btn btn-primary"
+                onclick="sortear()"
+            >
+                Sortear 3 Times
+            </button>
+
+        </div>
+
+        <table class="table table-dark table-hover mt-4">
+
+            <thead>
+
+                <tr>
+
+                    <th>Disponível</th>
+                    <th>Jogador</th>
+                    <th>Posição</th>
+                    <th>Gols</th>
+                    <th>Nota</th>
+
+                    {% if tipo == "admin" %}
+                    <th>Ações</th>
+                    {% endif %}
+
+                </tr>
+
+            </thead>
+
+            <tbody id="lista"></tbody>
+
+        </table>
+
+    </div>
+
+    <!-- TIMES -->
+
+    <div class="row">
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow time-card">
+
+                <h3>
+                    🟢 Time 1
+                </h3>
+
+                <ul id="time1"></ul>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow time-card">
+
+                <h3>
+                    🔵 Time 2
+                </h3>
+
+                <ul id="time2"></ul>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow time-card">
+
+                <h3>
+                    🔴 Time 3
+                </h3>
+
+                <ul id="time3"></ul>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
+
+<script>
+
+const TIPO_USUARIO = "{{ tipo }}";
+
+</script>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
