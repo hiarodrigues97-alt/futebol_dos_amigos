@@ -1,3 +1,5 @@
+/* static/style.css */
+
 body {
 
     background: #111827;
@@ -73,17 +75,17 @@ input {
 
 }
 
+select {
+
+    border-radius: 10px !important;
+
+}
+
 li {
 
     margin-bottom: 10px;
     color: white;
     font-size: 18px;
-
-}
-
-label {
-
-    color: white;
 
 }
 

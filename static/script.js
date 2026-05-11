@@ -1,3 +1,5 @@
+// static/script.js
+
 async function listar() {
 
     let res = await fetch("/jogadores");
@@ -9,6 +11,34 @@ async function listar() {
     lista.innerHTML = "";
 
     dados.forEach(j => {
+
+        let botoes = "";
+
+        if (TIPO_USUARIO === "admin") {
+
+            botoes = `
+                <button
+                    class="btn btn-success btn-sm"
+                    onclick="gol(${j.id})"
+                >
+                    + Gol
+                </button>
+
+                <button
+                    class="btn btn-warning btn-sm"
+                    onclick="removerGol(${j.id})"
+                >
+                    - Gol
+                </button>
+
+                <button
+                    class="btn btn-danger btn-sm"
+                    onclick="excluirJogador(${j.id})"
+                >
+                    Excluir
+                </button>
+            `;
+        }
 
         lista.innerHTML += `
         <tr>
@@ -34,30 +64,7 @@ async function listar() {
 
             <td>${j.nota}</td>
 
-            <td>
-
-                <button
-                    class="btn btn-success btn-sm"
-                    onclick="gol(${j.id})"
-                >
-                    + Gol
-                </button>
-
-                <button
-                    class="btn btn-warning btn-sm"
-                    onclick="removerGol(${j.id})"
-                >
-                    - Gol
-                </button>
-
-                <button
-                    class="btn btn-danger btn-sm"
-                    onclick="excluirJogador(${j.id})"
-                >
-                    Excluir
-                </button>
-
-            </td>
+            ${TIPO_USUARIO === "admin" ? `<td>${botoes}</td>` : ""}
 
         </tr>
         `;
@@ -165,7 +172,7 @@ function atualizarContador() {
         `Selecionados: ${selecionados.length}`;
 }
 
-async function sortear() {
+function sortear() {
 
     let selecionados = document.querySelectorAll(".disponivel:checked");
 
@@ -174,7 +181,6 @@ async function sortear() {
     selecionados.forEach(x => {
 
         jogadores.push({
-            id: x.dataset.id,
             nome: x.dataset.nome,
             nota: parseFloat(x.dataset.nota)
         });
