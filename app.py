@@ -7,13 +7,11 @@ app = Flask(__name__)
 # CONEXÃO POSTGRESQL
 # =========================================
 
-conn = psycopg2.connect(
-    host="127.0.0.1",
-    port="5432",
-    dbname="futebol_dos_amigos_db",
-    user="postgres",
-    password="Hm07041997"
-)
+import os
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+conn = psycopg2.connect(DATABASE_URL)
 
 # =========================================
 # HOME
