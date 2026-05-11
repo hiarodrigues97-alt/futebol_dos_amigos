@@ -1,104 +1,116 @@
 /* static/style.css */
 
-body {
-
-    background: #111827;
-    color: white;
-
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    padding:30px;
 }
 
-.card {
-
-    background: #1f2937;
-    border: none;
-    border-radius: 20px;
-
+h1{
+    text-align:center;
+    margin-bottom:40px;
 }
 
-.titulo {
-
-    font-size: 55px;
-    font-weight: bold;
-    color: white;
-
+.box{
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:25px;
 }
 
-.subtitulo {
-
-    color: white;
-    font-size: 18px;
-
+table{
+    width:100%;
+    border-collapse:collapse;
 }
 
-h3 {
-
-    color: white;
-
+th, td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid #334155;
 }
 
-.table {
-
-    border-radius: 10px;
-    overflow: hidden;
-    color: white;
-
+th{
+    background:#334155;
 }
 
-.table th {
-
-    color: white;
-
+input, select{
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    margin:5px;
 }
 
-.table td {
-
-    color: white;
-    vertical-align: middle;
-
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
 }
 
-.time-card {
-
-    min-height: 350px;
-
+.verde{
+    background:#22c55e;
+    color:white;
 }
 
-button {
-
-    border-radius: 10px !important;
-
+.azul{
+    background:#3b82f6;
+    color:white;
 }
 
-input {
-
-    border-radius: 10px !important;
-
+.vermelho{
+    background:#ef4444;
+    color:white;
 }
 
-select {
-
-    border-radius: 10px !important;
-
+.amarelo{
+    background:#facc15;
+    color:black;
 }
 
-li {
-
-    margin-bottom: 10px;
-    color: white;
-    font-size: 18px;
-
+.editar{
+    background:#8b5cf6;
+    color:white;
 }
 
-.btn {
-
-    margin-right: 5px;
-
+.login{
+    text-align:right;
+    margin-bottom:20px;
 }
 
-#contadorSelecionados {
+.selecionados{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:20px;
+}
 
-    font-size: 18px;
-    font-weight: bold;
-    color: #22c55e;
+.card-jogador{
+    background:#334155;
+    padding:10px;
+    border-radius:10px;
+}
+
+.contador{
+    font-size:20px;
+    margin-bottom:20px;
+}
+
+.times-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:20px;
+}
+
+@media(max-width:900px){
+
+    .times-grid{
+        grid-template-columns:1fr;
+    }
+
+    table{
+        font-size:12px;
+    }
 
 }

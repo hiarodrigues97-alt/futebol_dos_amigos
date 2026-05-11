@@ -1,94 +1,17 @@
+<!-- templates/index.html -->
+
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
 
     <meta charset="UTF-8">
     <title>Futebol dos Amigos</title>
 
-    <style>
-
-        body{
-            background:#0f172a;
-            color:white;
-            font-family:Arial;
-            padding:30px;
-        }
-
-        h1{
-            text-align:center;
-            margin-bottom:40px;
-        }
-
-        .box{
-            background:#1e293b;
-            padding:20px;
-            border-radius:12px;
-            margin-bottom:25px;
-        }
-
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
-
-        th, td{
-            padding:12px;
-            text-align:center;
-            border-bottom:1px solid #334155;
-        }
-
-        th{
-            background:#334155;
-        }
-
-        input, select{
-            padding:10px;
-            border:none;
-            border-radius:8px;
-            margin:5px;
-        }
-
-        button{
-            padding:10px 15px;
-            border:none;
-            border-radius:8px;
-            cursor:pointer;
-            font-weight:bold;
-        }
-
-        .verde{
-            background:#22c55e;
-            color:white;
-        }
-
-        .azul{
-            background:#3b82f6;
-            color:white;
-        }
-
-        .vermelho{
-            background:#ef4444;
-            color:white;
-        }
-
-        .amarelo{
-            background:#facc15;
-            color:black;
-        }
-
-        .editar{
-            background:#8b5cf6;
-            color:white;
-        }
-
-        .login{
-            text-align:right;
-            margin-bottom:20px;
-        }
-
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 
 </head>
+
 <body>
 
 <h1>⚽ FUTEBOL DOS AMIGOS</h1>
@@ -98,7 +21,9 @@
     {% if session.admin %}
 
         <a href="/logout">
-            <button class="vermelho">Sair Admin</button>
+            <button class="vermelho">
+                Sair Admin
+            </button>
         </a>
 
     {% else %}
@@ -116,6 +41,93 @@
     {% endif %}
 
 </div>
+
+
+<div class="box">
+
+    <h2>🎲 Sorteador de Times</h2>
+
+    <form action="/sortear" method="POST">
+
+        <div class="selecionados">
+
+            {% for j in jogadores %}
+
+            <label class="card-jogador">
+
+                <input
+                    type="checkbox"
+                    name="jogadores"
+                    value="{{j[0]}}"
+                    class="jogadorCheck"
+                >
+
+                {{j[1]}} ({{j[6]}})
+
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+        <p class="contador">
+            Jogadores selecionados:
+            <span id="contador">0</span>
+        </p>
+
+        <button class="verde">
+            Sortear Times
+        </button>
+
+    </form>
+
+</div>
+
+
+{% if time1 %}
+
+<div class="times-grid">
+
+    <div class="box">
+
+        <h2>🔵 Time 1</h2>
+
+        {% for j in time1 %}
+
+            <p>{{j[1]}} - {{j[6]}}</p>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="box">
+
+        <h2>🟢 Time 2</h2>
+
+        {% for j in time2 %}
+
+            <p>{{j[1]}} - {{j[6]}}</p>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="box">
+
+        <h2>🔴 Time 3</h2>
+
+        {% for j in time3 %}
+
+            <p>{{j[1]}} - {{j[6]}}</p>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endif %}
+
 
 <div class="box">
 
@@ -143,6 +155,7 @@
     </form>
 
 </div>
+
 
 <div class="box">
 
@@ -238,19 +251,27 @@
             <td>
 
                 <a href="/gol/{{j[0]}}">
-                    <button type="button" class="verde">+Gol</button>
+                    <button type="button" class="verde">
+                        +Gol
+                    </button>
                 </a>
 
                 <a href="/menosgol/{{j[0]}}">
-                    <button type="button" class="amarelo">-Gol</button>
+                    <button type="button" class="amarelo">
+                        -Gol
+                    </button>
                 </a>
 
                 <a href="/vitoria/{{j[0]}}">
-                    <button type="button" class="azul">Vitória</button>
+                    <button type="button" class="azul">
+                        Vitória
+                    </button>
                 </a>
 
                 <a href="/derrota/{{j[0]}}">
-                    <button type="button" class="vermelho">Derrota</button>
+                    <button type="button" class="vermelho">
+                        Derrota
+                    </button>
                 </a>
 
                 {% if session.admin %}
@@ -279,15 +300,16 @@
 
 </div>
 
+
 <div class="box">
 
-    <h2>🧤 Ranking de Goleiros (Menos Vazados)</h2>
+    <h2>🧤 Ranking Goleiros</h2>
 
     <table>
 
         <tr>
             <th>Nome</th>
-            <th>Gols Sofridos</th>
+            <th>Menos Vazado</th>
         </tr>
 
         {% for g in goleiros %}
@@ -304,6 +326,34 @@
     </table>
 
 </div>
+
+
+<script>
+
+const checks = document.querySelectorAll('.jogadorCheck');
+const contador = document.getElementById('contador');
+
+checks.forEach(check => {
+
+    check.addEventListener('change', () => {
+
+        let total = 0;
+
+        checks.forEach(c => {
+
+            if(c.checked){
+                total++;
+            }
+
+        });
+
+        contador.innerText = total;
+
+    });
+
+});
+
+</script>
 
 </body>
 </html>

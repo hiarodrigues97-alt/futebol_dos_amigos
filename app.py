@@ -1,15 +1,15 @@
+# app.py
+
 from flask import Flask, render_template, request, redirect, session
 import psycopg2
 import os
+import random
 
 app = Flask(__name__)
 app.secret_key = "futebol123"
 
-
-# =========================
-# CONEXÃO POSTGRES
-# =========================
 DATABASE_URL = os.getenv("DATABASE_URL")
+
 
 def get_conn():
     return psycopg2.connect(DATABASE_URL, sslmode="require")
@@ -19,6 +19,7 @@ def get_conn():
 # CRIAR TABELA
 # =========================
 def criar_tabela():
+
     conn = get_conn()
     cur = conn.cursor()
 
@@ -35,8 +36,10 @@ def criar_tabela():
     """)
 
     conn.commit()
+
     cur.close()
     conn.close()
+
 
 criar_tabela()
 
@@ -56,21 +59,23 @@ def index():
         ORDER BY gols DESC, nome
     """)
 
-    jogadores = cur.fetchall()
+    todos = cur.fetchall()
 
     cur.close()
     conn.close()
 
-    goleiros = [j for j in jogadores if j[6] == 'G']
-    linha = [j for j in jogadores if j[6] != 'G']
+    goleiros = [j for j in todos if j[6] == "G"]
+    jogadores = [j for j in todos if j[6] != "G"]
 
     goleiros = sorted(goleiros, key=lambda x: x[3])
-    linha = sorted(linha, key=lambda x: x[2], reverse=True)
 
     return render_template(
         "index.html",
-        jogadores=linha,
-        goleiros=goleiros
+        jogadores=jogadores,
+        goleiros=goleiros,
+        time1=[],
+        time2=[],
+        time3=[]
     )
 
 
@@ -97,7 +102,7 @@ def logout():
 
 
 # =========================
-# ADICIONAR JOGADOR
+# ADICIONAR
 # =========================
 @app.route("/adicionar", methods=["POST"])
 def adicionar():
@@ -241,7 +246,7 @@ def menosgol(id):
 
 
 # =========================
-# VITORIA +
+# VITORIA
 # =========================
 @app.route("/vitoria/<int:id>")
 def vitoria(id):
@@ -264,7 +269,7 @@ def vitoria(id):
 
 
 # =========================
-# DERROTA +
+# DERROTA
 # =========================
 @app.route("/derrota/<int:id>")
 def derrota(id):
@@ -284,6 +289,75 @@ def derrota(id):
     conn.close()
 
     return redirect("/")
+
+
+# =========================
+# SORTEAR TIMES
+# =========================
+@app.route("/sortear", methods=["POST"])
+def sortear():
+
+    jogadores_ids = request.form.getlist("jogadores")
+
+    if len(jogadores_ids) < 6:
+        return redirect("/")
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    selecionados = []
+
+    for jogador_id in jogadores_ids:
+
+        cur.execute("""
+            SELECT *
+            FROM jogadores
+            WHERE id=%s
+        """, (jogador_id,))
+
+        jogador = cur.fetchone()
+
+        selecionados.append(jogador)
+
+    random.shuffle(selecionados)
+
+    time1 = []
+    time2 = []
+    time3 = []
+
+    for i, jogador in enumerate(selecionados):
+
+        if i % 3 == 0:
+            time1.append(jogador)
+
+        elif i % 3 == 1:
+            time2.append(jogador)
+
+        else:
+            time3.append(jogador)
+
+    cur.execute("""
+        SELECT *
+        FROM jogadores
+        ORDER BY gols DESC
+    """)
+
+    todos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    goleiros = [j for j in todos if j[6] == "G"]
+    jogadores = [j for j in todos if j[6] != "G"]
+
+    return render_template(
+        "index.html",
+        jogadores=jogadores,
+        goleiros=goleiros,
+        time1=time1,
+        time2=time2,
+        time3=time3
+    )
 
 
 if __name__ == "__main__":
