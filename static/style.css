@@ -1,116 +1,104 @@
 /* static/style.css */
 
-body{
-    background:#0f172a;
-    color:white;
-    font-family:Arial;
-    padding:30px;
+body {
+
+    background: #111827;
+    color: white;
+
 }
 
-h1{
-    text-align:center;
-    margin-bottom:40px;
+.card {
+
+    background: #1f2937;
+    border: none;
+    border-radius: 20px;
+
 }
 
-.box{
-    background:#1e293b;
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:25px;
+.titulo {
+
+    font-size: 55px;
+    font-weight: bold;
+    color: white;
+
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
+.subtitulo {
+
+    color: white;
+    font-size: 18px;
+
 }
 
-th, td{
-    padding:12px;
-    text-align:center;
-    border-bottom:1px solid #334155;
+h3 {
+
+    color: white;
+
 }
 
-th{
-    background:#334155;
+.table {
+
+    border-radius: 10px;
+    overflow: hidden;
+    color: white;
+
 }
 
-input, select{
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    margin:5px;
+.table th {
+
+    color: white;
+
 }
 
-button{
-    padding:10px 15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:bold;
+.table td {
+
+    color: white;
+    vertical-align: middle;
+
 }
 
-.verde{
-    background:#22c55e;
-    color:white;
+.time-card {
+
+    min-height: 350px;
+
 }
 
-.azul{
-    background:#3b82f6;
-    color:white;
+button {
+
+    border-radius: 10px !important;
+
 }
 
-.vermelho{
-    background:#ef4444;
-    color:white;
+input {
+
+    border-radius: 10px !important;
+
 }
 
-.amarelo{
-    background:#facc15;
-    color:black;
+select {
+
+    border-radius: 10px !important;
+
 }
 
-.editar{
-    background:#8b5cf6;
-    color:white;
+li {
+
+    margin-bottom: 10px;
+    color: white;
+    font-size: 18px;
+
 }
 
-.login{
-    text-align:right;
-    margin-bottom:20px;
+.btn {
+
+    margin-right: 5px;
+
 }
 
-.selecionados{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:20px;
-}
+#contadorSelecionados {
 
-.card-jogador{
-    background:#334155;
-    padding:10px;
-    border-radius:10px;
-}
-
-.contador{
-    font-size:20px;
-    margin-bottom:20px;
-}
-
-.times-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:20px;
-}
-
-@media(max-width:900px){
-
-    .times-grid{
-        grid-template-columns:1fr;
-    }
-
-    table{
-        font-size:12px;
-    }
+    font-size: 18px;
+    font-weight: bold;
+    color: #22c55e;
 
 }
