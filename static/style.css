@@ -1,0 +1,102 @@
+body {
+
+    background: #111827;
+    color: white;
+
+}
+
+.card {
+
+    background: #1f2937;
+    border: none;
+    border-radius: 20px;
+
+}
+
+.titulo {
+
+    font-size: 55px;
+    font-weight: bold;
+    color: white;
+
+}
+
+.subtitulo {
+
+    color: white;
+    font-size: 18px;
+
+}
+
+h3 {
+
+    color: white;
+
+}
+
+.table {
+
+    border-radius: 10px;
+    overflow: hidden;
+    color: white;
+
+}
+
+.table th {
+
+    color: white;
+
+}
+
+.table td {
+
+    color: white;
+    vertical-align: middle;
+
+}
+
+.time-card {
+
+    min-height: 350px;
+
+}
+
+button {
+
+    border-radius: 10px !important;
+
+}
+
+input {
+
+    border-radius: 10px !important;
+
+}
+
+li {
+
+    margin-bottom: 10px;
+    color: white;
+    font-size: 18px;
+
+}
+
+label {
+
+    color: white;
+
+}
+
+.btn {
+
+    margin-right: 5px;
+
+}
+
+#contadorSelecionados {
+
+    font-size: 18px;
+    font-weight: bold;
+    color: #22c55e;
+
+}
