@@ -1,16 +1,28 @@
-// static/script.js
-
 async function listar() {
 
     let res = await fetch("/jogadores");
 
     let dados = await res.json();
 
-    let listaLinha = document.getElementById("lista");
+    let listaLinha = document.getElementById("listaJogadores");
+
     let listaGoleiros = document.getElementById("listaGoleiros");
 
     listaLinha.innerHTML = "";
+
     listaGoleiros.innerHTML = "";
+
+    // ORDENAR
+    dados.sort((a, b) => {
+
+        // Goleiros → menos vazado
+        if (a.posicao === "G" && b.posicao === "G") {
+            return a.gols - b.gols;
+        }
+
+        // Linha → artilharia
+        return b.gols - a.gols;
+    });
 
     dados.forEach(j => {
 
@@ -19,19 +31,23 @@ async function listar() {
         if (TIPO_USUARIO === "admin") {
 
             botoes = `
-                <button class="btn btn-success btn-sm" onclick="gol(${j.id})">
+                <button class="btn btn-success btn-sm"
+                    onclick="gol(${j.id})">
                     + Gol
                 </button>
 
-                <button class="btn btn-warning btn-sm" onclick="removerGol(${j.id})">
+                <button class="btn btn-warning btn-sm"
+                    onclick="removerGol(${j.id})">
                     - Gol
                 </button>
 
-                <button class="btn btn-info btn-sm" onclick="editarJogador(${j.id}, '${j.nome}', '${j.posicao}', ${j.nota})">
+                <button class="btn btn-primary btn-sm"
+                    onclick="editarJogador(${j.id}, '${j.nome}', '${j.posicao}', ${j.nota})">
                     Editar
                 </button>
 
-                <button class="btn btn-danger btn-sm" onclick="excluirJogador(${j.id})">
+                <button class="btn btn-danger btn-sm"
+                    onclick="excluirJogador(${j.id})">
                     Excluir
                 </button>
             `;
@@ -66,7 +82,7 @@ async function listar() {
         `;
 
         // GOLEIROS
-        if (j.posicao.trim().toUpperCase() === "G") {
+        if (j.posicao === "G") {
 
             listaGoleiros.innerHTML += linha;
 
@@ -126,7 +142,7 @@ async function gol(id) {
             "Content-Type": "application/json"
         },
 
-        body: JSON.stringify({id})
+        body: JSON.stringify({ id })
 
     });
 
@@ -143,7 +159,7 @@ async function removerGol(id) {
             "Content-Type": "application/json"
         },
 
-        body: JSON.stringify({id})
+        body: JSON.stringify({ id })
 
     });
 
@@ -164,7 +180,7 @@ async function excluirJogador(id) {
             "Content-Type": "application/json"
         },
 
-        body: JSON.stringify({id})
+        body: JSON.stringify({ id })
 
     });
 
@@ -173,15 +189,15 @@ async function excluirJogador(id) {
 
 async function editarJogador(id, nomeAtual, posicaoAtual, notaAtual) {
 
-    let nome = prompt("Nome do jogador:", nomeAtual);
+    let nome = prompt("Nome:", nomeAtual);
 
     if (!nome) return;
 
-    let posicao = prompt("Posição (Z, A, M, G):", posicaoAtual);
+    let posicao = prompt("Posição (G/A/M/Z):", posicaoAtual);
 
     if (!posicao) return;
 
-    let nota = prompt("Nota do jogador:", notaAtual);
+    let nota = prompt("Nota:", notaAtual);
 
     if (!nota) return;
 
@@ -213,6 +229,65 @@ function atualizarContador() {
         `Selecionados: ${selecionados.length}`;
 }
 
+function embaralhar(lista) {
+
+    for (let i = lista.length - 1; i > 0; i--) {
+
+        let j = Math.floor(Math.random() * (i + 1));
+
+        [lista[i], lista[j]] = [lista[j], lista[i]];
+    }
+
+    return lista;
+}
+
+function adicionarNoTime(time, jogador) {
+
+    time.jogadores.push(jogador);
+
+    time.soma += jogador.nota;
+}
+
+function timeComMenorNota(times) {
+
+    return times.sort((a, b) => a.soma - b.soma)[0];
+}
+
+function distribuirPosicao(jogadores, times) {
+
+    jogadores.forEach((jogador, index) => {
+
+        let time = times[index % times.length];
+
+        adicionarNoTime(time, jogador);
+    });
+}
+
+function renderizarTime(elementoId, time) {
+
+    let elemento = document.getElementById(elementoId);
+
+    elemento.innerHTML = `
+        <h5>Total Nota: ${time.soma.toFixed(1)}</h5>
+    `;
+
+    time.jogadores.forEach(j => {
+
+        let emoji = "";
+
+        if (j.posicao === "G") emoji = "🧤";
+        if (j.posicao === "A") emoji = "⚽";
+        if (j.posicao === "M") emoji = "🎯";
+        if (j.posicao === "Z") emoji = "🛡️";
+
+        elemento.innerHTML += `
+            <li>
+                ${emoji} ${j.nome} (${j.nota})
+            </li>
+        `;
+    });
+}
+
 function sortear() {
 
     let selecionados = document.querySelectorAll(".disponivel:checked");
@@ -229,55 +304,109 @@ function sortear() {
 
     });
 
-    jogadores.sort((a, b) => b.nota - a.nota);
+    if (jogadores.length < 6) {
 
-    let time1 = [];
-    let time2 = [];
-    let time3 = [];
+        alert("Selecione mais jogadores");
 
-    let soma1 = 0;
-    let soma2 = 0;
-    let soma3 = 0;
+        return;
+    }
 
-    jogadores.forEach(j => {
+    let goleiros = jogadores.filter(j => j.posicao === "G");
 
-        if (soma1 <= soma2 && soma1 <= soma3) {
+    let atacantes = jogadores.filter(j => j.posicao === "A");
 
-            time1.push(j);
-            soma1 += j.nota;
+    let meias = jogadores.filter(j => j.posicao === "M");
 
-        } else if (soma2 <= soma1 && soma2 <= soma3) {
+    let zagueiros = jogadores.filter(j => j.posicao === "Z");
 
-            time2.push(j);
-            soma2 += j.nota;
+    embaralhar(goleiros);
+    embaralhar(atacantes);
+    embaralhar(meias);
+    embaralhar(zagueiros);
 
-        } else {
+    let times = [
+        { jogadores: [], soma: 0 },
+        { jogadores: [], soma: 0 },
+        { jogadores: [], soma: 0 }
+    ];
 
-            time3.push(j);
-            soma3 += j.nota;
+    distribuirPosicao(goleiros, times);
+
+    distribuirPosicao(atacantes, times);
+
+    distribuirPosicao(meias, times);
+
+    distribuirPosicao(zagueiros, times);
+
+    let todos = [
+        ...goleiros,
+        ...atacantes,
+        ...meias,
+        ...zagueiros
+    ];
+
+    todos.sort((a, b) => b.nota - a.nota);
+
+    times.forEach(t => {
+
+        t.jogadores = [];
+
+        t.soma = 0;
+    });
+
+    todos.forEach(j => {
+
+        let menor = timeComMenorNota(times);
+
+        // Limitar atacantes
+        if (j.posicao === "A") {
+
+            let candidatos = times.filter(t => {
+
+                let qtd = t.jogadores.filter(x => x.posicao === "A").length;
+
+                return qtd === 0;
+            });
+
+            if (candidatos.length > 0) {
+
+                candidatos.sort((a, b) => a.soma - b.soma);
+
+                adicionarNoTime(candidatos[0], j);
+
+                return;
+            }
         }
 
+        // Limitar goleiros
+        if (j.posicao === "G") {
+
+            let candidatos = times.filter(t => {
+
+                let qtd = t.jogadores.filter(x => x.posicao === "G").length;
+
+                return qtd === 0;
+            });
+
+            if (candidatos.length > 0) {
+
+                candidatos.sort((a, b) => a.soma - b.soma);
+
+                adicionarNoTime(candidatos[0], j);
+
+                return;
+            }
+        }
+
+        adicionarNoTime(menor, j);
+
     });
 
-    let t1 = document.getElementById("time1");
-    let t2 = document.getElementById("time2");
-    let t3 = document.getElementById("time3");
+    renderizarTime("time1", times[0]);
 
-    t1.innerHTML = `<h5>Total Nota: ${soma1.toFixed(1)}</h5>`;
-    t2.innerHTML = `<h5>Total Nota: ${soma2.toFixed(1)}</h5>`;
-    t3.innerHTML = `<h5>Total Nota: ${soma3.toFixed(1)}</h5>`;
+    renderizarTime("time2", times[1]);
 
-    time1.forEach(j => {
-        t1.innerHTML += `<li>${j.nome} (${j.nota}) - ${j.posicao}</li>`;
-    });
-
-    time2.forEach(j => {
-        t2.innerHTML += `<li>${j.nome} (${j.nota}) - ${j.posicao}</li>`;
-    });
-
-    time3.forEach(j => {
-        t3.innerHTML += `<li>${j.nome} (${j.nota}) - ${j.posicao}</li>`;
-    });
+    renderizarTime("time3", times[2]);
 }
 
 listar();
