@@ -1,5 +1,3 @@
-// static/script.js
-
 async function listar() {
 
     let res = await fetch("/jogadores");
@@ -14,15 +12,12 @@ async function listar() {
 
     listaGoleiros.innerHTML = "";
 
-    // ORDENAR
     dados.sort((a, b) => {
 
-        // Goleiros → menos vazado
         if (a.posicao === "G" && b.posicao === "G") {
             return a.gols - b.gols;
         }
 
-        // Linha → artilharia
         return b.gols - a.gols;
     });
 
@@ -83,6 +78,8 @@ async function listar() {
 
             <td>${j.gols}</td>
 
+            <td>${j.jogos}</td>
+
             <td>${j.nota}</td>
 
             ${TIPO_USUARIO === "admin" ? `<td>${botoes}</td>` : ""}
@@ -90,7 +87,6 @@ async function listar() {
         </tr>
         `;
 
-        // GOLEIROS
         if (j.posicao === "G") {
 
             listaGoleiros.innerHTML += linha;
@@ -287,7 +283,25 @@ function renderizarTime(elementoId, time) {
     });
 }
 
-function sortear() {
+function copiarTimes() {
+
+    let texto = '';
+
+    texto += 'TIME 1\n';
+    texto += document.getElementById('time1').innerText + '\n\n';
+
+    texto += 'TIME 2\n';
+    texto += document.getElementById('time2').innerText + '\n\n';
+
+    texto += 'TIME 3\n';
+    texto += document.getElementById('time3').innerText + '\n\n';
+
+    navigator.clipboard.writeText(texto);
+
+    alert('Times copiados!');
+}
+
+async function sortear() {
 
     let selecionados = document.querySelectorAll(".disponivel:checked");
 
@@ -296,6 +310,7 @@ function sortear() {
     selecionados.forEach(x => {
 
         jogadores.push({
+            id: x.dataset.id,
             nome: x.dataset.nome,
             nota: parseFloat(x.dataset.nota),
             posicao: x.dataset.posicao
@@ -303,7 +318,6 @@ function sortear() {
 
     });
 
-    // 3 TIMES COM 7
     if (jogadores.length !== 21) {
 
         alert("Selecione exatamente 21 jogadores.");
@@ -331,10 +345,6 @@ function sortear() {
         { jogadores: [], soma: 0 }
     ];
 
-    // =========================
-    // GOLEIROS
-    // =========================
-
     goleiros.forEach((g, index) => {
 
         if (index < 3) {
@@ -351,10 +361,6 @@ function sortear() {
         }
 
     });
-
-    // =========================
-    // ATACANTES
-    // =========================
 
     atacantes.forEach((a, index) => {
 
@@ -386,10 +392,6 @@ function sortear() {
 
     });
 
-    // =========================
-    // RESTANTE POR NOTA
-    // =========================
-
     restantes.forEach(j => {
 
         let disponiveis = times.filter(t => t.jogadores.length < 7);
@@ -400,15 +402,29 @@ function sortear() {
 
     });
 
-    // =========================
-    // RENDERIZAR
-    // =========================
+    let idsJogadores = jogadores.map(j => j.id);
+
+    await fetch('/adicionar-jogo', {
+
+        method: 'POST',
+
+        headers: {
+            'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+            ids: idsJogadores
+        })
+
+    });
 
     renderizarTime("time1", times[0]);
 
     renderizarTime("time2", times[1]);
 
     renderizarTime("time3", times[2]);
+
+    listar();
 }
 
 listar();

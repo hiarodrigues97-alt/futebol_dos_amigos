@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
 
     <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Futebol dos Amigos</title>
 
@@ -20,28 +23,35 @@
 
 <body>
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
 
     <h1 class="titulo">
         Futebol dos Amigos ⚽
     </h1>
 
-    <div class="card p-3 mb-4">
+    <!-- CADASTRO -->
 
-        <h4>Cadastrar Jogador</h4>
+    <div class="card p-4 mb-4 shadow-sm">
 
-        <div class="row">
+        <h4 class="mb-3">
+            Cadastrar Jogador
+        </h4>
+
+        <div class="row g-2">
 
             <div class="col-md-4">
+
                 <input
                     type="text"
                     id="nome"
                     class="form-control"
                     placeholder="Nome"
                 >
+
             </div>
 
             <div class="col-md-3">
+
                 <select id="posicao" class="form-control">
 
                     <option value="A">Atacante</option>
@@ -53,9 +63,11 @@
                     <option value="G">Goleiro</option>
 
                 </select>
+
             </div>
 
             <div class="col-md-2">
+
                 <input
                     type="number"
                     step="0.1"
@@ -63,139 +75,193 @@
                     class="form-control"
                     placeholder="Nota"
                 >
+
             </div>
 
             <div class="col-md-3">
+
                 <button
                     onclick="addJogador()"
                     class="btn btn-success w-100"
                 >
                     Adicionar
                 </button>
+
             </div>
 
         </div>
 
     </div>
 
-    <div class="contador" id="contadorSelecionados">
+    <!-- CONTADOR -->
+
+    <div
+        class="contador mb-3"
+        id="contadorSelecionados"
+    >
         Selecionados: 0
     </div>
 
-    <button
-        onclick="sortear()"
-        class="btn btn-primary mb-4"
-    >
-        Sortear Times
-    </button>
+    <!-- BOTÕES -->
 
-    <!-- JOGADORES -->
+    <div class="mb-4 d-flex gap-2 flex-wrap">
 
-    <div class="card p-3 mb-4">
+        <button
+            onclick="sortear()"
+            class="btn btn-primary"
+        >
+            Sortear Times
+        </button>
 
-        <h3>
+        <button
+            onclick="copiarTimes()"
+            class="btn btn-dark"
+        >
+            Copiar Times
+        </button>
+
+    </div>
+
+    <!-- JOGADORES DE LINHA -->
+
+    <div class="card p-3 mb-4 shadow-sm">
+
+        <h3 class="mb-3">
             Ranking Artilheiros ⚽
         </h3>
 
-        <table class="table table-striped">
+        <div class="table-responsive">
 
-            <thead>
+            <table class="table table-striped table-hover align-middle">
 
-                <tr>
+                <thead class="table-dark">
 
-                    <th></th>
+                    <tr>
 
-                    <th>Nome</th>
+                        <th></th>
 
-                    <th>Posição</th>
+                        <th>Nome</th>
 
-                    <th>Gols</th>
+                        <th>Posição</th>
 
-                    <th>Nota</th>
+                        <th>Gols</th>
 
-                    <th>Ações</th>
+                        <th>Jogos</th>
 
-                </tr>
+                        <th>Nota</th>
 
-            </thead>
+                        <th>Ações</th>
 
-            <tbody id="listaJogadores"></tbody>
+                    </tr>
 
-        </table>
+                </thead>
+
+                <tbody id="listaJogadores"></tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
     <!-- GOLEIROS -->
 
-    <div class="card p-3 mb-4">
+    <div class="card p-3 mb-4 shadow-sm">
 
-        <h3>
+        <h3 class="mb-3">
             Ranking Goleiro Menos Vazado 🧤
         </h3>
 
-        <table class="table table-striped">
+        <div class="table-responsive">
 
-            <thead>
+            <table class="table table-striped table-hover align-middle">
 
-                <tr>
+                <thead class="table-dark">
 
-                    <th></th>
+                    <tr>
 
-                    <th>Nome</th>
+                        <th></th>
 
-                    <th>Posição</th>
+                        <th>Nome</th>
 
-                    <th>Gols Sofridos</th>
+                        <th>Posição</th>
 
-                    <th>Nota</th>
+                        <th>Gols Sofridos</th>
 
-                    <th>Ações</th>
+                        <th>Jogos</th>
 
-                </tr>
+                        <th>Nota</th>
 
-            </thead>
+                        <th>Ações</th>
 
-            <tbody id="listaGoleiros"></tbody>
+                    </tr>
 
-        </table>
+                </thead>
+
+                <tbody id="listaGoleiros"></tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
     <!-- TIMES -->
 
-    <div class="row">
+    <div class="row g-3">
+
+        <!-- TIME 1 -->
 
         <div class="col-md-4">
 
-            <div class="card p-3">
+            <div class="card p-3 h-100 shadow-sm">
 
-                <h3>Time 1</h3>
+                <h3 class="text-center">
+                    Time 1 🔵
+                </h3>
 
-                <ul id="time1"></ul>
+                <ul
+                    id="time1"
+                    class="lista-times"
+                ></ul>
 
             </div>
 
         </div>
 
+        <!-- TIME 2 -->
+
         <div class="col-md-4">
 
-            <div class="card p-3">
+            <div class="card p-3 h-100 shadow-sm">
 
-                <h3>Time 2</h3>
+                <h3 class="text-center">
+                    Time 2 🔴
+                </h3>
 
-                <ul id="time2"></ul>
+                <ul
+                    id="time2"
+                    class="lista-times"
+                ></ul>
 
             </div>
 
         </div>
 
+        <!-- TIME 3 -->
+
         <div class="col-md-4">
 
-            <div class="card p-3">
+            <div class="card p-3 h-100 shadow-sm">
 
-                <h3>Time 3</h3>
+                <h3 class="text-center">
+                    Time 3 🟢
+                </h3>
 
-                <ul id="time3"></ul>
+                <ul
+                    id="time3"
+                    class="lista-times"
+                ></ul>
 
             </div>
 
@@ -214,4 +280,5 @@
 <script src="/static/script.js"></script>
 
 </body>
+
 </html>
