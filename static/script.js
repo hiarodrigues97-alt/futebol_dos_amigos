@@ -6,9 +6,11 @@ async function listar() {
 
     let dados = await res.json();
 
-    let lista = document.getElementById("lista");
+    let listaLinha = document.getElementById("lista");
+    let listaGoleiros = document.getElementById("listaGoleiros");
 
-    lista.innerHTML = "";
+    listaLinha.innerHTML = "";
+    listaGoleiros.innerHTML = "";
 
     dados.forEach(j => {
 
@@ -32,6 +34,13 @@ async function listar() {
                 </button>
 
                 <button
+                    class="btn btn-info btn-sm"
+                    onclick="editarJogador(${j.id}, '${j.nome}', '${j.posicao}', ${j.nota})"
+                >
+                    Editar
+                </button>
+
+                <button
                     class="btn btn-danger btn-sm"
                     onclick="excluirJogador(${j.id})"
                 >
@@ -40,7 +49,7 @@ async function listar() {
             `;
         }
 
-        lista.innerHTML += `
+        let linha = `
         <tr>
 
             <td>
@@ -52,6 +61,7 @@ async function listar() {
                     data-id="${j.id}"
                     data-nota="${j.nota}"
                     data-nome="${j.nome}"
+                    data-posicao="${j.posicao}"
                 >
 
             </td>
@@ -68,6 +78,24 @@ async function listar() {
 
         </tr>
         `;
+
+        // GOLEIROS
+        if (j.posicao === "G") {
+
+            listaGoleiros.innerHTML += `
+                <tr>
+                    <td>${j.nome}</td>
+                    <td>${j.gols}</td>
+                    <td>${j.nota}</td>
+                    ${TIPO_USUARIO === "admin" ? `<td>${botoes}</td>` : ""}
+                </tr>
+            `;
+
+        } else {
+
+            listaLinha.innerHTML += linha;
+        }
+
     });
 }
 
@@ -164,6 +192,40 @@ async function excluirJogador(id) {
     listar();
 }
 
+async function editarJogador(id, nomeAtual, posicaoAtual, notaAtual) {
+
+    let nome = prompt("Nome do jogador:", nomeAtual);
+
+    if (!nome) return;
+
+    let posicao = prompt("Posição (Z, A, M, G):", posicaoAtual);
+
+    if (!posicao) return;
+
+    let nota = prompt("Nota do jogador:", notaAtual);
+
+    if (!nota) return;
+
+    await fetch("/editar-jogador", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            id,
+            nome,
+            posicao,
+            nota
+        })
+
+    });
+
+    listar();
+}
+
 function atualizarContador() {
 
     let selecionados = document.querySelectorAll(".disponivel:checked");
@@ -182,7 +244,8 @@ function sortear() {
 
         jogadores.push({
             nome: x.dataset.nome,
-            nota: parseFloat(x.dataset.nota)
+            nota: parseFloat(x.dataset.nota),
+            posicao: x.dataset.posicao
         });
 
     });
@@ -213,7 +276,6 @@ function sortear() {
 
             time3.push(j);
             soma3 += j.nota;
-
         }
 
     });
@@ -227,15 +289,15 @@ function sortear() {
     t3.innerHTML = `<h5>Total Nota: ${soma3.toFixed(1)}</h5>`;
 
     time1.forEach(j => {
-        t1.innerHTML += `<li>${j.nome} (${j.nota})</li>`;
+        t1.innerHTML += `<li>${j.nome} (${j.nota}) - ${j.posicao}</li>`;
     });
 
     time2.forEach(j => {
-        t2.innerHTML += `<li>${j.nome} (${j.nota})</li>`;
+        t2.innerHTML += `<li>${j.nome} (${j.nota}) - ${j.posicao}</li>`;
     });
 
     time3.forEach(j => {
-        t3.innerHTML += `<li>${j.nome} (${j.nota})</li>`;
+        t3.innerHTML += `<li>${j.nome} (${j.nota}) - ${j.posicao}</li>`;
     });
 }
 

@@ -1,192 +1,194 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, jsonify
 import psycopg2
 import os
-import random
 
 app = Flask(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+def conectar():
 
-def get_db_connection():
-    return psycopg2.connect(
-        DATABASE_URL,
-        sslmode='require'
-    )
+    return psycopg2.connect(DATABASE_URL)
 
-
-@app.route('/')
+@app.route("/")
 def index():
 
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    # Jogadores de linha
-    cur.execute("""
-        SELECT *
-        FROM jogadores
-        WHERE posicao != 'G'
-        ORDER BY gols DESC, nota DESC
-    """)
-    jogadores = cur.fetchall()
-
-    # Goleiros
-    cur.execute("""
-        SELECT *
-        FROM jogadores
-        WHERE posicao = 'G'
-        ORDER BY gols_sofridos ASC
-    """)
-    goleiros = cur.fetchall()
-
-    cur.close()
-    conn.close()
-
     return render_template(
-        'index.html',
-        jogadores=jogadores,
-        goleiros=goleiros
+        "index.html",
+        tipo_usuario="admin"
     )
 
+@app.route("/jogadores")
+def jogadores():
 
-@app.route('/adicionar', methods=['POST'])
-def adicionar():
+    conn = conectar()
 
-    nome = request.form['nome'].upper()
-    posicao = request.form['posicao']
-    nota = int(request.form['nota'])
-
-    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO jogadores
-        (nome, posicao, nota, gols, gols_sofridos)
-        VALUES (%s, %s, %s, 0, 0)
-    """, (nome, posicao, nota))
+        SELECT
+            id,
+            nome,
+            posicao,
+            gols,
+            nota
+        FROM jogadores
+        ORDER BY
+            CASE
+                WHEN posicao = 'G' THEN 0
+                ELSE 1
+            END,
+            gols ASC,
+            nome
+    """)
 
-    conn.commit()
+    dados = cur.fetchall()
+
+    jogadores = []
+
+    for j in dados:
+
+        jogadores.append({
+            "id": j[0],
+            "nome": j[1],
+            "posicao": j[2],
+            "gols": j[3],
+            "nota": float(j[4])
+        })
 
     cur.close()
     conn.close()
 
-    return redirect('/')
+    return jsonify(jogadores)
 
+@app.route("/jogadores", methods=["POST"])
+def add_jogador():
 
-@app.route('/editar_jogador/<int:id>', methods=['POST'])
-def editar_jogador(id):
+    dados = request.json
 
-    nome = request.form['nome'].upper()
-    posicao = request.form['posicao']
-    nota = int(request.form['nota'])
+    conn = conectar()
 
-    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        UPDATE jogadores
-        SET nome = %s,
-            posicao = %s,
-            nota = %s
-        WHERE id = %s
-    """, (nome, posicao, nota, id))
+        INSERT INTO jogadores (
+            nome,
+            posicao,
+            gols,
+            nota
+        )
+        VALUES (%s, %s, 0, %s)
+    """, (
+        dados["nome"],
+        dados["posicao"],
+        dados["nota"]
+    ))
 
     conn.commit()
 
     cur.close()
     conn.close()
 
-    return redirect('/')
+    return jsonify({"ok": True})
 
+@app.route("/gol", methods=["POST"])
+def gol():
 
-@app.route('/deletar/<int:id>')
-def deletar(id):
+    dados = request.json
 
-    conn = get_db_connection()
-    cur = conn.cursor()
+    conn = conectar()
 
-    cur.execute("DELETE FROM jogadores WHERE id = %s", (id,))
-
-    conn.commit()
-
-    cur.close()
-    conn.close()
-
-    return redirect('/')
-
-
-@app.route('/gol/<int:id>')
-def gol(id):
-
-    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
         UPDATE jogadores
         SET gols = gols + 1
         WHERE id = %s
-    """, (id,))
+    """, (dados["id"],))
 
     conn.commit()
 
     cur.close()
     conn.close()
 
-    return redirect('/')
+    return jsonify({"ok": True})
 
+@app.route("/remover-gol", methods=["POST"])
+def remover_gol():
 
-@app.route('/gol_sofrido/<int:id>')
-def gol_sofrido(id):
+    dados = request.json
 
-    conn = get_db_connection()
+    conn = conectar()
+
     cur = conn.cursor()
 
     cur.execute("""
         UPDATE jogadores
-        SET gols_sofridos = gols_sofridos + 1
+        SET gols = CASE
+            WHEN gols > 0 THEN gols - 1
+            ELSE 0
+        END
         WHERE id = %s
-    """, (id,))
+    """, (dados["id"],))
 
     conn.commit()
 
     cur.close()
     conn.close()
 
-    return redirect('/')
+    return jsonify({"ok": True})
 
+@app.route("/editar-jogador", methods=["POST"])
+def editar_jogador():
 
-@app.route('/sortear')
-def sortear():
+    dados = request.json
 
-    conn = get_db_connection()
+    conn = conectar()
+
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT *
-        FROM jogadores
-        ORDER BY RANDOM()
-    """)
+        UPDATE jogadores
+        SET
+            nome = %s,
+            posicao = %s,
+            nota = %s
+        WHERE id = %s
+    """, (
+        dados["nome"],
+        dados["posicao"],
+        dados["nota"],
+        dados["id"]
+    ))
 
-    jogadores = cur.fetchall()
+    conn.commit()
 
     cur.close()
     conn.close()
 
-    random.shuffle(jogadores)
+    return jsonify({"ok": True})
 
-    time1 = jogadores[0::3]
-    time2 = jogadores[1::3]
-    time3 = jogadores[2::3]
+@app.route("/excluir-jogador", methods=["POST"])
+def excluir_jogador():
 
-    return render_template(
-        'index.html',
-        jogadores=[],
-        goleiros=[],
-        time1=time1,
-        time2=time2,
-        time3=time3
-    )
+    dados = request.json
 
+    conn = conectar()
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM jogadores
+        WHERE id = %s
+    """, (dados["id"],))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({"ok": True})
+
+if __name__ == "__main__":
+
+    app.run(host="0.0.0.0", port=10000)
