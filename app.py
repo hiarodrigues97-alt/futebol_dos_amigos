@@ -6,19 +6,26 @@ app = Flask(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-conn = psycopg2.connect(DATABASE_URL)
 
-@app.route('/')
+def conectar():
+    return psycopg2.connect(DATABASE_URL)
+
+
+@app.route("/")
 def index():
+    return render_template("index.html")
 
-    return render_template('index.html')
 
-@app.route('/jogadores')
+# =========================================
+# LISTAR JOGADORES
+# =========================================
+@app.route("/jogadores")
 def jogadores():
 
+    conn = conectar()
     cur = conn.cursor()
 
-    cur.execute('''
+    cur.execute("""
         SELECT
             id,
             nome,
@@ -27,157 +34,272 @@ def jogadores():
             nota,
             COALESCE(jogos,0)
         FROM jogadores
-        ORDER BY nome
-    ''')
+    """)
 
     dados = cur.fetchall()
 
-    cur.close()
-
-    lista = []
+    jogadores = []
 
     for j in dados:
 
-        lista.append({
-            'id': j[0],
-            'nome': j[1],
-            'posicao': j[2],
-            'gols': j[3],
-            'nota': float(j[4]),
-            'jogos': j[5]
+        jogadores.append({
+            "id": j[0],
+            "nome": j[1],
+            "posicao": j[2],
+            "gols": j[3],
+            "nota": float(j[4]),
+            "jogos": j[5]
         })
 
-    return jsonify(lista)
+    cur.close()
+    conn.close()
 
-@app.route('/jogadores', methods=['POST'])
+    return jsonify(jogadores)
+
+
+# =========================================
+# ADD JOGADOR
+# =========================================
+@app.route("/jogadores", methods=["POST"])
 def add_jogador():
 
-    dados = request.json
+    data = request.json
 
-    nome = dados['nome'].upper()
-    posicao = dados['posicao'].upper()
-    nota = dados['nota']
-
+    conn = conectar()
     cur = conn.cursor()
 
-    cur.execute('''
+    cur.execute("""
         INSERT INTO jogadores
-        (nome, posicao, gols, nota, jogos)
-        VALUES (%s,%s,0,%s,0)
-    ''', (nome, posicao, nota))
+        (nome, posicao, nota, gols, jogos)
+        VALUES (%s,%s,%s,0,0)
+    """, (
+        data["nome"].upper(),
+        data["posicao"],
+        data["nota"]
+    ))
 
     conn.commit()
 
     cur.close()
+    conn.close()
 
-    return jsonify({'ok': True})
+    return jsonify({"ok": True})
 
-@app.route('/gol', methods=['POST'])
+
+# =========================================
+# GOL
+# =========================================
+@app.route("/gol", methods=["POST"])
 def gol():
 
-    dados = request.json
+    data = request.json
 
+    conn = conectar()
     cur = conn.cursor()
 
-    cur.execute('''
+    cur.execute("""
         UPDATE jogadores
         SET gols = gols + 1
         WHERE id = %s
-    ''', (dados['id'],))
+    """, (data["id"],))
 
     conn.commit()
 
     cur.close()
+    conn.close()
 
-    return jsonify({'ok': True})
+    return jsonify({"ok": True})
 
-@app.route('/remover-gol', methods=['POST'])
+
+# =========================================
+# REMOVER GOL
+# =========================================
+@app.route("/remover-gol", methods=["POST"])
 def remover_gol():
 
-    dados = request.json
+    data = request.json
 
+    conn = conectar()
     cur = conn.cursor()
 
-    cur.execute('''
+    cur.execute("""
         UPDATE jogadores
         SET gols = CASE
             WHEN gols > 0 THEN gols - 1
             ELSE 0
         END
         WHERE id = %s
-    ''', (dados['id'],))
+    """, (data["id"],))
 
     conn.commit()
 
     cur.close()
+    conn.close()
 
-    return jsonify({'ok': True})
+    return jsonify({"ok": True})
 
-@app.route('/editar-jogador', methods=['POST'])
-def editar_jogador():
 
-    dados = request.json
+# =========================================
+# EXCLUIR
+# =========================================
+@app.route("/excluir-jogador", methods=["POST"])
+def excluir():
 
+    data = request.json
+
+    conn = conectar()
     cur = conn.cursor()
 
-    cur.execute('''
+    cur.execute("""
+        DELETE FROM jogadores
+        WHERE id = %s
+    """, (data["id"],))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({"ok": True})
+
+
+# =========================================
+# EDITAR
+# =========================================
+@app.route("/editar-jogador", methods=["POST"])
+def editar():
+
+    data = request.json
+
+    conn = conectar()
+    cur = conn.cursor()
+
+    cur.execute("""
         UPDATE jogadores
         SET
             nome = %s,
             posicao = %s,
             nota = %s
         WHERE id = %s
-    ''', (
-        dados['nome'].upper(),
-        dados['posicao'].upper(),
-        dados['nota'],
-        dados['id']
+    """, (
+        data["nome"].upper(),
+        data["posicao"],
+        data["nota"],
+        data["id"]
     ))
 
     conn.commit()
 
     cur.close()
+    conn.close()
 
-    return jsonify({'ok': True})
+    return jsonify({"ok": True})
 
-@app.route('/excluir-jogador', methods=['POST'])
-def excluir_jogador():
 
-    dados = request.json
+# =========================================
+# ADICIONAR JOGO
+# =========================================
+@app.route("/registrar-jogo", methods=["POST"])
+def registrar_jogo():
 
+    data = request.json
+
+    jogadores = data["jogadores"]
+
+    conn = conectar()
     cur = conn.cursor()
 
-    cur.execute('DELETE FROM jogadores WHERE id = %s', (dados['id'],))
+    for jogador_id in jogadores:
 
-    conn.commit()
-
-    cur.close()
-
-    return jsonify({'ok': True})
-
-@app.route('/adicionar-jogo', methods=['POST'])
-def adicionar_jogo():
-
-    dados = request.json
-
-    ids = dados['ids']
-
-    cur = conn.cursor()
-
-    for jogador_id in ids:
-
-        cur.execute('''
+        cur.execute("""
             UPDATE jogadores
-            SET jogos = jogos + 1
+            SET jogos = COALESCE(jogos,0) + 1
             WHERE id = %s
-        ''', (jogador_id,))
+        """, (jogador_id,))
 
     conn.commit()
 
     cur.close()
+    conn.close()
 
-    return jsonify({'ok': True})
+    return jsonify({"ok": True})
 
-if __name__ == '__main__':
 
+# =========================================
+# SALVAR PARTIDA
+# =========================================
+@app.route("/salvar-partida", methods=["POST"])
+def salvar_partida():
+
+    data = request.json
+
+    nome_time = data["nome_time"]
+    jogadores = data["jogadores"]
+
+    conn = conectar()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO partidas (nome_time)
+        VALUES (%s)
+        RETURNING id
+    """, (nome_time,))
+
+    partida_id = cur.fetchone()[0]
+
+    for jogador_id in jogadores:
+
+        cur.execute("""
+            INSERT INTO partidas_jogadores
+            (partida_id, jogador_id)
+            VALUES (%s,%s)
+        """, (
+            partida_id,
+            jogador_id
+        ))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({"ok": True})
+
+
+# =========================================
+# RANKING TIMES
+# =========================================
+@app.route("/ranking-times")
+def ranking_times():
+
+    conn = conectar()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            nome_time,
+            COUNT(*) as vitorias
+        FROM partidas
+        GROUP BY nome_time
+        ORDER BY vitorias DESC
+    """)
+
+    dados = cur.fetchall()
+
+    ranking = []
+
+    for r in dados:
+
+        ranking.append({
+            "nome_time": r[0],
+            "vitorias": r[1]
+        })
+
+    cur.close()
+    conn.close()
+
+    return jsonify(ranking)
+
+
+if __name__ == "__main__":
     app.run(debug=True)
