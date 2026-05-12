@@ -28,18 +28,24 @@ def jogadores():
     cur.execute("""
         SELECT
             id,
-            nome,
-            posicao,
+            UPPER(TRIM(nome)),
+            UPPER(TRIM(posicao)),
             gols,
             nota
         FROM jogadores
         ORDER BY
             CASE
-                WHEN posicao = 'G' THEN 0
+                WHEN UPPER(TRIM(posicao)) = 'G' THEN 0
                 ELSE 1
             END,
-            gols ASC,
-            nome
+            CASE
+                WHEN UPPER(TRIM(posicao)) = 'G' THEN gols
+            END ASC,
+            CASE
+                WHEN UPPER(TRIM(posicao)) <> 'G' THEN gols
+            END DESC,
+            nota DESC,
+            nome ASC
     """)
 
     dados = cur.fetchall()

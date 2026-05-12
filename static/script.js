@@ -19,31 +19,19 @@ async function listar() {
         if (TIPO_USUARIO === "admin") {
 
             botoes = `
-                <button
-                    class="btn btn-success btn-sm"
-                    onclick="gol(${j.id})"
-                >
+                <button class="btn btn-success btn-sm" onclick="gol(${j.id})">
                     + Gol
                 </button>
 
-                <button
-                    class="btn btn-warning btn-sm"
-                    onclick="removerGol(${j.id})"
-                >
+                <button class="btn btn-warning btn-sm" onclick="removerGol(${j.id})">
                     - Gol
                 </button>
 
-                <button
-                    class="btn btn-info btn-sm"
-                    onclick="editarJogador(${j.id}, '${j.nome}', '${j.posicao}', ${j.nota})"
-                >
+                <button class="btn btn-info btn-sm" onclick="editarJogador(${j.id}, '${j.nome}', '${j.posicao}', ${j.nota})">
                     Editar
                 </button>
 
-                <button
-                    class="btn btn-danger btn-sm"
-                    onclick="excluirJogador(${j.id})"
-                >
+                <button class="btn btn-danger btn-sm" onclick="excluirJogador(${j.id})">
                     Excluir
                 </button>
             `;
@@ -53,7 +41,6 @@ async function listar() {
         <tr>
 
             <td>
-
                 <input
                     type="checkbox"
                     class="disponivel"
@@ -63,7 +50,6 @@ async function listar() {
                     data-nome="${j.nome}"
                     data-posicao="${j.posicao}"
                 >
-
             </td>
 
             <td>${j.nome}</td>
@@ -80,16 +66,9 @@ async function listar() {
         `;
 
         // GOLEIROS
-        if (j.posicao === "G") {
+        if (j.posicao.trim().toUpperCase() === "G") {
 
-            listaGoleiros.innerHTML += `
-                <tr>
-                    <td>${j.nome}</td>
-                    <td>${j.gols}</td>
-                    <td>${j.nota}</td>
-                    ${TIPO_USUARIO === "admin" ? `<td>${botoes}</td>` : ""}
-                </tr>
-            `;
+            listaGoleiros.innerHTML += linha;
 
         } else {
 
