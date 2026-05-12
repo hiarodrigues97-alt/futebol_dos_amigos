@@ -231,39 +231,61 @@ def registrar_jogo():
 @app.route("/salvar-partida", methods=["POST"])
 def salvar_partida():
 
-    data = request.json
+    try:
 
-    nome_time = data["nome_time"]
-    jogadores = data["jogadores"]
+        data = request.json
 
-    conn = conectar()
-    cur = conn.cursor()
+        nome_time = data["nome_time"]
 
-    cur.execute("""
-        INSERT INTO partidas (nome_time)
-        VALUES (%s)
-        RETURNING id
-    """, (nome_time,))
+        jogadores = data["jogadores"]
 
-    partida_id = cur.fetchone()[0]
+        conn = conectar()
 
-    for jogador_id in jogadores:
+        cur = conn.cursor()
 
+        # SALVA PARTIDA
         cur.execute("""
-            INSERT INTO partidas_jogadores
-            (partida_id, jogador_id)
-            VALUES (%s,%s)
-        """, (
-            partida_id,
-            jogador_id
-        ))
+            INSERT INTO partidas (
+                nome_time
+            )
+            VALUES (%s)
+            RETURNING id
+        """, (nome_time,))
 
-    conn.commit()
+        partida_id = cur.fetchone()[0]
 
-    cur.close()
-    conn.close()
+        # SALVA JOGADORES DA PARTIDA
+        for jogador_id in jogadores:
 
-    return jsonify({"ok": True})
+            cur.execute("""
+                INSERT INTO partidas_jogadores (
+                    partida_id,
+                    jogador_id
+                )
+                VALUES (%s,%s)
+            """, (
+                partida_id,
+                jogador_id
+            ))
+
+        conn.commit()
+
+        cur.close()
+
+        conn.close()
+
+        return jsonify({
+            "success": True
+        })
+
+    except Exception as e:
+
+        print("ERRO SALVAR PARTIDA:", e)
+
+        return jsonify({
+            "success": False,
+            "erro": str(e)
+        })
 
 
 # =========================================
