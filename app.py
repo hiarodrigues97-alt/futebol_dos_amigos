@@ -1,253 +1,192 @@
-# app.py
-
-from flask import Flask, render_template, request, jsonify, redirect, session
+from flask import Flask, render_template, request, redirect
 import psycopg2
 import os
+import random
 
 app = Flask(__name__)
 
-# =========================================
-# SECRET KEY
-# =========================================
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-app.secret_key = "PELADA_PRO_2026"
 
-# =========================================
-# CONEXÃO POSTGRESQL
-# =========================================
-
-DATABASE_URL = os.environ.get("DATABASE_URL")
-
-conn = psycopg2.connect(DATABASE_URL)
-
-# =========================================
-# LOGIN
-# =========================================
-
-@app.route("/login")
-def login():
-
-    return render_template("login.html")
-
-# =========================================
-# LOGAR
-# =========================================
-
-@app.route("/logar", methods=["POST"])
-def logar():
-
-    usuario = request.form["usuario"]
-    senha = request.form["senha"]
-
-    cur = conn.cursor()
-
-    cur.execute("""
-        SELECT
-            id,
-            nome,
-            tipo
-        FROM usuarios
-        WHERE usuario = %s
-        AND senha = %s
-    """, (usuario, senha))
-
-    user = cur.fetchone()
-
-    if user:
-
-        session["usuario_id"] = user[0]
-        session["nome"] = user[1]
-        session["tipo"] = user[2]
-
-        return redirect("/")
-
-    return "Usuário inválido"
-
-# =========================================
-# LOGOUT
-# =========================================
-
-@app.route("/logout")
-def logout():
-
-    session.clear()
-
-    return redirect("/login")
-
-# =========================================
-# HOME
-# =========================================
-
-@app.route("/")
-def home():
-
-    if "usuario_id" not in session:
-
-        return redirect("/login")
-
-    return render_template(
-        "index.html",
-        nome=session["nome"],
-        tipo=session["tipo"]
+def get_db_connection():
+    return psycopg2.connect(
+        DATABASE_URL,
+        sslmode='require'
     )
 
-# =========================================
-# LISTAR JOGADORES
-# =========================================
 
-@app.route("/jogadores", methods=["GET"])
-def jogadores():
+@app.route('/')
+def index():
 
-    if "usuario_id" not in session:
-        return jsonify([])
-
+    conn = get_db_connection()
     cur = conn.cursor()
 
+    # Jogadores de linha
     cur.execute("""
-        SELECT
-            id,
-            nome,
-            gols,
-            nota,
-            posicao
+        SELECT *
         FROM jogadores
+        WHERE posicao != 'G'
         ORDER BY gols DESC, nota DESC
     """)
+    jogadores = cur.fetchall()
 
-    dados = cur.fetchall()
+    # Goleiros
+    cur.execute("""
+        SELECT *
+        FROM jogadores
+        WHERE posicao = 'G'
+        ORDER BY gols_sofridos ASC
+    """)
+    goleiros = cur.fetchall()
 
-    lista = []
+    cur.close()
+    conn.close()
 
-    for d in dados:
+    return render_template(
+        'index.html',
+        jogadores=jogadores,
+        goleiros=goleiros
+    )
 
-        lista.append({
-            "id": d[0],
-            "nome": d[1],
-            "gols": d[2],
-            "nota": float(d[3]),
-            "posicao": d[4]
-        })
 
-    return jsonify(lista)
+@app.route('/adicionar', methods=['POST'])
+def adicionar():
 
-# =========================================
-# ADICIONAR JOGADOR
-# =========================================
+    nome = request.form['nome'].upper()
+    posicao = request.form['posicao']
+    nota = int(request.form['nota'])
 
-@app.route("/jogadores", methods=["POST"])
-def add_jogador():
-
-    if session["tipo"] != "admin":
-        return jsonify({"erro": "Sem permissão"})
-
-    data = request.json
-
-    nome = data["nome"].upper()
-
-    nota = data.get("nota", 0)
-
-    posicao = data.get("posicao", "").upper()
-
+    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO jogadores (
-            nome,
-            nota,
-            posicao
-        )
-        VALUES (%s, %s, %s)
-    """, (nome, nota, posicao))
+        INSERT INTO jogadores
+        (nome, posicao, nota, gols, gols_sofridos)
+        VALUES (%s, %s, %s, 0, 0)
+    """, (nome, posicao, nota))
 
     conn.commit()
 
-    return jsonify({
-        "msg": "Jogador adicionado"
-    })
+    cur.close()
+    conn.close()
 
-# =========================================
-# ADICIONAR GOL
-# =========================================
+    return redirect('/')
 
-@app.route("/gol", methods=["POST"])
-def gol():
 
-    if session["tipo"] != "admin":
-        return jsonify({"erro": "Sem permissão"})
+@app.route('/editar_jogador/<int:id>', methods=['POST'])
+def editar_jogador(id):
 
-    data = request.json
+    nome = request.form['nome'].upper()
+    posicao = request.form['posicao']
+    nota = int(request.form['nota'])
 
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE jogadores
+        SET nome = %s,
+            posicao = %s,
+            nota = %s
+        WHERE id = %s
+    """, (nome, posicao, nota, id))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return redirect('/')
+
+
+@app.route('/deletar/<int:id>')
+def deletar(id):
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM jogadores WHERE id = %s", (id,))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return redirect('/')
+
+
+@app.route('/gol/<int:id>')
+def gol(id):
+
+    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
         UPDATE jogadores
         SET gols = gols + 1
         WHERE id = %s
-    """, (data["id"],))
+    """, (id,))
 
     conn.commit()
 
-    return jsonify({
-        "msg": "Gol registrado"
-    })
+    cur.close()
+    conn.close()
 
-# =========================================
-# REMOVER GOL
-# =========================================
+    return redirect('/')
 
-@app.route("/remover-gol", methods=["POST"])
-def remover_gol():
 
-    if session["tipo"] != "admin":
-        return jsonify({"erro": "Sem permissão"})
+@app.route('/gol_sofrido/<int:id>')
+def gol_sofrido(id):
 
-    data = request.json
-
+    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
         UPDATE jogadores
-        SET gols = CASE
-            WHEN gols > 0 THEN gols - 1
-            ELSE 0
-        END
+        SET gols_sofridos = gols_sofridos + 1
         WHERE id = %s
-    """, (data["id"],))
+    """, (id,))
 
     conn.commit()
 
-    return jsonify({
-        "msg": "Gol removido"
-    })
+    cur.close()
+    conn.close()
 
-# =========================================
-# EXCLUIR JOGADOR
-# =========================================
+    return redirect('/')
 
-@app.route("/excluir-jogador", methods=["POST"])
-def excluir_jogador():
 
-    if session["tipo"] != "admin":
-        return jsonify({"erro": "Sem permissão"})
+@app.route('/sortear')
+def sortear():
 
-    data = request.json
-
+    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        DELETE FROM jogadores
-        WHERE id = %s
-    """, (data["id"],))
+        SELECT *
+        FROM jogadores
+        ORDER BY RANDOM()
+    """)
 
-    conn.commit()
+    jogadores = cur.fetchall()
 
-    return jsonify({
-        "msg": "Jogador excluído"
-    })
+    cur.close()
+    conn.close()
 
-# =========================================
-# RODAR APP
-# =========================================
+    random.shuffle(jogadores)
 
-if __name__ == "__main__":
+    time1 = jogadores[0::3]
+    time2 = jogadores[1::3]
+    time3 = jogadores[2::3]
+
+    return render_template(
+        'index.html',
+        jogadores=[],
+        goleiros=[],
+        time1=time1,
+        time2=time2,
+        time3=time3
+    )
+
+
+if __name__ == '__main__':
     app.run(debug=True)
