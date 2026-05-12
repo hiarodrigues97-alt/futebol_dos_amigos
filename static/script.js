@@ -1,3 +1,292 @@
+// static/script.js
+
+async function listar() {
+
+    let res = await fetch("/jogadores");
+
+    let dados = await res.json();
+
+    let listaLinha = document.getElementById("listaJogadores");
+
+    let listaGoleiros = document.getElementById("listaGoleiros");
+
+    listaLinha.innerHTML = "";
+
+    listaGoleiros.innerHTML = "";
+
+    // ORDENAR
+    dados.sort((a, b) => {
+
+        // Goleiros → menos vazado
+        if (a.posicao === "G" && b.posicao === "G") {
+            return a.gols - b.gols;
+        }
+
+        // Linha → artilharia
+        return b.gols - a.gols;
+    });
+
+    dados.forEach(j => {
+
+        let botoes = "";
+
+        if (TIPO_USUARIO === "admin") {
+
+            botoes = `
+                <button class="btn btn-success btn-sm"
+                    onclick="gol(${j.id})">
+                    + Gol
+                </button>
+
+                <button class="btn btn-warning btn-sm"
+                    onclick="removerGol(${j.id})">
+                    - Gol
+                </button>
+
+                <button class="btn btn-primary btn-sm"
+                    onclick="editarJogador(${j.id}, '${j.nome}', '${j.posicao}', ${j.nota})">
+                    Editar
+                </button>
+
+                <button class="btn btn-danger btn-sm"
+                    onclick="excluirJogador(${j.id})">
+                    Excluir
+                </button>
+            `;
+        }
+
+        let emoji = "";
+
+        if (j.posicao === "G") emoji = "🧤";
+        if (j.posicao === "A") emoji = "⚽";
+        if (j.posicao === "M") emoji = "🎯";
+        if (j.posicao === "Z") emoji = "🛡️";
+
+        let linha = `
+        <tr>
+
+            <td>
+                <input
+                    type="checkbox"
+                    class="disponivel"
+                    onchange="atualizarContador()"
+                    data-id="${j.id}"
+                    data-nota="${j.nota}"
+                    data-nome="${j.nome}"
+                    data-posicao="${j.posicao}"
+                >
+            </td>
+
+            <td>${emoji} ${j.nome}</td>
+
+            <td>${j.posicao}</td>
+
+            <td>${j.gols}</td>
+
+            <td>${j.nota}</td>
+
+            ${TIPO_USUARIO === "admin" ? `<td>${botoes}</td>` : ""}
+
+        </tr>
+        `;
+
+        // GOLEIROS
+        if (j.posicao === "G") {
+
+            listaGoleiros.innerHTML += linha;
+
+        } else {
+
+            listaLinha.innerHTML += linha;
+        }
+
+    });
+}
+
+async function addJogador() {
+
+    let nome = document.getElementById("nome").value;
+
+    let nota = document.getElementById("nota").value;
+
+    let posicao = document.getElementById("posicao").value;
+
+    if (nome === "") {
+
+        alert("Digite o nome");
+
+        return;
+    }
+
+    await fetch("/jogadores", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            nome,
+            nota,
+            posicao
+        })
+
+    });
+
+    document.getElementById("nome").value = "";
+    document.getElementById("nota").value = "";
+    document.getElementById("posicao").value = "";
+
+    listar();
+}
+
+async function gol(id) {
+
+    await fetch("/gol", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({ id })
+
+    });
+
+    listar();
+}
+
+async function removerGol(id) {
+
+    await fetch("/remover-gol", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({ id })
+
+    });
+
+    listar();
+}
+
+async function excluirJogador(id) {
+
+    let confirmar = confirm("Deseja excluir este jogador?");
+
+    if (!confirmar) return;
+
+    await fetch("/excluir-jogador", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({ id })
+
+    });
+
+    listar();
+}
+
+async function editarJogador(id, nomeAtual, posicaoAtual, notaAtual) {
+
+    let nome = prompt("Nome:", nomeAtual);
+
+    if (!nome) return;
+
+    let posicao = prompt("Posição (G/A/M/Z):", posicaoAtual);
+
+    if (!posicao) return;
+
+    let nota = prompt("Nota:", notaAtual);
+
+    if (!nota) return;
+
+    await fetch("/editar-jogador", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            id,
+            nome,
+            posicao,
+            nota
+        })
+
+    });
+
+    listar();
+}
+
+function atualizarContador() {
+
+    let selecionados = document.querySelectorAll(".disponivel:checked");
+
+    document.getElementById("contadorSelecionados").innerHTML =
+        `Selecionados: ${selecionados.length}`;
+}
+
+function embaralhar(lista) {
+
+    for (let i = lista.length - 1; i > 0; i--) {
+
+        let j = Math.floor(Math.random() * (i + 1));
+
+        [lista[i], lista[j]] = [lista[j], lista[i]];
+    }
+
+    return lista;
+}
+
+function adicionarNoTime(time, jogador) {
+
+    time.jogadores.push(jogador);
+
+    time.soma += jogador.nota;
+}
+
+function timeComMenorNota(times) {
+
+    return times.sort((a, b) => a.soma - b.soma)[0];
+}
+
+function renderizarTime(elementoId, time) {
+
+    let elemento = document.getElementById(elementoId);
+
+    elemento.innerHTML = `
+        <h5>Total Nota: ${time.soma.toFixed(1)}</h5>
+    `;
+
+    time.jogadores.forEach(j => {
+
+        let emoji = "";
+
+        if (j.posicao === "G") emoji = "🧤";
+        if (j.posicao === "A") emoji = "⚽";
+        if (j.posicao === "M") emoji = "🎯";
+        if (j.posicao === "Z") emoji = "🛡️";
+
+        elemento.innerHTML += `
+            <li>
+                ${emoji} ${j.nome} (${j.nota})
+            </li>
+        `;
+    });
+}
+
 function sortear() {
 
     let selecionados = document.querySelectorAll(".disponivel:checked");
@@ -14,148 +303,112 @@ function sortear() {
 
     });
 
-    if (jogadores.length < 6) {
+    // 3 TIMES COM 7
+    if (jogadores.length !== 21) {
 
-        alert("Selecione mais jogadores");
+        alert("Selecione exatamente 21 jogadores.");
 
         return;
     }
-
-    // =========================
-    // DEFINIR QUANTIDADE DE TIMES
-    // =========================
-
-    const jogadoresPorTime = 7;
-
-    const qtdTimes = Math.ceil(jogadores.length / jogadoresPorTime);
-
-    let times = [];
-
-    for (let i = 0; i < qtdTimes; i++) {
-
-        times.push({
-            jogadores: [],
-            soma: 0
-        });
-    }
-
-    // =========================
-    // SEPARAR POSIÇÕES
-    // =========================
 
     let goleiros = jogadores.filter(j => j.posicao === "G");
 
     let atacantes = jogadores.filter(j => j.posicao === "A");
 
-    let meias = jogadores.filter(j => j.posicao === "M");
-
-    let zagueiros = jogadores.filter(j => j.posicao === "Z");
-
-    // =========================
-    // EMBARALHAR
-    // =========================
+    let restantes = jogadores.filter(j =>
+        j.posicao !== "G" && j.posicao !== "A"
+    );
 
     embaralhar(goleiros);
 
     embaralhar(atacantes);
 
-    embaralhar(meias);
+    restantes.sort((a, b) => b.nota - a.nota);
 
-    embaralhar(zagueiros);
-
-    // =========================
-    // DISTRIBUIR GOLEIROS
-    // =========================
-
-    goleiros.forEach((j, i) => {
-
-        let time = times[i % qtdTimes];
-
-        adicionarNoTime(time, j);
-    });
+    let times = [
+        { jogadores: [], soma: 0 },
+        { jogadores: [], soma: 0 },
+        { jogadores: [], soma: 0 }
+    ];
 
     // =========================
-    // DISTRIBUIR ATACANTES
+    // GOLEIROS
     // =========================
 
-    atacantes.forEach((j, i) => {
+    goleiros.forEach((g, index) => {
 
-        let candidatos = times.filter(t => {
+        if (index < 3) {
 
-            let qtdA = t.jogadores.filter(x => x.posicao === "A").length;
+            adicionarNoTime(times[index], g);
 
-            return qtdA === 0 &&
-                   t.jogadores.length < jogadoresPorTime;
-        });
+        } else {
 
-        if (candidatos.length === 0) {
+            let disponiveis = times.filter(t => t.jogadores.length < 7);
 
-            candidatos = times.filter(t =>
-                t.jogadores.length < jogadoresPorTime
-            );
+            let menor = timeComMenorNota(disponiveis);
+
+            adicionarNoTime(menor, g);
         }
 
-        candidatos.sort((a, b) => a.soma - b.soma);
-
-        adicionarNoTime(candidatos[0], j);
     });
 
     // =========================
-    // DISTRIBUIR MEIAS
+    // ATACANTES
     // =========================
 
-    meias.forEach(j => {
+    atacantes.forEach((a, index) => {
 
-        let candidatos = times.filter(t =>
-            t.jogadores.length < jogadoresPorTime
-        );
+        if (index < 3) {
 
-        candidatos.sort((a, b) => a.soma - b.soma);
+            let candidatos = times.filter(t => {
 
-        adicionarNoTime(candidatos[0], j);
-    });
+                let qtd = t.jogadores.filter(x => x.posicao === "A").length;
 
-    // =========================
-    // DISTRIBUIR ZAGUEIROS
-    // =========================
+                return qtd === 0 && t.jogadores.length < 7;
+            });
 
-    zagueiros.forEach(j => {
+            candidatos.sort((x, y) => x.soma - y.soma);
 
-        let candidatos = times.filter(t =>
-            t.jogadores.length < jogadoresPorTime
-        );
+            if (candidatos.length > 0) {
 
-        candidatos.sort((a, b) => a.soma - b.soma);
+                adicionarNoTime(candidatos[0], a);
 
-        adicionarNoTime(candidatos[0], j);
-    });
+            }
 
-    // =========================
-    // BALANCEAMENTO FINAL
-    // =========================
+        } else {
 
-    times.forEach(time => {
+            let disponiveis = times.filter(t => t.jogadores.length < 7);
 
-        time.jogadores.sort((a, b) => b.nota - a.nota);
-    });
+            let menor = timeComMenorNota(disponiveis);
 
-    // =========================
-    // RENDER
-    // =========================
-
-    for (let i = 0; i < qtdTimes; i++) {
-
-        renderizarTime(`time${i + 1}`, times[i]);
-    }
-
-    // LIMPAR TIMES SOBRANDO
-    for (let i = qtdTimes + 1; i <= 5; i++) {
-
-        let el = document.getElementById(`time${i}`);
-
-        if (el) {
-
-            el.innerHTML = "";
+            adicionarNoTime(menor, a);
         }
-    }
+
+    });
+
+    // =========================
+    // RESTANTE POR NOTA
+    // =========================
+
+    restantes.forEach(j => {
+
+        let disponiveis = times.filter(t => t.jogadores.length < 7);
+
+        disponiveis.sort((a, b) => a.soma - b.soma);
+
+        adicionarNoTime(disponiveis[0], j);
+
+    });
+
+    // =========================
+    // RENDERIZAR
+    // =========================
+
+    renderizarTime("time1", times[0]);
+
+    renderizarTime("time2", times[1]);
+
+    renderizarTime("time3", times[2]);
 }
+
+listar();
