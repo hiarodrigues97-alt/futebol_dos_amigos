@@ -541,39 +541,59 @@ async function salvarVitoria(numeroTime) {
 
     let time = TIMES[`time${numeroTime}`];
 
+    if (!time || time.length === 0) {
+
+        alert("Time vazio!");
+
+        return;
+    }
+
     let jogadores = time.map(j => ({
-        id: j.id,
+        id: Number(j.id),
         nome: j.nome
     }));
 
-    let res = await fetch("/salvar-partida", {
+    console.log("ENVIANDO:", jogadores);
 
-        method: "POST",
+    try {
 
-        headers: {
-            "Content-Type": "application/json"
-        },
+        let resposta = await fetch("/salvar-partida", {
 
-        body: JSON.stringify({
-            nome_time: `TIME ${numeroTime}`,
-            jogadores: jogadores
-        })
+            method: "POST",
 
-    });
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-    let retorno = await res.json();
+            body: JSON.stringify({
+                nome_time: `TIME ${numeroTime}`,
+                jogadores: jogadores
+            })
 
-    if (retorno.ok) {
+        });
 
-        alert("Vitória salva com sucesso!");
-
-        listar();
-
-    } else {
+        let retorno = await resposta.json();
 
         console.log(retorno);
 
-        alert("Erro ao salvar vitória");
+        if (retorno.ok) {
+
+            alert("Vitória registrada com sucesso!");
+
+            listar();
+            carregarRankingTimes();
+
+        } else {
+
+            alert("Erro ao salvar vitória");
+            console.log(retorno.erro);
+        }
+
+    } catch (erro) {
+
+        console.log(erro);
+
+        alert("Erro ao conectar com servidor");
     }
 }
 
