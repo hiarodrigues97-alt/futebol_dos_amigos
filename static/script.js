@@ -50,9 +50,9 @@ async function listar() {
 
             <td>${j.gols}</td>
 
-            <td>${j.jogos}</td>
+            <td>${j.jogos || 0}</td>
 
-            <td>${j.vitorias}</td>
+            <td>${j.vitorias || 0}</td>
 
             <td>${j.nota}</td>
 
@@ -310,29 +310,19 @@ function criarJogador(jogador, top, left, campo) {
 
     div.dataset.id = jogador.id;
 
-    div.dataset.time = campo.id;
-
     div.style.top = top;
 
     div.style.left = left;
 
     let icone = "⚽";
 
-    if (jogador.posicao === "G") {
-        icone = "🧤";
-    }
+    if (jogador.posicao === "G") icone = "🧤";
 
-    if (jogador.posicao === "Z") {
-        icone = "🛡️";
-    }
+    if (jogador.posicao === "Z") icone = "🛡️";
 
-    if (jogador.posicao === "M") {
-        icone = "🎯";
-    }
+    if (jogador.posicao === "M") icone = "🎯";
 
-    if (jogador.posicao === "A") {
-        icone = "🔥";
-    }
+    if (jogador.posicao === "A") icone = "🔥";
 
     div.innerHTML = `
         <div class="icone-jogador">
@@ -346,17 +336,15 @@ function criarJogador(jogador, top, left, campo) {
 
     div.addEventListener("dragstart", (e) => {
 
-        div.classList.add("dragging");
+        e.dataTransfer.setData(
+            "jogadorId",
+            jogador.id
+        );
 
-        e.dataTransfer.setData("id", jogador.id);
-
-        e.dataTransfer.setData("origem", campo.id);
-
-    });
-
-    div.addEventListener("dragend", () => {
-
-        div.classList.remove("dragging");
+        e.dataTransfer.setData(
+            "origem",
+            campo.id
+        );
 
     });
 
@@ -376,10 +364,6 @@ function renderizarTime(id, jogadores, numero) {
     document.getElementById(`notaTime${numero}`).innerHTML =
         `Nota: ${soma.toFixed(1)}`;
 
-    // =========================
-    // SEPARAR POSIÇÕES
-    // =========================
-
     let goleiros = jogadores.filter(j => j.posicao === "G");
 
     let zagueiros = jogadores.filter(j => j.posicao === "Z");
@@ -388,114 +372,35 @@ function renderizarTime(id, jogadores, numero) {
 
     let atacantes = jogadores.filter(j => j.posicao === "A");
 
-    // =========================
-    // GOLEIRO
-    // =========================
+    goleiros.forEach(j => {
 
-    goleiros.forEach((j, i) => {
-
-        criarJogador(
-            j,
-            "86%",
-            "50%",
-            campo
-        );
+        criarJogador(j, "86%", "50%", campo);
 
     });
 
-    // =========================
-    // ZAGUEIROS
-    // =========================
-
-    let posicoesZaga = [];
-
-    if (zagueiros.length === 1) {
-
-        posicoesZaga = ["50%"];
-
-    } else if (zagueiros.length === 2) {
-
-        posicoesZaga = ["38%", "62%"];
-
-    } else {
-
-        posicoesZaga = ["25%", "50%", "75%"];
-    }
+    let posZ = ["25%", "50%", "75%"];
 
     zagueiros.forEach((j, i) => {
 
-        criarJogador(
-            j,
-            "66%",
-            posicoesZaga[i],
-            campo
-        );
+        criarJogador(j, "66%", posZ[i] || "50%", campo);
 
     });
 
-    // =========================
-    // MEIAS
-    // =========================
-
-    let posicoesMeia = [];
-
-    if (meias.length === 1) {
-
-        posicoesMeia = ["50%"];
-
-    } else if (meias.length === 2) {
-
-        posicoesMeia = ["35%", "65%"];
-
-    } else {
-
-        posicoesMeia = ["20%", "50%", "80%"];
-    }
+    let posM = ["20%", "50%", "80%"];
 
     meias.forEach((j, i) => {
 
-        criarJogador(
-            j,
-            "46%",
-            posicoesMeia[i],
-            campo
-        );
+        criarJogador(j, "46%", posM[i] || "50%", campo);
 
     });
 
-    // =========================
-    // ATACANTES
-    // =========================
-
-    let posicoesAtaque = [];
-
-    if (atacantes.length === 1) {
-
-        posicoesAtaque = ["50%"];
-
-    } else if (atacantes.length === 2) {
-
-        posicoesAtaque = ["38%", "62%"];
-
-    } else {
-
-        posicoesAtaque = ["25%", "50%", "75%"];
-    }
+    let posA = ["25%", "50%", "75%"];
 
     atacantes.forEach((j, i) => {
 
-        criarJogador(
-            j,
-            "20%",
-            posicoesAtaque[i],
-            campo
-        );
+        criarJogador(j, "20%", posA[i] || "50%", campo);
 
     });
-
-    // =========================
-    // DRAG & DROP
-    // =========================
 
     campo.addEventListener("dragover", (e) => {
 
@@ -507,27 +412,11 @@ function renderizarTime(id, jogadores, numero) {
 
         e.preventDefault();
 
-        const jogadorId = e.dataTransfer.getData("text/plain");
+        let jogadorId =
+            e.dataTransfer.getData("jogadorId");
 
-        const dragging = document.getElementById(jogadorId);
-
-        if (!dragging) return;
-
-        dragging.style.left = `${e.offsetX}px`;
-
-        dragging.style.top = `${e.offsetY}px`;
-
-    });
-
-}
-
-    campo.addEventListener("drop", (e) => {
-
-        e.preventDefault();
-
-        let jogadorId = e.dataTransfer.getData("id");
-
-        let origem = e.dataTransfer.getData("origem");
+        let origem =
+            e.dataTransfer.getData("origem");
 
         let destino = campo.id;
 
@@ -539,57 +428,14 @@ function renderizarTime(id, jogadores, numero) {
 
         if (!jogador) return;
 
-        TIMES[origem] = TIMES[origem].filter(
-            j => j.id != jogadorId
-        );
+        TIMES[origem] =
+            TIMES[origem].filter(
+                j => j.id != jogadorId
+            );
 
         TIMES[destino].push(jogador);
 
         renderizarTodosTimes();
-
-    });
-
-    function criar(jogador, top, left){
-
-        criarJogador(jogador, top, left, campo);
-
-    }
-
-    let goleiros = jogadores.filter(j => j.posicao === "G");
-
-    let zagueiros = jogadores.filter(j => j.posicao === "Z");
-
-    let meias = jogadores.filter(j => j.posicao === "M");
-
-    let atacantes = jogadores.filter(j => j.posicao === "A");
-
-    goleiros.forEach((j, i) => {
-
-        criar(j, "88%", "50%");
-
-    });
-
-    zagueiros.forEach((j, i) => {
-
-        let posicoes = ["25%", "50%", "75%"];
-
-        criar(j, "68%", posicoes[i] || "50%");
-
-    });
-
-    meias.forEach((j, i) => {
-
-        let posicoes = ["20%", "50%", "80%"];
-
-        criar(j, "48%", posicoes[i] || "50%");
-
-    });
-
-    atacantes.forEach((j, i) => {
-
-        let posicoes = ["35%", "65%"];
-
-        criar(j, "22%", posicoes[i] || "50%");
 
     });
 }
