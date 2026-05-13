@@ -5,10 +5,7 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Futebol dos Amigos</title>
 
@@ -48,25 +45,33 @@
                     type="text"
                     id="nome"
                     class="form-control"
-                    placeholder="Nome"
+                    placeholder="Nome do jogador"
                 >
 
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-3">
 
                 <select
                     id="posicao"
-                    class="form-control"
+                    class="form-select"
                 >
 
-                    <option value="A">Atacante</option>
+                    <option value="A">
+                        Atacante
+                    </option>
 
-                    <option value="M">Meia</option>
+                    <option value="M">
+                        Meia
+                    </option>
 
-                    <option value="Z">Zagueiro</option>
+                    <option value="Z">
+                        Zagueiro
+                    </option>
 
-                    <option value="G">Goleiro</option>
+                    <option value="G">
+                        Goleiro
+                    </option>
 
                 </select>
 
@@ -84,24 +89,13 @@
 
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-3">
 
                 <button
                     onclick="addJogador()"
                     class="btn btn-success w-100"
                 >
-                    Adicionar
-                </button>
-
-            </div>
-
-            <div class="col-md-2">
-
-                <button
-                    onclick="sortear()"
-                    class="btn btn-primary w-100"
-                >
-                    Sortear
+                    Adicionar Jogador
                 </button>
 
             </div>
@@ -119,29 +113,63 @@
         Selecionados: 0
     </div>
 
+    <!-- BOTÕES PRINCIPAIS -->
+
+    <div class="d-flex flex-wrap gap-3 mb-4">
+
+        <button
+            onclick="sortear()"
+            class="btn btn-primary"
+        >
+            ⚽ Sortear Times
+        </button>
+
+        <button
+            onclick="registrarJogos()"
+            class="btn btn-success"
+        >
+            🎮 Registrar Jogos
+        </button>
+
+        <button
+            onclick="copiarTimes()"
+            class="btn btn-dark"
+        >
+            📋 Copiar Times
+        </button>
+
+        <button
+            onclick="baixarImagem()"
+            class="btn btn-warning"
+        >
+            📸 Baixar Imagem
+        </button>
+
+    </div>
+
     <!-- RANKING TIMES -->
 
     <div class="card p-4 mb-4">
 
-        <h4>
-            Ranking de Times 🏆
-        </h4>
+        <h3 class="mb-3">
+            🏆 Ranking dos Times
+        </h3>
 
         <div id="rankingTimes"></div>
 
     </div>
 
-    <!-- JOGADORES LINHA -->
+    <!-- RANKING JOGADORES -->
 
     <div class="card p-4 mb-4">
 
-        <h4>
-            Ranking Artilheiros ⚽
-        </h4>
+        <h3 class="mb-3">
+            ⚽ Ranking Artilheiros
+        </h3>
 
         <div class="table-responsive">
 
-            <table class="table table-striped">
+            <table class="table table-striped align-middle">
 
                 <thead>
 
@@ -161,6 +189,8 @@
 
                         <th>Nota</th>
 
+                        <th>Ações</th>
+
                     </tr>
 
                 </thead>
@@ -177,13 +207,13 @@
 
     <div class="card p-4 mb-4">
 
-        <h4>
-            Ranking Goleiros 🧤
-        </h4>
+        <h3 class="mb-3">
+            🧤 Ranking Goleiros
+        </h3>
 
         <div class="table-responsive">
 
-            <table class="table table-striped">
+            <table class="table table-striped align-middle">
 
                 <thead>
 
@@ -203,6 +233,8 @@
 
                         <th>Nota</th>
 
+                        <th>Ações</th>
+
                     </tr>
 
                 </thead>
@@ -215,157 +247,133 @@
 
     </div>
 
-    <!-- BOTÕES GERAIS -->
-
-    <div class="row mb-4">
-
-        <div class="col-md-6">
-
-            <button
-                onclick="registrarJogos()"
-                class="btn-jogo"
-            >
-                🎮 Registrar Jogos
-            </button>
-
-        </div>
-
-        <div class="col-md-6">
-
-            <button
-                onclick="copiarTimes()"
-                class="btn-copiar"
-            >
-                📋 Copiar Times
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- ÁREA DOS TIMES -->
+    <!-- TIMES -->
 
     <div
-        class="row area-times"
+        class="area-times"
         id="areaTimes"
     >
 
-        <!-- TIME 1 -->
+        <div class="row">
 
-        <div class="col-lg-4 mb-4">
+            <!-- TIME 1 -->
 
-            <div class="card-time">
+            <div class="col-lg-4 mb-4">
 
-                <div class="topo-time">
+                <div class="card-time">
 
-                    <h3>
-                        TIME 1
-                    </h3>
+                    <div class="topo-time">
 
-                    <div
-                        class="nota-time"
-                        id="notaTime1"
-                    >
-                        Nota: 0
+                        <h3>
+                            🔵 Time 1
+                        </h3>
+
+                        <div
+                            class="nota-time"
+                            id="notaTime1"
+                        >
+                            Nota: 0
+                        </div>
+
                     </div>
 
-                </div>
+                    <div
+                        class="campo"
+                        id="time1"
+                    ></div>
 
-                <div
-                    class="campo"
-                    id="time1"
-                ></div>
+                    <div class="area-botoes-time">
 
-                <div class="area-botoes-time">
+                        <button
+                            class="btn-vitoria"
+                            onclick="salvarVitoria('Time 1', 1)"
+                        >
+                            🏆 Registrar Vitória
+                        </button>
 
-                    <button
-                        onclick="salvarVitoria(1)"
-                        class="btn-vitoria"
-                    >
-                        🏆 Vitória Time 1
-                    </button>
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
+            <!-- TIME 2 -->
 
-        <!-- TIME 2 -->
+            <div class="col-lg-4 mb-4">
 
-        <div class="col-lg-4 mb-4">
+                <div class="card-time">
 
-            <div class="card-time">
+                    <div class="topo-time">
 
-                <div class="topo-time">
+                        <h3>
+                            🔴 Time 2
+                        </h3>
 
-                    <h3>
-                        TIME 2
-                    </h3>
+                        <div
+                            class="nota-time"
+                            id="notaTime2"
+                        >
+                            Nota: 0
+                        </div>
 
-                    <div
-                        class="nota-time"
-                        id="notaTime2"
-                    >
-                        Nota: 0
                     </div>
 
-                </div>
+                    <div
+                        class="campo"
+                        id="time2"
+                    ></div>
 
-                <div
-                    class="campo"
-                    id="time2"
-                ></div>
+                    <div class="area-botoes-time">
 
-                <div class="area-botoes-time">
+                        <button
+                            class="btn-vitoria"
+                            onclick="salvarVitoria('Time 2', 2)"
+                        >
+                            🏆 Registrar Vitória
+                        </button>
 
-                    <button
-                        onclick="salvarVitoria(2)"
-                        class="btn-vitoria"
-                    >
-                        🏆 Vitória Time 2
-                    </button>
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
+            <!-- TIME 3 -->
 
-        <!-- TIME 3 -->
+            <div class="col-lg-4 mb-4">
 
-        <div class="col-lg-4 mb-4">
+                <div class="card-time">
 
-            <div class="card-time">
+                    <div class="topo-time">
 
-                <div class="topo-time">
+                        <h3>
+                            🟢 Time 3
+                        </h3>
 
-                    <h3>
-                        TIME 3
-                    </h3>
+                        <div
+                            class="nota-time"
+                            id="notaTime3"
+                        >
+                            Nota: 0
+                        </div>
 
-                    <div
-                        class="nota-time"
-                        id="notaTime3"
-                    >
-                        Nota: 0
                     </div>
 
-                </div>
+                    <div
+                        class="campo"
+                        id="time3"
+                    ></div>
 
-                <div
-                    class="campo"
-                    id="time3"
-                ></div>
+                    <div class="area-botoes-time">
 
-                <div class="area-botoes-time">
+                        <button
+                            class="btn-vitoria"
+                            onclick="salvarVitoria('Time 3', 3)"
+                        >
+                            🏆 Registrar Vitória
+                        </button>
 
-                    <button
-                        onclick="salvarVitoria(3)"
-                        class="btn-vitoria"
-                    >
-                        🏆 Vitória Time 3
-                    </button>
+                    </div>
 
                 </div>
 
@@ -377,7 +385,17 @@
 
 </div>
 
+<script>
+
+    let TIPO_USUARIO = "admin";
+
+</script>
+
 <script src="/static/script.js"></script>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
+</script>
 
 </body>
 </html>
