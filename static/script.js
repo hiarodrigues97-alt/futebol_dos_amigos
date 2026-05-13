@@ -565,11 +565,13 @@ async function salvarVitoria(numeroTime) {
 
     if (retorno.ok) {
 
-        alert("Vitória salva!");
+        alert("Vitória salva com sucesso!");
 
         listar();
 
     } else {
+
+        console.log(retorno);
 
         alert("Erro ao salvar vitória");
     }
