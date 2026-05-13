@@ -317,6 +317,26 @@ function renderizarTime(id, jogadores, numero) {
     document.getElementById(`notaTime${numero}`).innerHTML =
         `Nota: ${soma.toFixed(1)}`;
 
+    campo.addEventListener("dragover", (e) => {
+
+        e.preventDefault();
+
+        const dragging = document.querySelector(".dragging");
+
+        if (!dragging) return;
+
+        dragging.style.left = `${e.offsetX}px`;
+
+        dragging.style.top = `${e.offsetY}px`;
+
+    });
+
+    function criar(jogador, top, left){
+
+        criarJogador(jogador, top, left, campo);
+
+    }
+
     let goleiros = jogadores.filter(j => j.posicao === "G");
 
     let zagueiros = jogadores.filter(j => j.posicao === "Z");
@@ -325,60 +345,34 @@ function renderizarTime(id, jogadores, numero) {
 
     let atacantes = jogadores.filter(j => j.posicao === "A");
 
-    function criarJogador(jogador, top, left) {
-
-        let emoji = "⚽";
-
-        if (jogador.posicao === "G") emoji = "🧤";
-
-        if (jogador.posicao === "Z") emoji = "🛡️";
-
-        if (jogador.posicao === "M") emoji = "🎯";
-
-        let div = document.createElement("div");
-
-        div.className = "jogador";
-
-        div.style.top = top;
-
-        div.style.left = left;
-
-        div.innerHTML = `
-            <div class="icone-jogador">
-                ${emoji}
-            </div>
-
-            <div class="nome-jogador">
-                ${jogador.nome}
-            </div>
-        `;
-
-        campo.appendChild(div);
-    }
-
     goleiros.forEach((j, i) => {
-        criarJogador(j, "88%", "50%");
+
+        criar(j, "88%", "50%");
+
     });
 
     zagueiros.forEach((j, i) => {
 
-        let posicoes = ["70%", "50%", "30%"];
+        let posicoes = ["30%", "50%", "70%"];
 
-        criarJogador(j, "68%", posicoes[i] || "50%");
+        criar(j, "68%", posicoes[i] || "50%");
+
     });
 
     meias.forEach((j, i) => {
 
         let posicoes = ["25%", "50%", "75%"];
 
-        criarJogador(j, "48%", posicoes[i] || "50%");
+        criar(j, "48%", posicoes[i] || "50%");
+
     });
 
     atacantes.forEach((j, i) => {
 
         let posicoes = ["35%", "65%"];
 
-        criarJogador(j, "22%", posicoes[i] || "50%");
+        criar(j, "22%", posicoes[i] || "50%");
+
     });
 }
 

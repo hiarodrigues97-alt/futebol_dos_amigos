@@ -296,9 +296,9 @@ def salvar_partida():
 
     dados = request.json
 
-    nome_time = dados["nome_time"]
+    nome_time = dados.get("nome_time")
 
-    jogadores = dados["jogadores"]
+    jogadores = dados.get("jogadores")
 
     data_partida = datetime.now().strftime("%Y-%m-%d")
 
@@ -308,7 +308,6 @@ def salvar_partida():
 
         cur = conn.cursor()
 
-        # SALVAR PARTIDA
         cur.execute("""
 
             INSERT INTO partidas
@@ -328,7 +327,6 @@ def salvar_partida():
 
         ))
 
-        # SOMAR VITÓRIAS
         for jogador in jogadores:
 
             cur.execute("""
@@ -348,20 +346,16 @@ def salvar_partida():
         conn.close()
 
         return jsonify({
-
-            "mensagem": "Partida salva"
-
+            "ok": True
         })
 
     except Exception as e:
 
-        print("ERRO:", e)
+        print("ERRO PARTIDA:", e)
 
         return jsonify({
-
             "erro": str(e)
-
-        })
+        }), 500
 
 
 # =========================================
