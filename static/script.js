@@ -579,22 +579,6 @@ async function registrarJogos() {
 // =========================================
 async function salvarVitoria(numeroTime) {
 
-    let time = TIMES[`time${numeroTime}`];
-
-    if (!time || time.length === 0) {
-
-        alert("Esse time está vazio!");
-
-        return;
-    }
-
-    let jogadores = time.map(j => ({
-        id: Number(j.id),
-        nome: j.nome
-    }));
-
-    console.log("ENVIANDO:", jogadores);
-
     let res = await fetch("/salvar-partida", {
 
         method: "POST",
@@ -604,21 +588,18 @@ async function salvarVitoria(numeroTime) {
         },
 
         body: JSON.stringify({
-            nome_time: `TIME ${numeroTime}`,
-            jogadores: jogadores
+            nome_time: `TIME ${numeroTime}`
         })
 
     });
 
     let retorno = await res.json();
 
-    console.log(retorno);
-
     if (retorno.ok) {
 
-        alert("Vitória salva com sucesso!");
+        alert("Vitória salva!");
 
-        listar();
+        carregarRankingTimes();
 
     } else {
 

@@ -2,8 +2,6 @@ from flask import Flask, render_template, request, jsonify
 import psycopg2
 import psycopg2.extras
 import os
-import json
-from datetime import datetime
 
 app = Flask(__name__)
 
@@ -35,7 +33,9 @@ def jogadores():
 
     conn = conectar()
 
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = conn.cursor(
+        cursor_factory=psycopg2.extras.RealDictCursor
+    )
 
     cur.execute("""
         SELECT
@@ -251,7 +251,7 @@ def registrar_jogo():
 
 
 # =========================================
-# SALVAR PARTIDA
+# SALVAR VITÓRIA
 # =========================================
 @app.route("/salvar-partida", methods=["POST"])
 def salvar_partida():
@@ -260,41 +260,21 @@ def salvar_partida():
 
     nome_time = dados["nome_time"]
 
-    jogadores = dados["jogadores"]
-
     conn = conectar()
 
     cur = conn.cursor()
 
     try:
 
-        # =========================
-        # SALVAR PARTIDA
-        # =========================
-
         cur.execute("""
             INSERT INTO partidas (
                 nome_time,
-                jogadores,
                 data_partida
             )
-            VALUES (%s, %s, NOW())
+            VALUES (%s, NOW())
         """, (
             nome_time,
-            json.dumps(jogadores)
         ))
-
-        # =========================
-        # SOMAR VITÓRIAS
-        # =========================
-
-        for jogador in jogadores:
-
-            cur.execute("""
-                UPDATE jogadores
-                SET vitorias = COALESCE(vitorias, 0) + 1
-                WHERE id = %s
-            """, (jogador["id"],))
 
         conn.commit()
 
@@ -326,7 +306,9 @@ def ranking_times():
 
     conn = conectar()
 
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = conn.cursor(
+        cursor_factory=psycopg2.extras.RealDictCursor
+    )
 
     cur.execute("""
         SELECT
@@ -339,19 +321,10 @@ def ranking_times():
 
     dados = cur.fetchall()
 
-    ranking = []
-
-    for r in dados:
-
-        ranking.append({
-            "nome_time": r["nome_time"],
-            "vitorias": r["vitorias"]
-        })
-
     cur.close()
     conn.close()
 
-    return jsonify(ranking)
+    return jsonify(dados)
 
 
 # =========================================
