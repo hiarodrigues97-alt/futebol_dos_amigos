@@ -7,6 +7,8 @@
 
     <title>Futebol dos Amigos</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
         rel="stylesheet"
@@ -21,29 +23,36 @@
 
 <body>
 
-<div class="container mt-4">
+<div class="container-fluid py-4">
 
     <h1 class="titulo">
         Futebol dos Amigos ⚽
     </h1>
 
-    <div class="card p-3 mb-4">
+    <!-- CADASTRO -->
 
-        <h4>Cadastrar Jogador</h4>
+    <div class="card painel mb-4">
 
-        <div class="row">
+        <h3 class="mb-3">
+            Cadastrar Jogador
+        </h3>
+
+        <div class="row g-2">
 
             <div class="col-md-4">
+
                 <input
                     type="text"
                     id="nome"
                     class="form-control"
                     placeholder="Nome"
                 >
+
             </div>
 
             <div class="col-md-3">
-                <select id="posicao" class="form-control">
+
+                <select id="posicao" class="form-select">
 
                     <option value="A">Atacante</option>
                     <option value="M">Meia</option>
@@ -51,9 +60,11 @@
                     <option value="G">Goleiro</option>
 
                 </select>
+
             </div>
 
             <div class="col-md-2">
+
                 <input
                     type="number"
                     step="0.1"
@@ -61,140 +72,280 @@
                     class="form-control"
                     placeholder="Nota"
                 >
+
             </div>
 
             <div class="col-md-3">
+
                 <button
                     onclick="addJogador()"
                     class="btn btn-success w-100"
                 >
                     Adicionar
                 </button>
+
             </div>
 
         </div>
 
     </div>
 
-    <div class="contador" id="contadorSelecionados">
-        Selecionados: 0
+    <!-- CONTROLES -->
+
+    <div class="card painel mb-4">
+
+        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+
+            <div id="contadorSelecionados" class="contador">
+                Selecionados: 0
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <button
+                    onclick="sortear()"
+                    class="btn btn-primary"
+                >
+                    ⚽ Sortear Times
+                </button>
+
+                <button
+                    onclick="copiarTimes()"
+                    class="btn btn-dark"
+                >
+                    📋 Copiar Times
+                </button>
+
+                <button
+                    onclick="baixarImagem()"
+                    class="btn btn-warning"
+                >
+                    📸 Baixar Imagem
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <button
-        onclick="sortear()"
-        class="btn btn-primary mb-4"
-    >
-        Sortear Times
-    </button>
+    <!-- LISTA JOGADORES -->
 
-    <button
-        onclick="copiarTimes()"
-        class="btn btn-dark mb-4"
-    >
-        Copiar Times
-    </button>
+    <div class="card painel mb-4">
 
-    <!-- JOGADORES -->
-
-    <div class="card p-3 mb-4">
-
-        <h3>
+        <h3 class="mb-3">
             Ranking Artilheiros ⚽
         </h3>
 
-        <table class="table table-striped">
+        <div class="table-responsive">
 
-            <thead>
+            <table class="table table-dark table-hover align-middle">
 
-                <tr>
+                <thead>
 
-                    <th></th>
-                    <th>Nome</th>
-                    <th>Posição</th>
-                    <th>Gols</th>
-                    <th>Vitórias</th>
-                    <th>Jogos</th>
-                    <th>Nota</th>
-                    <th>Ações</th>
+                    <tr>
 
-                </tr>
+                        <th></th>
 
-            </thead>
+                        <th>Nome</th>
 
-            <tbody id="listaJogadores"></tbody>
+                        <th>Posição</th>
 
-        </table>
+                        <th>⚽ Gols</th>
+
+                        <th>🎮 Jogos</th>
+
+                        <th>🏆 Vitórias</th>
+
+                        <th>⭐ Nota</th>
+
+                        <th>Ações</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="listaJogadores"></tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
     <!-- GOLEIROS -->
 
-    <div class="card p-3 mb-4">
+    <div class="card painel mb-5">
 
-        <h3>
-            Ranking Goleiro Menos Vazado 🧤
+        <h3 class="mb-3">
+            Ranking Goleiros 🧤
         </h3>
 
-        <table class="table table-striped">
+        <div class="table-responsive">
 
-            <thead>
+            <table class="table table-dark table-hover align-middle">
 
-                <tr>
+                <thead>
 
-                    <th></th>
-                    <th>Nome</th>
-                    <th>Posição</th>
-                    <th>Gols Sofridos</th>
-                    <th>Vitórias</th>
-                    <th>Jogos</th>
-                    <th>Nota</th>
-                    <th>Ações</th>
+                    <tr>
 
-                </tr>
+                        <th></th>
 
-            </thead>
+                        <th>Nome</th>
 
-            <tbody id="listaGoleiros"></tbody>
+                        <th>Posição</th>
 
-        </table>
+                        <th>🥅 Gols Sofridos</th>
+
+                        <th>🎮 Jogos</th>
+
+                        <th>🏆 Vitórias</th>
+
+                        <th>⭐ Nota</th>
+
+                        <th>Ações</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="listaGoleiros"></tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
-    <!-- TIMES -->
+    <!-- CAMPOS DOS TIMES -->
 
-    <div class="row">
+    <div id="areaTimes">
 
-        <div class="col-md-4">
+        <div class="row g-4">
 
-            <div class="card p-3">
+            <!-- TIME 1 -->
 
-                <h3>Time 1</h3>
+            <div class="col-lg-4">
 
-                <ul id="time1"></ul>
+                <div class="card campo-card">
+
+                    <div class="topo-time">
+
+                        <h3>
+                            TIME 1
+                        </h3>
+
+                        <span id="notaTime1" class="badge-nota">
+                            Nota: 0
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="campo"
+                        id="campo1"
+                    >
+
+                        <div id="time1"></div>
+
+                    </div>
+
+                    <div class="acoes-time">
+
+                        <button
+                            class="btn btn-success w-100"
+                            onclick="salvarVitoria('Time 1', 1)"
+                        >
+                            🏆 Vitória Time 1
+                        </button>
+
+                    </div>
+
+                </div>
 
             </div>
 
-        </div>
+            <!-- TIME 2 -->
 
-        <div class="col-md-4">
+            <div class="col-lg-4">
 
-            <div class="card p-3">
+                <div class="card campo-card">
 
-                <h3>Time 2</h3>
+                    <div class="topo-time">
 
-                <ul id="time2"></ul>
+                        <h3>
+                            TIME 2
+                        </h3>
+
+                        <span id="notaTime2" class="badge-nota">
+                            Nota: 0
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="campo"
+                        id="campo2"
+                    >
+
+                        <div id="time2"></div>
+
+                    </div>
+
+                    <div class="acoes-time">
+
+                        <button
+                            class="btn btn-success w-100"
+                            onclick="salvarVitoria('Time 2', 2)"
+                        >
+                            🏆 Vitória Time 2
+                        </button>
+
+                    </div>
+
+                </div>
 
             </div>
 
-        </div>
+            <!-- TIME 3 -->
 
-        <div class="col-md-4">
+            <div class="col-lg-4">
 
-            <div class="card p-3">
+                <div class="card campo-card">
 
-                <h3>Time 3</h3>
+                    <div class="topo-time">
 
-                <ul id="time3"></ul>
+                        <h3>
+                            TIME 3
+                        </h3>
+
+                        <span id="notaTime3" class="badge-nota">
+                            Nota: 0
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="campo"
+                        id="campo3"
+                    >
+
+                        <div id="time3"></div>
+
+                    </div>
+
+                    <div class="acoes-time">
+
+                        <button
+                            class="btn btn-success w-100"
+                            onclick="salvarVitoria('Time 3', 3)"
+                        >
+                            🏆 Vitória Time 3
+                        </button>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -204,26 +355,13 @@
 
     <!-- RANKING TIMES -->
 
-    <div class="card p-3 mt-4">
+    <div class="card painel mt-5">
 
-        <h3>
-            Ranking Times Campeões 🏆
+        <h3 class="mb-3">
+            Ranking de Times 🏆
         </h3>
 
-        <table class="table table-striped">
-
-            <thead>
-
-                <tr>
-                    <th>Time</th>
-                    <th>Vitórias</th>
-                </tr>
-
-            </thead>
-
-            <tbody id="rankingTimes"></tbody>
-
-        </table>
+        <div id="rankingTimes"></div>
 
     </div>
 
@@ -235,7 +373,10 @@
 
 </script>
 
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
 <script src="/static/script.js"></script>
 
 </body>
+
 </html>
