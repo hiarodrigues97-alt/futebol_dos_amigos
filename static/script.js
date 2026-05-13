@@ -4,6 +4,9 @@ let TIMES = {
     time3: []
 };
 
+// =========================================
+// LISTAR JOGADORES
+// =========================================
 async function listar() {
 
     let res = await fetch("/jogadores");
@@ -105,6 +108,9 @@ async function listar() {
     carregarRankingTimes();
 }
 
+// =========================================
+// ADICIONAR JOGADOR
+// =========================================
 async function addJogador() {
 
     let nome = document.getElementById("nome").value;
@@ -143,6 +149,9 @@ async function addJogador() {
     listar();
 }
 
+// =========================================
+// GOL
+// =========================================
 async function gol(id) {
 
     await fetch("/gol", {
@@ -160,6 +169,9 @@ async function gol(id) {
     listar();
 }
 
+// =========================================
+// REMOVER GOL
+// =========================================
 async function removerGol(id) {
 
     await fetch("/remover-gol", {
@@ -177,6 +189,9 @@ async function removerGol(id) {
     listar();
 }
 
+// =========================================
+// EXCLUIR
+// =========================================
 async function excluirJogador(id) {
 
     if (!confirm("Deseja excluir este jogador?")) return;
@@ -196,6 +211,9 @@ async function excluirJogador(id) {
     listar();
 }
 
+// =========================================
+// EDITAR
+// =========================================
 async function editarJogador(id, nomeAtual, posicaoAtual, notaAtual) {
 
     let nome = prompt("Nome:", nomeAtual);
@@ -230,6 +248,9 @@ async function editarJogador(id, nomeAtual, posicaoAtual, notaAtual) {
     listar();
 }
 
+// =========================================
+// CONTADOR
+// =========================================
 function atualizarContador() {
 
     let selecionados = document.querySelectorAll(".disponivel:checked");
@@ -238,6 +259,9 @@ function atualizarContador() {
         `Selecionados: ${selecionados.length}`;
 }
 
+// =========================================
+// EMBARALHAR
+// =========================================
 function embaralhar(lista) {
 
     for (let i = lista.length - 1; i > 0; i--) {
@@ -250,6 +274,9 @@ function embaralhar(lista) {
     return lista;
 }
 
+// =========================================
+// SORTEAR TIMES
+// =========================================
 function sortear() {
 
     let selecionados = document.querySelectorAll(".disponivel:checked");
@@ -274,10 +301,6 @@ function sortear() {
         return;
     }
 
-    // =========================
-    // SEPARAR POR POSIÇÃO
-    // =========================
-
     let goleiros = embaralhar(
         jogadores.filter(j => j.posicao === "G")
     );
@@ -294,67 +317,44 @@ function sortear() {
         jogadores.filter(j => j.posicao === "A")
     );
 
-    // =========================
-    // LIMPAR TIMES
-    // =========================
-
     TIMES.time1 = [];
     TIMES.time2 = [];
     TIMES.time3 = [];
-
-    let times = [
-        TIMES.time1,
-        TIMES.time2,
-        TIMES.time3
-    ];
-
-    // =========================
-    // DISTRIBUIR
-    // =========================
 
     function distribuir(lista) {
 
         lista.forEach((jogador, index) => {
 
-            let time = times[index % 3];
+            let numero = index % 3;
 
-            time.push(jogador);
+            if (numero === 0) {
+                TIMES.time1.push(jogador);
+            }
+
+            if (numero === 1) {
+                TIMES.time2.push(jogador);
+            }
+
+            if (numero === 2) {
+                TIMES.time3.push(jogador);
+            }
 
         });
-
     }
 
     distribuir(goleiros);
-
     distribuir(zagueiros);
-
     distribuir(meias);
-
     distribuir(atacantes);
 
-    // =========================
-    // GARANTIR 7 JOGADORES
-    // =========================
-
-    let todos = [
-        ...TIMES.time1,
-        ...TIMES.time2,
-        ...TIMES.time3
-    ];
-
-    TIMES.time1 = todos.slice(0, 7);
-
-    TIMES.time2 = todos.slice(7, 14);
-
-    TIMES.time3 = todos.slice(14, 21);
-
-    // =========================
-    // RENDER
-    // =========================
+    console.log(TIMES);
 
     renderizarTodosTimes();
 }
 
+// =========================================
+// CRIAR JOGADOR VISUAL
+// =========================================
 function criarJogador(jogador, top, left, campo) {
 
     let div = document.createElement("div");
@@ -363,21 +363,27 @@ function criarJogador(jogador, top, left, campo) {
 
     div.draggable = true;
 
-    div.dataset.id = jogador.id;
-
     div.style.top = top;
 
     div.style.left = left;
 
     let icone = "⚽";
 
-    if (jogador.posicao === "G") icone = "🧤";
+    if (jogador.posicao === "G") {
+        icone = "🧤";
+    }
 
-    if (jogador.posicao === "Z") icone = "🛡️";
+    if (jogador.posicao === "Z") {
+        icone = "🛡️";
+    }
 
-    if (jogador.posicao === "M") icone = "🎯";
+    if (jogador.posicao === "M") {
+        icone = "🎯";
+    }
 
-    if (jogador.posicao === "A") icone = "🔥";
+    if (jogador.posicao === "A") {
+        icone = "🔥";
+    }
 
     div.innerHTML = `
         <div class="icone-jogador">
@@ -391,21 +397,26 @@ function criarJogador(jogador, top, left, campo) {
 
     div.addEventListener("dragstart", (e) => {
 
-        e.dataTransfer.setData(
-            "jogadorId",
-            jogador.id
-        );
+        e.dataTransfer.setData("id", jogador.id);
 
-        e.dataTransfer.setData(
-            "origem",
-            campo.id
-        );
+        e.dataTransfer.setData("origem", campo.id);
+
+        div.classList.add("dragging");
+
+    });
+
+    div.addEventListener("dragend", () => {
+
+        div.classList.remove("dragging");
 
     });
 
     campo.appendChild(div);
 }
 
+// =========================================
+// RENDERIZAR TIME
+// =========================================
 function renderizarTime(id, jogadores, numero) {
 
     let campo = document.getElementById(id);
@@ -427,35 +438,54 @@ function renderizarTime(id, jogadores, numero) {
 
     let atacantes = jogadores.filter(j => j.posicao === "A");
 
-    goleiros.forEach(j => {
+    goleiros.forEach((j, i) => {
 
         criarJogador(j, "86%", "50%", campo);
 
     });
 
-    let posZ = ["25%", "50%", "75%"];
+    let posicoesZaga = ["25%", "50%", "75%"];
 
     zagueiros.forEach((j, i) => {
 
-        criarJogador(j, "66%", posZ[i] || "50%", campo);
+        criarJogador(
+            j,
+            "66%",
+            posicoesZaga[i] || "50%",
+            campo
+        );
 
     });
 
-    let posM = ["20%", "50%", "80%"];
+    let posicoesMeia = ["20%", "50%", "80%"];
 
     meias.forEach((j, i) => {
 
-        criarJogador(j, "46%", posM[i] || "50%", campo);
+        criarJogador(
+            j,
+            "46%",
+            posicoesMeia[i] || "50%",
+            campo
+        );
 
     });
 
-    let posA = ["25%", "50%", "75%"];
+    let posicoesAtaque = ["35%", "65%"];
 
     atacantes.forEach((j, i) => {
 
-        criarJogador(j, "20%", posA[i] || "50%", campo);
+        criarJogador(
+            j,
+            "20%",
+            posicoesAtaque[i] || "50%",
+            campo
+        );
 
     });
+
+    // =========================
+    // DRAG AND DROP
+    // =========================
 
     campo.addEventListener("dragover", (e) => {
 
@@ -467,34 +497,38 @@ function renderizarTime(id, jogadores, numero) {
 
         e.preventDefault();
 
-        let jogadorId =
-            e.dataTransfer.getData("jogadorId");
+        let jogadorId = e.dataTransfer.getData("id");
 
-        let origem =
-            e.dataTransfer.getData("origem");
+        let origem = e.dataTransfer.getData("origem");
 
         let destino = campo.id;
+
+        if (!jogadorId || !origem || !destino) return;
 
         if (origem === destino) return;
 
         let jogador = TIMES[origem].find(
-            j => j.id == jogadorId
+            j => String(j.id) === String(jogadorId)
         );
 
         if (!jogador) return;
 
-        TIMES[origem] =
-            TIMES[origem].filter(
-                j => j.id != jogadorId
-            );
+        TIMES[origem] = TIMES[origem].filter(
+            j => String(j.id) !== String(jogadorId)
+        );
 
         TIMES[destino].push(jogador);
+
+        console.log("TIMES ATUALIZADOS:", TIMES);
 
         renderizarTodosTimes();
 
     });
 }
 
+// =========================================
+// RENDERIZAR TODOS
+// =========================================
 function renderizarTodosTimes() {
 
     renderizarTime("time1", TIMES.time1, 1);
@@ -504,6 +538,9 @@ function renderizarTodosTimes() {
     renderizarTime("time3", TIMES.time3, 3);
 }
 
+// =========================================
+// REGISTRAR JOGOS
+// =========================================
 async function registrarJogos() {
 
     let ids = [];
@@ -537,13 +574,16 @@ async function registrarJogos() {
     listar();
 }
 
+// =========================================
+// SALVAR VITÓRIA
+// =========================================
 async function salvarVitoria(numeroTime) {
 
     let time = TIMES[`time${numeroTime}`];
 
     if (!time || time.length === 0) {
 
-        alert("Time vazio!");
+        alert("Esse time está vazio!");
 
         return;
     }
@@ -555,48 +595,40 @@ async function salvarVitoria(numeroTime) {
 
     console.log("ENVIANDO:", jogadores);
 
-    try {
+    let res = await fetch("/salvar-partida", {
 
-        let resposta = await fetch("/salvar-partida", {
+        method: "POST",
 
-            method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+        body: JSON.stringify({
+            nome_time: `TIME ${numeroTime}`,
+            jogadores: jogadores
+        })
 
-            body: JSON.stringify({
-                nome_time: `TIME ${numeroTime}`,
-                jogadores: jogadores
-            })
+    });
 
-        });
+    let retorno = await res.json();
 
-        let retorno = await resposta.json();
+    console.log(retorno);
 
-        console.log(retorno);
+    if (retorno.ok) {
 
-        if (retorno.ok) {
+        alert("Vitória salva com sucesso!");
 
-            alert("Vitória registrada com sucesso!");
+        listar();
 
-            listar();
-            carregarRankingTimes();
+    } else {
 
-        } else {
-
-            alert("Erro ao salvar vitória");
-            console.log(retorno.erro);
-        }
-
-    } catch (erro) {
-
-        console.log(erro);
-
-        alert("Erro ao conectar com servidor");
+        alert("Erro ao salvar vitória");
     }
 }
 
+// =========================================
+// RANKING
+// =========================================
 async function carregarRankingTimes() {
 
     let res = await fetch("/ranking-times");
@@ -617,6 +649,9 @@ async function carregarRankingTimes() {
     });
 }
 
+// =========================================
+// COPIAR TIMES
+// =========================================
 function copiarTimes() {
 
     let texto = "";
@@ -640,4 +675,7 @@ function copiarTimes() {
     alert("Times copiados!");
 }
 
+// =========================================
+// START
+// =========================================
 listar();
