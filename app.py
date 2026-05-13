@@ -273,7 +273,7 @@ def salvar_partida():
         # SALVAR PARTIDA
         cur.execute("""
             INSERT INTO partidas (
-                nome,
+                nome_time,
                 jogadores,
                 data_partida
             )
@@ -330,7 +330,7 @@ def ranking_times():
 
     cur.execute("""
         SELECT
-            nome,
+            nome_time,
             COUNT(*) AS vitorias
         FROM partidas
         GROUP BY nome
