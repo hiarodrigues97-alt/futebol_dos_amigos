@@ -333,7 +333,7 @@ def ranking_times():
             nome_time,
             COUNT(*) AS vitorias
         FROM partidas
-        GROUP BY nome
+        GROUP BY nome_time
         ORDER BY vitorias DESC
     """)
 
