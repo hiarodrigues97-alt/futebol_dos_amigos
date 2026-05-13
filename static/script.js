@@ -274,28 +274,83 @@ function sortear() {
         return;
     }
 
-    jogadores = embaralhar(jogadores);
+    // =========================
+    // SEPARAR POR POSIÇÃO
+    // =========================
+
+    let goleiros = embaralhar(
+        jogadores.filter(j => j.posicao === "G")
+    );
+
+    let zagueiros = embaralhar(
+        jogadores.filter(j => j.posicao === "Z")
+    );
+
+    let meias = embaralhar(
+        jogadores.filter(j => j.posicao === "M")
+    );
+
+    let atacantes = embaralhar(
+        jogadores.filter(j => j.posicao === "A")
+    );
+
+    // =========================
+    // LIMPAR TIMES
+    // =========================
 
     TIMES.time1 = [];
     TIMES.time2 = [];
     TIMES.time3 = [];
 
-    jogadores.forEach((j, index) => {
+    let times = [
+        TIMES.time1,
+        TIMES.time2,
+        TIMES.time3
+    ];
 
-        if (index % 3 === 0) {
+    // =========================
+    // DISTRIBUIR
+    // =========================
 
-            TIMES.time1.push(j);
+    function distribuir(lista) {
 
-        } else if (index % 3 === 1) {
+        lista.forEach((jogador, index) => {
 
-            TIMES.time2.push(j);
+            let time = times[index % 3];
 
-        } else {
+            time.push(jogador);
 
-            TIMES.time3.push(j);
-        }
+        });
 
-    });
+    }
+
+    distribuir(goleiros);
+
+    distribuir(zagueiros);
+
+    distribuir(meias);
+
+    distribuir(atacantes);
+
+    // =========================
+    // GARANTIR 7 JOGADORES
+    // =========================
+
+    let todos = [
+        ...TIMES.time1,
+        ...TIMES.time2,
+        ...TIMES.time3
+    ];
+
+    TIMES.time1 = todos.slice(0, 7);
+
+    TIMES.time2 = todos.slice(7, 14);
+
+    TIMES.time3 = todos.slice(14, 21);
+
+    // =========================
+    // RENDER
+    // =========================
 
     renderizarTodosTimes();
 }
