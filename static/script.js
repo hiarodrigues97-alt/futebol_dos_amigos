@@ -95,6 +95,8 @@ async function listar() {
 
             <td>${j.gols}</td>
 
+            <td>${j.vitorias || 0}</td>
+
             <td>${j.jogos || 0}</td>
 
             <td>${j.nota}</td>
