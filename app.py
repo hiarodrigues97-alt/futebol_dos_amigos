@@ -251,7 +251,7 @@ def registrar_jogo():
 
 
 # =========================================
-# SALVAR PARTIDA / VITÓRIA
+# SALVAR PARTIDA
 # =========================================
 @app.route("/salvar-partida", methods=["POST"])
 def salvar_partida():
@@ -262,55 +262,55 @@ def salvar_partida():
 
     jogadores = dados["jogadores"]
 
-    data_partida = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
     conn = conectar()
 
     cur = conn.cursor()
 
     try:
 
+        # =========================
         # SALVAR PARTIDA
+        # =========================
+
         cur.execute("""
             INSERT INTO partidas (
                 nome_time,
                 jogadores,
                 data_partida
             )
-            VALUES (%s, %s, %s)
+            VALUES (%s, %s, NOW())
         """, (
             nome_time,
-            json.dumps(jogadores),
-            data_partida
+            json.dumps(jogadores)
         ))
 
+        # =========================
         # SOMAR VITÓRIAS
+        # =========================
+
         for jogador in jogadores:
 
             cur.execute("""
                 UPDATE jogadores
-                SET vitorias = COALESCE(vitorias,0) + 1
-                WHERE nome = %s
-            """, (jogador,))
+                SET vitorias = COALESCE(vitorias, 0) + 1
+                WHERE id = %s
+            """, (jogador["id"],))
 
         conn.commit()
 
         cur.close()
+
         conn.close()
 
         return jsonify({
-            "ok": True,
-            "mensagem": "Vitória registrada!"
+            "ok": True
         })
 
     except Exception as e:
 
         conn.rollback()
 
-        cur.close()
-        conn.close()
-
-        print("ERRO:", e)
+        print("ERRO SALVAR PARTIDA:", e)
 
         return jsonify({
             "ok": False,
