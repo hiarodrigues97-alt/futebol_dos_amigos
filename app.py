@@ -344,7 +344,7 @@ def ranking_times():
     for r in dados:
 
         ranking.append({
-            "nome_time": r["nome"],
+            "nome_time": r["nome_time"],
             "vitorias": r["vitorias"]
         })
 
