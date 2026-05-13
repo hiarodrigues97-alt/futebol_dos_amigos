@@ -371,16 +371,155 @@ function renderizarTime(id, jogadores, numero) {
 
     let soma = 0;
 
-    jogadores.forEach(j => soma += j.nota);
+    jogadores.forEach(j => soma += Number(j.nota));
 
     document.getElementById(`notaTime${numero}`).innerHTML =
         `Nota: ${soma.toFixed(1)}`;
+
+    // =========================
+    // SEPARAR POSIÇÕES
+    // =========================
+
+    let goleiros = jogadores.filter(j => j.posicao === "G");
+
+    let zagueiros = jogadores.filter(j => j.posicao === "Z");
+
+    let meias = jogadores.filter(j => j.posicao === "M");
+
+    let atacantes = jogadores.filter(j => j.posicao === "A");
+
+    // =========================
+    // GOLEIRO
+    // =========================
+
+    goleiros.forEach((j, i) => {
+
+        criarJogador(
+            j,
+            "86%",
+            "50%",
+            campo
+        );
+
+    });
+
+    // =========================
+    // ZAGUEIROS
+    // =========================
+
+    let posicoesZaga = [];
+
+    if (zagueiros.length === 1) {
+
+        posicoesZaga = ["50%"];
+
+    } else if (zagueiros.length === 2) {
+
+        posicoesZaga = ["38%", "62%"];
+
+    } else {
+
+        posicoesZaga = ["25%", "50%", "75%"];
+    }
+
+    zagueiros.forEach((j, i) => {
+
+        criarJogador(
+            j,
+            "66%",
+            posicoesZaga[i],
+            campo
+        );
+
+    });
+
+    // =========================
+    // MEIAS
+    // =========================
+
+    let posicoesMeia = [];
+
+    if (meias.length === 1) {
+
+        posicoesMeia = ["50%"];
+
+    } else if (meias.length === 2) {
+
+        posicoesMeia = ["35%", "65%"];
+
+    } else {
+
+        posicoesMeia = ["20%", "50%", "80%"];
+    }
+
+    meias.forEach((j, i) => {
+
+        criarJogador(
+            j,
+            "46%",
+            posicoesMeia[i],
+            campo
+        );
+
+    });
+
+    // =========================
+    // ATACANTES
+    // =========================
+
+    let posicoesAtaque = [];
+
+    if (atacantes.length === 1) {
+
+        posicoesAtaque = ["50%"];
+
+    } else if (atacantes.length === 2) {
+
+        posicoesAtaque = ["38%", "62%"];
+
+    } else {
+
+        posicoesAtaque = ["25%", "50%", "75%"];
+    }
+
+    atacantes.forEach((j, i) => {
+
+        criarJogador(
+            j,
+            "20%",
+            posicoesAtaque[i],
+            campo
+        );
+
+    });
+
+    // =========================
+    // DRAG & DROP
+    // =========================
 
     campo.addEventListener("dragover", (e) => {
 
         e.preventDefault();
 
     });
+
+    campo.addEventListener("drop", (e) => {
+
+        e.preventDefault();
+
+        const jogadorId = e.dataTransfer.getData("text/plain");
+
+        const dragging = document.getElementById(jogadorId);
+
+        if (!dragging) return;
+
+        dragging.style.left = `${e.offsetX}px`;
+
+        dragging.style.top = `${e.offsetY}px`;
+
+    });
+
+}
 
     campo.addEventListener("drop", (e) => {
 
