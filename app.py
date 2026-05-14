@@ -42,8 +42,8 @@ def jogadores():
             id,
             nome,
             posicao,
-            gols,
-            nota,
+            COALESCE(gols,0) AS gols,
+            COALESCE(nota,0) AS nota,
             COALESCE(jogos,0) AS jogos,
             COALESCE(vitorias,0) AS vitorias
         FROM jogadores
@@ -156,7 +156,7 @@ def remover_gol():
 
 
 # =========================================
-# EXCLUIR
+# EXCLUIR JOGADOR
 # =========================================
 @app.route("/excluir-jogador", methods=["POST"])
 def excluir():
@@ -183,7 +183,7 @@ def excluir():
 
 
 # =========================================
-# EDITAR
+# EDITAR JOGADOR
 # =========================================
 @app.route("/editar-jogador", methods=["POST"])
 def editar():
@@ -219,7 +219,7 @@ def editar():
 
 
 # =========================================
-# REGISTRAR JOGO
+# REGISTRAR JOGOS
 # =========================================
 @app.route("/registrar-jogo", methods=["POST"])
 def registrar_jogo():
@@ -251,7 +251,7 @@ def registrar_jogo():
 
 
 # =========================================
-# SALVAR VITÓRIA
+# REGISTRAR VITÓRIA
 # =========================================
 @app.route("/salvar-partida", methods=["POST"])
 def salvar_partida():
@@ -266,6 +266,10 @@ def salvar_partida():
 
     try:
 
+        # =========================
+        # SALVAR PARTIDA
+        # =========================
+
         cur.execute("""
             INSERT INTO partidas (
                 nome_time,
@@ -276,10 +280,23 @@ def salvar_partida():
             nome_time,
         ))
 
+        # =========================
+        # SOMAR VITÓRIAS DOS JOGADORES
+        # =========================
+
+        jogadores = dados.get("jogadores", [])
+
+        for jogador_id in jogadores:
+
+            cur.execute("""
+                UPDATE jogadores
+                SET vitorias = COALESCE(vitorias,0) + 1
+                WHERE id = %s
+            """, (jogador_id,))
+
         conn.commit()
 
         cur.close()
-
         conn.close()
 
         return jsonify({
@@ -315,6 +332,7 @@ def ranking_times():
             nome_time,
             COUNT(*) AS vitorias
         FROM partidas
+        WHERE DATE(data_partida) = CURRENT_DATE
         GROUP BY nome_time
         ORDER BY vitorias DESC
     """)

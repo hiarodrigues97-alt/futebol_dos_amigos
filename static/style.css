@@ -1,56 +1,85 @@
 body {
 
-    background: #f5f5f5;
+    background: #f3f4f6;
 
     font-family: Arial, Helvetica, sans-serif;
 
     padding-bottom: 50px;
 }
 
+
+/* =========================================
+TÍTULO
+========================================= */
+
 .titulo {
 
     text-align: center;
+
+    font-size: 42px;
 
     font-weight: bold;
 
     margin-bottom: 30px;
 
-    color: #222;
+    color: #111827;
 }
+
+
+/* =========================================
+CARDS
+========================================= */
 
 .card {
 
     border: none;
 
-    border-radius: 18px;
-
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border-radius: 22px;
 
     background: white;
+
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
+
+
+/* =========================================
+TABELAS
+========================================= */
 
 .table thead {
 
-    background: #1f2937;
+    background: #111827;
 
     color: white;
 }
 
 .table tbody tr:hover {
 
-    background: #f0f4ff;
+    background: #eef2ff;
 }
+
+
+/* =========================================
+BOTÕES
+========================================= */
 
 .btn {
 
-    border-radius: 10px;
+    border-radius: 12px;
 
     font-weight: bold;
+
+    padding: 10px 14px;
 }
+
+
+/* =========================================
+CONTADOR
+========================================= */
 
 .contador {
 
-    font-size: 20px;
+    font-size: 22px;
 
     font-weight: bold;
 
@@ -59,24 +88,31 @@ body {
     color: #111827;
 }
 
+
+/* =========================================
+RANKING TIMES
+========================================= */
+
 #rankingTimes {
 
     display: flex;
 
-    gap: 12px;
-
     flex-wrap: wrap;
 
-    margin-top: 15px;
+    gap: 12px;
 }
 
 .card-ranking {
 
-    background: linear-gradient(135deg, #16a34a, #15803d);
+    background: linear-gradient(
+        135deg,
+        #16a34a,
+        #15803d
+    );
 
     color: white;
 
-    padding: 12px 18px;
+    padding: 12px 20px;
 
     border-radius: 14px;
 
@@ -84,6 +120,11 @@ body {
 
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
+
+
+/* =========================================
+ÁREA TIMES
+========================================= */
 
 .area-times {
 
@@ -94,14 +135,19 @@ body {
 
     background: white;
 
-    border-radius: 20px;
+    border-radius: 24px;
 
-    padding: 15px;
+    padding: 16px;
 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 
-    margin-bottom: 20px;
+    overflow: hidden;
 }
+
+
+/* =========================================
+TOPO TIME
+========================================= */
 
 .topo-time {
 
@@ -111,7 +157,14 @@ body {
 
     align-items: center;
 
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.topo-time h3 {
+
+    margin: 0;
+
+    font-weight: bold;
 }
 
 .nota-time {
@@ -127,28 +180,39 @@ body {
     font-weight: bold;
 }
 
+
+/* =========================================
+CAMPO
+========================================= */
+
 .campo {
 
     position: relative;
 
     width: 100%;
 
-    height: 650px;
+    height: 680px;
 
-    background: linear-gradient(
-        to bottom,
-        #4caf50,
-        #3ea043
-    );
-
-    border-radius: 16px;
+    border-radius: 22px;
 
     overflow: hidden;
 
-    border: 4px solid white;
+    background:
+        linear-gradient(
+            to bottom,
+            #4ade80,
+            #22c55e
+        );
 
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    border: 5px solid white;
+
+    box-shadow:
+        inset 0 0 15px rgba(0,0,0,0.2),
+        0 5px 15px rgba(0,0,0,0.12);
 }
+
+
+/* LINHAS CAMPO */
 
 .campo::before {
 
@@ -156,10 +220,15 @@ body {
 
     position: absolute;
 
-    inset: 20px;
+    inset: 18px;
 
-    border: 3px solid rgba(255,255,255,0.85);
+    border: 3px solid rgba(255,255,255,0.9);
+
+    border-radius: 6px;
 }
+
+
+/* MEIO CAMPO */
 
 .campo::after {
 
@@ -171,16 +240,21 @@ body {
 
     left: 50%;
 
-    transform: translate(-50%, -50%);
+    width: 150px;
 
-    width: 140px;
-
-    height: 140px;
+    height: 150px;
 
     border-radius: 50%;
 
-    border: 3px solid rgba(255,255,255,0.85);
+    border: 3px solid rgba(255,255,255,0.9);
+
+    transform: translate(-50%, -50%);
 }
+
+
+/* =========================================
+JOGADOR
+========================================= */
 
 .jogador-campo {
 
@@ -194,9 +268,9 @@ body {
 
     user-select: none;
 
-    z-index: 10;
+    z-index: 20;
 
-    transition: 0.2s;
+    transition: 0.2s ease;
 }
 
 .jogador-campo:hover {
@@ -209,11 +283,16 @@ body {
     opacity: 0.5;
 }
 
+
+/* =========================================
+ÍCONE JOGADOR
+========================================= */
+
 .icone-jogador {
 
-    width: 55px;
+    width: 60px;
 
-    height: 55px;
+    height: 60px;
 
     border-radius: 50%;
 
@@ -223,48 +302,83 @@ body {
 
     justify-content: center;
 
-    font-size: 28px;
+    font-size: 30px;
 
     background: white;
 
-    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+    border: 3px solid #111827;
 
-    border: 3px solid #1f2937;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
+
+
+/* =========================================
+CORES POSIÇÕES
+========================================= */
+
+.goleiro .icone-jogador {
+
+    background: #fef3c7;
+}
+
+.zagueiro .icone-jogador {
+
+    background: #dbeafe;
+}
+
+.meia .icone-jogador {
+
+    background: #ede9fe;
+}
+
+.atacante .icone-jogador {
+
+    background: #fee2e2;
+}
+
+
+/* =========================================
+NOME JOGADOR
+========================================= */
 
 .nome-jogador {
 
-    margin-top: 5px;
+    margin-top: 6px;
 
     background: rgba(255,255,255,0.95);
 
-    padding: 4px 10px;
-
     border-radius: 10px;
+
+    padding: 4px 10px;
 
     font-size: 12px;
 
     font-weight: bold;
 
-    color: #111;
+    color: #111827;
 
-    min-width: 80px;
+    min-width: 90px;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+
+
+/* =========================================
+BOTÕES DOS TIMES
+========================================= */
 
 .area-botoes-time {
 
-    margin-top: 15px;
+    margin-top: 18px;
 
     display: flex;
 
-    gap: 10px;
-
     flex-direction: column;
+
+    gap: 10px;
 }
 
 .btn-vitoria {
-
-    width: 100%;
 
     border: none;
 
@@ -274,9 +388,11 @@ body {
 
     padding: 12px;
 
-    border-radius: 12px;
+    border-radius: 14px;
 
     font-weight: bold;
+
+    transition: 0.2s;
 }
 
 .btn-vitoria:hover {
@@ -286,8 +402,6 @@ body {
 
 .btn-jogo {
 
-    width: 100%;
-
     border: none;
 
     background: #2563eb;
@@ -296,9 +410,11 @@ body {
 
     padding: 12px;
 
-    border-radius: 12px;
+    border-radius: 14px;
 
     font-weight: bold;
+
+    transition: 0.2s;
 }
 
 .btn-jogo:hover {
@@ -308,8 +424,6 @@ body {
 
 .btn-copiar {
 
-    width: 100%;
-
     border: none;
 
     background: #7c3aed;
@@ -318,15 +432,22 @@ body {
 
     padding: 12px;
 
-    border-radius: 12px;
+    border-radius: 14px;
 
     font-weight: bold;
+
+    transition: 0.2s;
 }
 
 .btn-copiar:hover {
 
     background: #6d28d9;
 }
+
+
+/* =========================================
+RESPONSIVO
+========================================= */
 
 @media (max-width: 768px) {
 
@@ -337,9 +458,9 @@ body {
 
     .icone-jogador {
 
-        width: 45px;
+        width: 48px;
 
-        height: 45px;
+        height: 48px;
 
         font-size: 22px;
     }
@@ -347,5 +468,12 @@ body {
     .nome-jogador {
 
         font-size: 10px;
+
+        min-width: 70px;
+    }
+
+    .titulo {
+
+        font-size: 32px;
     }
 }

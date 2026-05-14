@@ -275,6 +275,28 @@ function embaralhar(lista) {
 }
 
 // =========================================
+// DISTRIBUIR
+// =========================================
+function distribuir(lista) {
+
+    lista.forEach((jogador, index) => {
+
+        if (index % 3 === 0) {
+            TIMES.time1.push(jogador);
+        }
+
+        if (index % 3 === 1) {
+            TIMES.time2.push(jogador);
+        }
+
+        if (index % 3 === 2) {
+            TIMES.time3.push(jogador);
+        }
+
+    });
+}
+
+// =========================================
 // SORTEAR TIMES
 // =========================================
 function sortear() {
@@ -301,6 +323,10 @@ function sortear() {
         return;
     }
 
+    TIMES.time1 = [];
+    TIMES.time2 = [];
+    TIMES.time3 = [];
+
     let goleiros = embaralhar(
         jogadores.filter(j => j.posicao === "G")
     );
@@ -317,43 +343,32 @@ function sortear() {
         jogadores.filter(j => j.posicao === "A")
     );
 
-    TIMES.time1 = [];
-    TIMES.time2 = [];
-    TIMES.time3 = [];
-
-    function distribuir(lista) {
-
-        lista.forEach((jogador, index) => {
-
-            let numero = index % 3;
-
-            if (numero === 0) {
-                TIMES.time1.push(jogador);
-            }
-
-            if (numero === 1) {
-                TIMES.time2.push(jogador);
-            }
-
-            if (numero === 2) {
-                TIMES.time3.push(jogador);
-            }
-
-        });
-    }
-
     distribuir(goleiros);
     distribuir(zagueiros);
     distribuir(meias);
     distribuir(atacantes);
 
-    console.log(TIMES);
-
     renderizarTodosTimes();
 }
 
 // =========================================
-// CRIAR JOGADOR VISUAL
+// ÍCONE POSIÇÃO
+// =========================================
+function pegarIcone(posicao) {
+
+    if (posicao === "G") return "🧤";
+
+    if (posicao === "Z") return "🛡️";
+
+    if (posicao === "M") return "🎯";
+
+    if (posicao === "A") return "🔥";
+
+    return "⚽";
+}
+
+// =========================================
+// CRIAR JOGADOR
 // =========================================
 function criarJogador(jogador, top, left, campo) {
 
@@ -367,27 +382,9 @@ function criarJogador(jogador, top, left, campo) {
 
     div.style.left = left;
 
-    let icone = "⚽";
-
-    if (jogador.posicao === "G") {
-        icone = "🧤";
-    }
-
-    if (jogador.posicao === "Z") {
-        icone = "🛡️";
-    }
-
-    if (jogador.posicao === "M") {
-        icone = "🎯";
-    }
-
-    if (jogador.posicao === "A") {
-        icone = "🔥";
-    }
-
     div.innerHTML = `
         <div class="icone-jogador">
-            ${icone}
+            ${pegarIcone(jogador.posicao)}
         </div>
 
         <div class="nome-jogador">
@@ -402,13 +399,11 @@ function criarJogador(jogador, top, left, campo) {
         e.dataTransfer.setData("origem", campo.id);
 
         div.classList.add("dragging");
-
     });
 
     div.addEventListener("dragend", () => {
 
         div.classList.remove("dragging");
-
     });
 
     campo.appendChild(div);
@@ -425,7 +420,10 @@ function renderizarTime(id, jogadores, numero) {
 
     let soma = 0;
 
-    jogadores.forEach(j => soma += Number(j.nota));
+    jogadores.forEach(j => {
+
+        soma += Number(j.nota);
+    });
 
     document.getElementById(`notaTime${numero}`).innerHTML =
         `Nota: ${soma.toFixed(1)}`;
@@ -438,10 +436,9 @@ function renderizarTime(id, jogadores, numero) {
 
     let atacantes = jogadores.filter(j => j.posicao === "A");
 
-    goleiros.forEach((j, i) => {
+    goleiros.forEach(j => {
 
-        criarJogador(j, "86%", "50%", campo);
-
+        criarJogador(j, "85%", "50%", campo);
     });
 
     let posicoesZaga = ["25%", "50%", "75%"];
@@ -450,11 +447,10 @@ function renderizarTime(id, jogadores, numero) {
 
         criarJogador(
             j,
-            "66%",
+            "65%",
             posicoesZaga[i] || "50%",
             campo
         );
-
     });
 
     let posicoesMeia = ["20%", "50%", "80%"];
@@ -463,11 +459,10 @@ function renderizarTime(id, jogadores, numero) {
 
         criarJogador(
             j,
-            "46%",
+            "45%",
             posicoesMeia[i] || "50%",
             campo
         );
-
     });
 
     let posicoesAtaque = ["35%", "65%"];
@@ -480,20 +475,14 @@ function renderizarTime(id, jogadores, numero) {
             posicoesAtaque[i] || "50%",
             campo
         );
-
     });
 
-    // =========================
-    // DRAG AND DROP
-    // =========================
-
-    campo.addEventListener("dragover", (e) => {
+    campo.ondragover = (e) => {
 
         e.preventDefault();
+    };
 
-    });
-
-    campo.addEventListener("drop", (e) => {
+    campo.ondrop = (e) => {
 
         e.preventDefault();
 
@@ -502,8 +491,6 @@ function renderizarTime(id, jogadores, numero) {
         let origem = e.dataTransfer.getData("origem");
 
         let destino = campo.id;
-
-        if (!jogadorId || !origem || !destino) return;
 
         if (origem === destino) return;
 
@@ -519,11 +506,8 @@ function renderizarTime(id, jogadores, numero) {
 
         TIMES[destino].push(jogador);
 
-        console.log("TIMES ATUALIZADOS:", TIMES);
-
         renderizarTodosTimes();
-
-    });
+    };
 }
 
 // =========================================
@@ -550,7 +534,6 @@ async function registrarJogos() {
         time.forEach(j => {
 
             ids.push(j.id);
-
         });
 
     });
@@ -577,7 +560,7 @@ async function registrarJogos() {
 // =========================================
 // SALVAR VITÓRIA
 // =========================================
-async function salvarVitoria(numeroTime) {
+async function salvarVitoria(nomeTime) {
 
     let res = await fetch("/salvar-partida", {
 
@@ -588,7 +571,7 @@ async function salvarVitoria(numeroTime) {
         },
 
         body: JSON.stringify({
-            nome_time: `TIME ${numeroTime}`
+            nome_time: nomeTime
         })
 
     });
@@ -644,16 +627,33 @@ function copiarTimes() {
         jogadores.forEach(j => {
 
             texto += `- ${j.nome}\n`;
-
         });
 
         texto += `\n`;
-
     });
 
     navigator.clipboard.writeText(texto);
 
     alert("Times copiados!");
+}
+
+// =========================================
+// BAIXAR IMAGEM
+// =========================================
+function baixarImagem() {
+
+    const area = document.getElementById("areaTimes");
+
+    html2canvas(area).then(canvas => {
+
+        const link = document.createElement("a");
+
+        link.download = "times.png";
+
+        link.href = canvas.toDataURL("image/png");
+
+        link.click();
+    });
 }
 
 // =========================================
