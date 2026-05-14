@@ -8,26 +8,17 @@ app = Flask(__name__)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 
-# =========================================
-# CONEXÃO
-# =========================================
 def conectar():
 
     return psycopg2.connect(DATABASE_URL)
 
 
-# =========================================
-# HOME
-# =========================================
 @app.route("/")
 def index():
 
     return render_template("index.html")
 
 
-# =========================================
-# LISTAR JOGADORES
-# =========================================
 @app.route("/jogadores")
 def jogadores():
 
@@ -42,8 +33,8 @@ def jogadores():
             id,
             nome,
             posicao,
-            COALESCE(gols,0) AS gols,
-            COALESCE(nota,0) AS nota,
+            gols,
+            nota,
             COALESCE(jogos,0) AS jogos,
             COALESCE(vitorias,0) AS vitorias
         FROM jogadores
@@ -58,9 +49,6 @@ def jogadores():
     return jsonify(dados)
 
 
-# =========================================
-# ADD JOGADOR
-# =========================================
 @app.route("/jogadores", methods=["POST"])
 def add_jogador():
 
@@ -91,14 +79,9 @@ def add_jogador():
     cur.close()
     conn.close()
 
-    return jsonify({
-        "ok": True
-    })
+    return jsonify({"ok":True})
 
 
-# =========================================
-# GOL
-# =========================================
 @app.route("/gol", methods=["POST"])
 def gol():
 
@@ -119,108 +102,9 @@ def gol():
     cur.close()
     conn.close()
 
-    return jsonify({
-        "ok": True
-    })
+    return jsonify({"ok":True})
 
 
-# =========================================
-# REMOVER GOL
-# =========================================
-@app.route("/remover-gol", methods=["POST"])
-def remover_gol():
-
-    data = request.json
-
-    conn = conectar()
-
-    cur = conn.cursor()
-
-    cur.execute("""
-        UPDATE jogadores
-        SET gols = CASE
-            WHEN gols > 0 THEN gols - 1
-            ELSE 0
-        END
-        WHERE id = %s
-    """, (data["id"],))
-
-    conn.commit()
-
-    cur.close()
-    conn.close()
-
-    return jsonify({
-        "ok": True
-    })
-
-
-# =========================================
-# EXCLUIR JOGADOR
-# =========================================
-@app.route("/excluir-jogador", methods=["POST"])
-def excluir():
-
-    data = request.json
-
-    conn = conectar()
-
-    cur = conn.cursor()
-
-    cur.execute("""
-        DELETE FROM jogadores
-        WHERE id = %s
-    """, (data["id"],))
-
-    conn.commit()
-
-    cur.close()
-    conn.close()
-
-    return jsonify({
-        "ok": True
-    })
-
-
-# =========================================
-# EDITAR JOGADOR
-# =========================================
-@app.route("/editar-jogador", methods=["POST"])
-def editar():
-
-    data = request.json
-
-    conn = conectar()
-
-    cur = conn.cursor()
-
-    cur.execute("""
-        UPDATE jogadores
-        SET
-            nome = %s,
-            posicao = %s,
-            nota = %s
-        WHERE id = %s
-    """, (
-        data["nome"].upper(),
-        data["posicao"],
-        data["nota"],
-        data["id"]
-    ))
-
-    conn.commit()
-
-    cur.close()
-    conn.close()
-
-    return jsonify({
-        "ok": True
-    })
-
-
-# =========================================
-# REGISTRAR JOGOS
-# =========================================
 @app.route("/registrar-jogo", methods=["POST"])
 def registrar_jogo():
 
@@ -245,14 +129,9 @@ def registrar_jogo():
     cur.close()
     conn.close()
 
-    return jsonify({
-        "ok": True
-    })
+    return jsonify({"ok":True})
 
 
-# =========================================
-# REGISTRAR VITÓRIA
-# =========================================
 @app.route("/salvar-partida", methods=["POST"])
 def salvar_partida():
 
@@ -264,60 +143,24 @@ def salvar_partida():
 
     cur = conn.cursor()
 
-    try:
-
-        # =========================
-        # SALVAR PARTIDA
-        # =========================
-
-        cur.execute("""
-            INSERT INTO partidas (
-                nome_time,
-                data_partida
-            )
-            VALUES (%s, NOW())
-        """, (
+    cur.execute("""
+        INSERT INTO partidas (
             nome_time,
-        ))
+            data_partida
+        )
+        VALUES (%s, NOW())
+    """, (
+        nome_time,
+    ))
 
-        # =========================
-        # SOMAR VITÓRIAS DOS JOGADORES
-        # =========================
+    conn.commit()
 
-        jogadores = dados.get("jogadores", [])
+    cur.close()
+    conn.close()
 
-        for jogador_id in jogadores:
-
-            cur.execute("""
-                UPDATE jogadores
-                SET vitorias = COALESCE(vitorias,0) + 1
-                WHERE id = %s
-            """, (jogador_id,))
-
-        conn.commit()
-
-        cur.close()
-        conn.close()
-
-        return jsonify({
-            "ok": True
-        })
-
-    except Exception as e:
-
-        conn.rollback()
-
-        print("ERRO SALVAR PARTIDA:", e)
-
-        return jsonify({
-            "ok": False,
-            "erro": str(e)
-        })
+    return jsonify({"ok":True})
 
 
-# =========================================
-# RANKING TIMES
-# =========================================
 @app.route("/ranking-times")
 def ranking_times():
 
@@ -332,7 +175,7 @@ def ranking_times():
             nome_time,
             COUNT(*) AS vitorias
         FROM partidas
-        WHERE DATE(data_partida) = CURRENT_DATE
+        WHERE DATE(data_partida)=CURRENT_DATE
         GROUP BY nome_time
         ORDER BY vitorias DESC
     """)
@@ -345,20 +188,48 @@ def ranking_times():
     return jsonify(dados)
 
 
-# =========================================
-# TESTE
-# =========================================
-@app.route("/teste")
-def teste():
+@app.route("/dashboard")
+def dashboard():
+
+    conn = conectar()
+
+    cur = conn.cursor(
+        cursor_factory=psycopg2.extras.RealDictCursor
+    )
+
+    cur.execute("""
+        SELECT
+            nome,
+            gols
+        FROM jogadores
+        WHERE posicao <> 'G'
+        ORDER BY gols DESC
+        LIMIT 5
+    """)
+
+    artilheiros = cur.fetchall()
+
+    cur.execute("""
+        SELECT
+            nome,
+            gols
+        FROM jogadores
+        WHERE posicao = 'G'
+        ORDER BY gols DESC
+        LIMIT 5
+    """)
+
+    goleiros = cur.fetchall()
+
+    cur.close()
+    conn.close()
 
     return jsonify({
-        "status": "ok"
+        "artilheiros": artilheiros,
+        "goleiros": goleiros
     })
 
 
-# =========================================
-# START
-# =========================================
 if __name__ == "__main__":
 
     app.run(debug=True)

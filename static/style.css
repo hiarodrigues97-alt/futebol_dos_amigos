@@ -1,479 +1,113 @@
-body {
-
-    background: #f3f4f6;
-
-    font-family: Arial, Helvetica, sans-serif;
-
-    padding-bottom: 50px;
+body{
+    background:#f5f5f5;
+    font-family:Arial, Helvetica, sans-serif;
 }
 
-
-/* =========================================
-TÍTULO
-========================================= */
-
-.titulo {
-
-    text-align: center;
-
-    font-size: 42px;
-
-    font-weight: bold;
-
-    margin-bottom: 30px;
-
-    color: #111827;
+.titulo{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:30px;
 }
 
-
-/* =========================================
-CARDS
-========================================= */
-
-.card {
-
-    border: none;
-
-    border-radius: 22px;
-
-    background: white;
-
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+.card{
+    border:none;
+    border-radius:18px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
 }
 
-
-/* =========================================
-TABELAS
-========================================= */
-
-.table thead {
-
-    background: #111827;
-
-    color: white;
+.contador{
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:20px;
 }
 
-.table tbody tr:hover {
-
-    background: #eef2ff;
+.campo{
+    position:relative;
+    width:100%;
+    height:650px;
+    border-radius:16px;
+    overflow:hidden;
+    background:linear-gradient(to bottom,#4caf50,#2e7d32);
 }
 
-
-/* =========================================
-BOTÕES
-========================================= */
-
-.btn {
-
-    border-radius: 12px;
-
-    font-weight: bold;
-
-    padding: 10px 14px;
+.jogador-campo{
+    position:absolute;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    cursor:grab;
+    z-index:10;
 }
 
-
-/* =========================================
-CONTADOR
-========================================= */
-
-.contador {
-
-    font-size: 22px;
-
-    font-weight: bold;
-
-    margin-bottom: 20px;
-
-    color: #111827;
+.icone-jogador{
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    border:3px solid #1f2937;
 }
 
-
-/* =========================================
-RANKING TIMES
-========================================= */
-
-#rankingTimes {
-
-    display: flex;
-
-    flex-wrap: wrap;
-
-    gap: 12px;
+.nome-jogador{
+    margin-top:5px;
+    background:white;
+    padding:4px 10px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:bold;
 }
 
-.card-ranking {
-
-    background: linear-gradient(
-        135deg,
-        #16a34a,
-        #15803d
-    );
-
-    color: white;
-
-    padding: 12px 20px;
-
-    border-radius: 14px;
-
-    font-weight: bold;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+.card-time{
+    background:white;
+    border-radius:18px;
+    padding:15px;
 }
 
-
-/* =========================================
-ÁREA TIMES
-========================================= */
-
-.area-times {
-
-    margin-top: 30px;
+.topo-time{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
 }
 
-.card-time {
-
-    background: white;
-
-    border-radius: 24px;
-
-    padding: 16px;
-
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-
-    overflow: hidden;
+.nota-time{
+    background:#2563eb;
+    color:white;
+    padding:8px 15px;
+    border-radius:10px;
 }
 
-
-/* =========================================
-TOPO TIME
-========================================= */
-
-.topo-time {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 15px;
+.area-botoes-time{
+    margin-top:15px;
 }
 
-.topo-time h3 {
-
-    margin: 0;
-
-    font-weight: bold;
+.btn-vitoria{
+    width:100%;
+    border:none;
+    background:#16a34a;
+    color:white;
+    padding:12px;
+    border-radius:12px;
+    font-weight:bold;
 }
 
-.nota-time {
-
-    background: #2563eb;
-
-    color: white;
-
-    padding: 8px 16px;
-
-    border-radius: 12px;
-
-    font-weight: bold;
+#rankingTimes{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
 }
 
-
-/* =========================================
-CAMPO
-========================================= */
-
-.campo {
-
-    position: relative;
-
-    width: 100%;
-
-    height: 680px;
-
-    border-radius: 22px;
-
-    overflow: hidden;
-
-    background:
-        linear-gradient(
-            to bottom,
-            #4ade80,
-            #22c55e
-        );
-
-    border: 5px solid white;
-
-    box-shadow:
-        inset 0 0 15px rgba(0,0,0,0.2),
-        0 5px 15px rgba(0,0,0,0.12);
+.card-ranking{
+    background:#16a34a;
+    color:white;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:bold;
 }
 
-
-/* LINHAS CAMPO */
-
-.campo::before {
-
-    content: "";
-
-    position: absolute;
-
-    inset: 18px;
-
-    border: 3px solid rgba(255,255,255,0.9);
-
-    border-radius: 6px;
-}
-
-
-/* MEIO CAMPO */
-
-.campo::after {
-
-    content: "";
-
-    position: absolute;
-
-    top: 50%;
-
-    left: 50%;
-
-    width: 150px;
-
-    height: 150px;
-
-    border-radius: 50%;
-
-    border: 3px solid rgba(255,255,255,0.9);
-
-    transform: translate(-50%, -50%);
-}
-
-
-/* =========================================
-JOGADOR
-========================================= */
-
-.jogador-campo {
-
-    position: absolute;
-
-    transform: translate(-50%, -50%);
-
-    text-align: center;
-
-    cursor: grab;
-
-    user-select: none;
-
-    z-index: 20;
-
-    transition: 0.2s ease;
-}
-
-.jogador-campo:hover {
-
-    transform: translate(-50%, -50%) scale(1.08);
-}
-
-.jogador-campo.dragging {
-
-    opacity: 0.5;
-}
-
-
-/* =========================================
-ÍCONE JOGADOR
-========================================= */
-
-.icone-jogador {
-
-    width: 60px;
-
-    height: 60px;
-
-    border-radius: 50%;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 30px;
-
-    background: white;
-
-    border: 3px solid #111827;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-}
-
-
-/* =========================================
-CORES POSIÇÕES
-========================================= */
-
-.goleiro .icone-jogador {
-
-    background: #fef3c7;
-}
-
-.zagueiro .icone-jogador {
-
-    background: #dbeafe;
-}
-
-.meia .icone-jogador {
-
-    background: #ede9fe;
-}
-
-.atacante .icone-jogador {
-
-    background: #fee2e2;
-}
-
-
-/* =========================================
-NOME JOGADOR
-========================================= */
-
-.nome-jogador {
-
-    margin-top: 6px;
-
-    background: rgba(255,255,255,0.95);
-
-    border-radius: 10px;
-
-    padding: 4px 10px;
-
-    font-size: 12px;
-
-    font-weight: bold;
-
-    color: #111827;
-
-    min-width: 90px;
-
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-
-/* =========================================
-BOTÕES DOS TIMES
-========================================= */
-
-.area-botoes-time {
-
-    margin-top: 18px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-}
-
-.btn-vitoria {
-
-    border: none;
-
-    background: #15803d;
-
-    color: white;
-
-    padding: 12px;
-
-    border-radius: 14px;
-
-    font-weight: bold;
-
-    transition: 0.2s;
-}
-
-.btn-vitoria:hover {
-
-    background: #166534;
-}
-
-.btn-jogo {
-
-    border: none;
-
-    background: #2563eb;
-
-    color: white;
-
-    padding: 12px;
-
-    border-radius: 14px;
-
-    font-weight: bold;
-
-    transition: 0.2s;
-}
-
-.btn-jogo:hover {
-
-    background: #1d4ed8;
-}
-
-.btn-copiar {
-
-    border: none;
-
-    background: #7c3aed;
-
-    color: white;
-
-    padding: 12px;
-
-    border-radius: 14px;
-
-    font-weight: bold;
-
-    transition: 0.2s;
-}
-
-.btn-copiar:hover {
-
-    background: #6d28d9;
-}
-
-
-/* =========================================
-RESPONSIVO
-========================================= */
-
-@media (max-width: 768px) {
-
-    .campo {
-
-        height: 500px;
-    }
-
-    .icone-jogador {
-
-        width: 48px;
-
-        height: 48px;
-
-        font-size: 22px;
-    }
-
-    .nome-jogador {
-
-        font-size: 10px;
-
-        min-width: 70px;
-    }
-
-    .titulo {
-
-        font-size: 32px;
-    }
+.dash-card{
+    background:white;
+    border-radius:16px;
+    padding:20px;
 }

@@ -26,17 +26,15 @@
 
 <body>
 
-<div class="container mt-4 mb-5">
+<div class="container mt-4">
 
-    <!-- TITULO -->
-
-    <h1 class="titulo mb-4">
+    <h1 class="titulo">
         Futebol dos Amigos ⚽
     </h1>
 
     <!-- CADASTRO -->
 
-    <div class="card shadow-sm p-4 mb-4">
+    <div class="card p-4 mb-4">
 
         <h4 class="mb-3">
             Cadastrar Jogador
@@ -62,21 +60,10 @@
                     class="form-select"
                 >
 
-                    <option value="A">
-                        Atacante
-                    </option>
-
-                    <option value="M">
-                        Meia
-                    </option>
-
-                    <option value="Z">
-                        Zagueiro
-                    </option>
-
-                    <option value="G">
-                        Goleiro
-                    </option>
+                    <option value="A">Atacante</option>
+                    <option value="M">Meia</option>
+                    <option value="Z">Zagueiro</option>
+                    <option value="G">Goleiro</option>
 
                 </select>
 
@@ -100,7 +87,7 @@
                     onclick="addJogador()"
                     class="btn btn-success w-100"
                 >
-                    ➕ Adicionar Jogador
+                    Adicionar Jogador
                 </button>
 
             </div>
@@ -112,7 +99,7 @@
     <!-- CONTADOR -->
 
     <div
-        class="contador mb-4"
+        class="contador"
         id="contadorSelecionados"
     >
         Selecionados: 0
@@ -152,9 +139,51 @@
 
     </div>
 
-    <!-- RANKING TIMES -->
+    <!-- DASHBOARD -->
 
-    <div class="card shadow-sm p-4 mb-4">
+    <div class="card p-4 mb-4">
+
+        <h3 class="mb-4">
+            📊 Dashboard
+        </h3>
+
+        <div class="row">
+
+            <div class="col-lg-6 mb-4">
+
+                <div class="dash-card">
+
+                    <h5>
+                        ⚽ Top 5 Artilheiros
+                    </h5>
+
+                    <canvas id="graficoArtilheiros"></canvas>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-6 mb-4">
+
+                <div class="dash-card">
+
+                    <h5>
+                        🧤 Goleiros Mais Vazados
+                    </h5>
+
+                    <canvas id="graficoGoleiros"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RANKING -->
+
+    <div class="card p-4 mb-4">
 
         <h3 class="mb-3">
             🏆 Ranking dos Times
@@ -166,17 +195,17 @@
 
     <!-- JOGADORES -->
 
-    <div class="card shadow-sm p-4 mb-4">
+    <div class="card p-4 mb-4">
 
         <h3 class="mb-3">
-            ⚽ Ranking Jogadores
+            ⚽ Ranking Artilheiros
         </h3>
 
         <div class="table-responsive">
 
-            <table class="table table-striped table-hover align-middle">
+            <table class="table table-striped align-middle">
 
-                <thead class="table-light">
+                <thead>
 
                     <tr>
 
@@ -203,7 +232,7 @@
 
     <!-- GOLEIROS -->
 
-    <div class="card shadow-sm p-4 mb-4">
+    <div class="card p-4 mb-4">
 
         <h3 class="mb-3">
             🧤 Ranking Goleiros
@@ -211,9 +240,9 @@
 
         <div class="table-responsive">
 
-            <table class="table table-striped table-hover align-middle">
+            <table class="table table-striped align-middle">
 
-                <thead class="table-light">
+                <thead>
 
                     <tr>
 
@@ -238,16 +267,14 @@
 
     </div>
 
-    <!-- ÁREA DOS TIMES -->
+    <!-- TIMES -->
 
     <div
-        id="areaTimes"
         class="area-times"
+        id="areaTimes"
     >
 
         <div class="row">
-
-            <!-- TIME 1 -->
 
             <div class="col-lg-4 mb-4">
 
@@ -255,9 +282,7 @@
 
                     <div class="topo-time">
 
-                        <h3>
-                            🔵 Time 1
-                        </h3>
+                        <h3>🔵 Time 1</h3>
 
                         <div
                             class="nota-time"
@@ -288,17 +313,13 @@
 
             </div>
 
-            <!-- TIME 2 -->
-
             <div class="col-lg-4 mb-4">
 
                 <div class="card-time">
 
                     <div class="topo-time">
 
-                        <h3>
-                            🔴 Time 2
-                        </h3>
+                        <h3>🔴 Time 2</h3>
 
                         <div
                             class="nota-time"
@@ -329,17 +350,13 @@
 
             </div>
 
-            <!-- TIME 3 -->
-
             <div class="col-lg-4 mb-4">
 
                 <div class="card-time">
 
                     <div class="topo-time">
 
-                        <h3>
-                            🟢 Time 3
-                        </h3>
+                        <h3>🟢 Time 3</h3>
 
                         <div
                             class="nota-time"
@@ -376,13 +393,11 @@
 
 </div>
 
-<!-- HTML2CANVAS -->
-
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-<!-- SCRIPT PRINCIPAL -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="/static/script.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 </body>
 </html>
