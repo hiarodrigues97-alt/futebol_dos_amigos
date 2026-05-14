@@ -4,9 +4,9 @@ let TIMES = {
     time3: []
 };
 
-let graficoArtilheiros = null;
-let graficoGoleiros = null;
-
+// =========================================
+// LISTAR
+// =========================================
 async function listar() {
 
     let res = await fetch("/jogadores");
@@ -14,15 +14,27 @@ async function listar() {
     let dados = await res.json();
 
     let listaLinha = document.getElementById("listaJogadores");
+
     let listaGoleiros = document.getElementById("listaGoleiros");
 
     listaLinha.innerHTML = "";
+
     listaGoleiros.innerHTML = "";
+
+    dados.sort((a, b) => {
+
+        if (a.posicao === "G" && b.posicao === "G") {
+            return a.gols - b.gols;
+        }
+
+        return b.gols - a.gols;
+    });
 
     dados.forEach(j => {
 
         let linha = `
         <tr>
+
             <td>
                 <input
                     type="checkbox"
@@ -36,13 +48,18 @@ async function listar() {
             </td>
 
             <td>${j.nome}</td>
+
             <td>${j.posicao}</td>
+
             <td>${j.gols}</td>
-            <td>${j.jogos}</td>
-            <td>${j.vitorias}</td>
+
+            <td>${j.jogos || 0}</td>
+
+            <td>${j.vitorias || 0}</td>
+
             <td>${j.nota}</td>
 
-            <td>
+            <td class="acoes">
 
                 <button
                     class="btn btn-success btn-sm"
@@ -51,56 +68,306 @@ async function listar() {
                     +⚽
                 </button>
 
+                <button
+                    class="btn btn-warning btn-sm"
+                    onclick="removerGol(${j.id})"
+                >
+                    -⚽
+                </button>
+
+                <button
+                    class="btn btn-primary btn-sm"
+                    onclick="editarJogador(${j.id}, '${j.nome}', '${j.posicao}', ${j.nota})"
+                >
+                    ✏️
+                </button>
+
+                <button
+                    class="btn btn-danger btn-sm"
+                    onclick="excluirJogador(${j.id})"
+                >
+                    🗑️
+                </button>
+
             </td>
+
         </tr>
         `;
 
         if (j.posicao === "G") {
+
             listaGoleiros.innerHTML += linha;
+
         } else {
+
             listaLinha.innerHTML += linha;
         }
 
     });
 
     carregarRankingTimes();
-    carregarDashboard();
+
+    carregarDashboard(dados);
 }
 
+// =========================================
+// DASHBOARD
+// =========================================
+function carregarDashboard(dados) {
+
+    let top5 = [...dados]
+        .filter(j => j.posicao !== "G")
+        .sort((a, b) => b.gols - a.gols)
+        .slice(0, 5);
+
+    let goleiros = [...dados]
+        .filter(j => j.posicao === "G")
+        .sort((a, b) => b.gols - a.gols)
+        .slice(0, 5);
+
+    let topArtilharia = document.getElementById("topArtilharia");
+
+    let topGoleiros = document.getElementById("topGoleiros");
+
+    if (topArtilharia) {
+
+        topArtilharia.innerHTML = "";
+
+        top5.forEach((j, i) => {
+
+            topArtilharia.innerHTML += `
+                <div class="card-dashboard">
+                    <span>
+                        ${i + 1}º ${j.nome}
+                    </span>
+
+                    <strong>
+                        ⚽ ${j.gols}
+                    </strong>
+                </div>
+            `;
+        });
+    }
+
+    if (topGoleiros) {
+
+        topGoleiros.innerHTML = "";
+
+        goleiros.forEach((j, i) => {
+
+            topGoleiros.innerHTML += `
+                <div class="card-dashboard">
+                    <span>
+                        ${i + 1}º ${j.nome}
+                    </span>
+
+                    <strong>
+                        🥅 ${j.gols}
+                    </strong>
+                </div>
+            `;
+        });
+    }
+}
+
+// =========================================
+// ADD JOGADOR
+// =========================================
+async function addJogador() {
+
+    let nome = document.getElementById("nome").value;
+
+    let nota = document.getElementById("nota").value;
+
+    let posicao = document.getElementById("posicao").value;
+
+    if (nome === "") {
+
+        alert("Digite o nome");
+
+        return;
+    }
+
+    await fetch("/jogadores", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            nome,
+            nota,
+            posicao
+        })
+
+    });
+
+    document.getElementById("nome").value = "";
+
+    document.getElementById("nota").value = "";
+
+    listar();
+}
+
+// =========================================
+// GOL
+// =========================================
+async function gol(id) {
+
+    await fetch("/gol", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            id
+        })
+
+    });
+
+    listar();
+}
+
+// =========================================
+// REMOVER GOL
+// =========================================
+async function removerGol(id) {
+
+    await fetch("/remover-gol", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            id
+        })
+
+    });
+
+    listar();
+}
+
+// =========================================
+// EXCLUIR
+// =========================================
+async function excluirJogador(id) {
+
+    let confirmar = confirm(
+        "Deseja excluir este jogador?"
+    );
+
+    if (!confirmar) return;
+
+    await fetch("/excluir-jogador", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            id
+        })
+
+    });
+
+    listar();
+}
+
+// =========================================
+// EDITAR
+// =========================================
+async function editarJogador(id, nomeAtual, posicaoAtual, notaAtual) {
+
+    let nome = prompt(
+        "Nome:",
+        nomeAtual
+    );
+
+    if (!nome) return;
+
+    let posicao = prompt(
+        "Posição (A/M/Z/G):",
+        posicaoAtual
+    );
+
+    if (!posicao) return;
+
+    let nota = prompt(
+        "Nota:",
+        notaAtual
+    );
+
+    if (!nota) return;
+
+    await fetch("/editar-jogador", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            id,
+            nome,
+            posicao,
+            nota
+        })
+
+    });
+
+    listar();
+}
+
+// =========================================
+// CONTADOR
+// =========================================
 function atualizarContador() {
 
-    let selecionados = document.querySelectorAll(".disponivel:checked");
+    let selecionados =
+        document.querySelectorAll(".disponivel:checked");
 
-    document.getElementById("contadorSelecionados").innerHTML =
+    document.getElementById(
+        "contadorSelecionados"
+    ).innerHTML =
         `Selecionados: ${selecionados.length}`;
 }
 
+// =========================================
+// EMBARALHAR
+// =========================================
 function embaralhar(lista) {
 
     for (let i = lista.length - 1; i > 0; i--) {
 
-        let j = Math.floor(Math.random() * (i + 1));
+        let j = Math.floor(
+            Math.random() * (i + 1)
+        );
 
-        [lista[i], lista[j]] = [lista[j], lista[i]];
+        [lista[i], lista[j]] =
+        [lista[j], lista[i]];
     }
 
     return lista;
 }
 
-function distribuir(lista, time1, time2, time3) {
-
-    lista.forEach((j, index) => {
-
-        if (index % 3 === 0) time1.push(j);
-        if (index % 3 === 1) time2.push(j);
-        if (index % 3 === 2) time3.push(j);
-
-    });
-}
-
+// =========================================
+// SORTEAR
+// =========================================
 function sortear() {
 
-    let selecionados = document.querySelectorAll(".disponivel:checked");
+    let selecionados =
+        document.querySelectorAll(".disponivel:checked");
 
     let jogadores = [];
 
@@ -114,6 +381,13 @@ function sortear() {
         });
 
     });
+
+    if (jogadores.length < 21) {
+
+        alert("Selecione 21 jogadores");
+
+        return;
+    }
 
     let goleiros = embaralhar(
         jogadores.filter(j => j.posicao === "G")
@@ -135,21 +409,40 @@ function sortear() {
     TIMES.time2 = [];
     TIMES.time3 = [];
 
-    distribuir(goleiros, TIMES.time1, TIMES.time2, TIMES.time3);
-    distribuir(zagueiros, TIMES.time1, TIMES.time2, TIMES.time3);
-    distribuir(meias, TIMES.time1, TIMES.time2, TIMES.time3);
-    distribuir(atacantes, TIMES.time1, TIMES.time2, TIMES.time3);
+    function distribuir(lista) {
+
+        lista.forEach((j, i) => {
+
+            if (i % 3 === 0) TIMES.time1.push(j);
+
+            if (i % 3 === 1) TIMES.time2.push(j);
+
+            if (i % 3 === 2) TIMES.time3.push(j);
+
+        });
+    }
+
+    distribuir(goleiros);
+    distribuir(zagueiros);
+    distribuir(meias);
+    distribuir(atacantes);
 
     renderizarTodosTimes();
 }
 
+// =========================================
+// CRIAR JOGADOR
+// =========================================
 function criarJogador(jogador, top, left, campo) {
 
     let div = document.createElement("div");
 
     div.className = "jogador-campo";
 
+    div.draggable = true;
+
     div.style.top = top;
+
     div.style.left = left;
 
     let icone = "⚽";
@@ -169,9 +462,25 @@ function criarJogador(jogador, top, left, campo) {
         </div>
     `;
 
+    div.addEventListener("dragstart", e => {
+
+        e.dataTransfer.setData(
+            "id",
+            jogador.id
+        );
+
+        e.dataTransfer.setData(
+            "origem",
+            campo.id
+        );
+    });
+
     campo.appendChild(div);
 }
 
+// =========================================
+// RENDERIZAR TIME
+// =========================================
 function renderizarTime(id, jogadores, numero) {
 
     let campo = document.getElementById(id);
@@ -180,95 +489,218 @@ function renderizarTime(id, jogadores, numero) {
 
     let soma = 0;
 
-    jogadores.forEach(j => soma += Number(j.nota));
+    jogadores.forEach(j => {
 
-    document.getElementById(`notaTime${numero}`).innerHTML =
+        soma += Number(j.nota);
+
+    });
+
+    document.getElementById(
+        `notaTime${numero}`
+    ).innerHTML =
         `Nota: ${soma.toFixed(1)}`;
 
-    let goleiros = jogadores.filter(j => j.posicao === "G");
-    let zagueiros = jogadores.filter(j => j.posicao === "Z");
-    let meias = jogadores.filter(j => j.posicao === "M");
-    let atacantes = jogadores.filter(j => j.posicao === "A");
+    let goleiros =
+        jogadores.filter(j => j.posicao === "G");
 
-    goleiros.forEach(j => criarJogador(j,"86%","50%",campo));
+    let zagueiros =
+        jogadores.filter(j => j.posicao === "Z");
 
-    let z = ["25%","50%","75%"];
+    let meias =
+        jogadores.filter(j => j.posicao === "M");
 
-    zagueiros.forEach((j,i)=>{
-        criarJogador(j,"66%",z[i] || "50%",campo);
+    let atacantes =
+        jogadores.filter(j => j.posicao === "A");
+
+    goleiros.forEach(j => {
+
+        criarJogador(
+            j,
+            "85%",
+            "50%",
+            campo
+        );
+
     });
 
-    let m = ["20%","50%","80%"];
+    zagueiros.forEach((j, i) => {
 
-    meias.forEach((j,i)=>{
-        criarJogador(j,"46%",m[i] || "50%",campo);
+        let pos = ["25%", "50%", "75%"];
+
+        criarJogador(
+            j,
+            "65%",
+            pos[i] || "50%",
+            campo
+        );
+
     });
 
-    let a = ["35%","65%"];
+    meias.forEach((j, i) => {
 
-    atacantes.forEach((j,i)=>{
-        criarJogador(j,"20%",a[i] || "50%",campo);
+        let pos = ["20%", "50%", "80%"];
+
+        criarJogador(
+            j,
+            "45%",
+            pos[i] || "50%",
+            campo
+        );
+
     });
+
+    atacantes.forEach((j, i) => {
+
+        let pos = ["35%", "65%"];
+
+        criarJogador(
+            j,
+            "20%",
+            pos[i] || "50%",
+            campo
+        );
+
+    });
+
+    campo.ondragover = e => {
+
+        e.preventDefault();
+
+    };
+
+    campo.ondrop = e => {
+
+        e.preventDefault();
+
+        let jogadorId =
+            e.dataTransfer.getData("id");
+
+        let origem =
+            e.dataTransfer.getData("origem");
+
+        let destino = campo.id;
+
+        if (origem === destino) return;
+
+        let jogador = TIMES[origem].find(
+            j => String(j.id) === String(jogadorId)
+        );
+
+        if (!jogador) return;
+
+        TIMES[origem] =
+            TIMES[origem].filter(
+                j => String(j.id) !== String(jogadorId)
+            );
+
+        TIMES[destino].push(jogador);
+
+        renderizarTodosTimes();
+    };
 }
 
+// =========================================
+// RENDERIZAR TODOS
+// =========================================
 function renderizarTodosTimes() {
 
-    renderizarTime("time1", TIMES.time1, 1);
-    renderizarTime("time2", TIMES.time2, 2);
-    renderizarTime("time3", TIMES.time3, 3);
+    renderizarTime(
+        "time1",
+        TIMES.time1,
+        1
+    );
+
+    renderizarTime(
+        "time2",
+        TIMES.time2,
+        2
+    );
+
+    renderizarTime(
+        "time3",
+        TIMES.time3,
+        3
+    );
 }
 
+// =========================================
+// REGISTRAR JOGO
+// =========================================
 async function registrarJogos() {
 
     let ids = [];
 
     Object.values(TIMES).forEach(time => {
 
-        time.forEach(j => ids.push(j.id));
+        time.forEach(j => {
+
+            ids.push(j.id);
+
+        });
 
     });
 
     await fetch("/registrar-jogo", {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
         },
-        body:JSON.stringify({
+
+        body: JSON.stringify({
             jogadores: ids
         })
+
     });
 
     alert("Jogos registrados!");
-
-    listar();
 }
 
-async function salvarVitoria(numeroTime) {
+// =========================================
+// SALVAR VITÓRIA
+// =========================================
+async function salvarVitoria(nomeTime) {
 
-    await fetch("/salvar-partida", {
+    let res = await fetch("/salvar-partida", {
 
-        method:"POST",
+        method: "POST",
 
-        headers:{
-            "Content-Type":"application/json"
+        headers: {
+            "Content-Type": "application/json"
         },
 
-        body:JSON.stringify({
-            nome_time:`TIME ${numeroTime}`
+        body: JSON.stringify({
+            nome_time: nomeTime
         })
 
     });
 
-    carregarRankingTimes();
+    let retorno = await res.json();
+
+    if (retorno.ok) {
+
+        alert("Vitória registrada!");
+
+        carregarRankingTimes();
+
+    } else {
+
+        alert("Erro ao registrar vitória");
+    }
 }
 
+// =========================================
+// RANKING
+// =========================================
 async function carregarRankingTimes() {
 
     let res = await fetch("/ranking-times");
 
     let dados = await res.json();
 
-    let div = document.getElementById("rankingTimes");
+    let div =
+        document.getElementById("rankingTimes");
 
     div.innerHTML = "";
 
@@ -276,61 +708,15 @@ async function carregarRankingTimes() {
 
         div.innerHTML += `
             <div class="card-ranking">
-                🏆 ${t.nome_time} - ${t.vitorias} vitórias
+                🏆 ${t.nome_time} - ${t.vitorias}
             </div>
         `;
     });
 }
 
-async function carregarDashboard() {
-
-    let res = await fetch("/dashboard");
-
-    let dados = await res.json();
-
-    let nomesArt = dados.artilheiros.map(x => x.nome);
-    let golsArt = dados.artilheiros.map(x => x.gols);
-
-    if (graficoArtilheiros) {
-        graficoArtilheiros.destroy();
-    }
-
-    graficoArtilheiros = new Chart(
-        document.getElementById("graficoArtilheiros"),
-        {
-            type:"bar",
-            data:{
-                labels:nomesArt,
-                datasets:[{
-                    label:"Gols",
-                    data:golsArt
-                }]
-            }
-        }
-    );
-
-    let nomesGol = dados.goleiros.map(x => x.nome);
-    let golsGol = dados.goleiros.map(x => x.gols);
-
-    if (graficoGoleiros) {
-        graficoGoleiros.destroy();
-    }
-
-    graficoGoleiros = new Chart(
-        document.getElementById("graficoGoleiros"),
-        {
-            type:"bar",
-            data:{
-                labels:nomesGol,
-                datasets:[{
-                    label:"Gols Sofridos",
-                    data:golsGol
-                }]
-            }
-        }
-    );
-}
-
+// =========================================
+// COPIAR
+// =========================================
 function copiarTimes() {
 
     let texto = "";
@@ -345,8 +731,7 @@ function copiarTimes() {
 
         });
 
-        texto += "\n";
-
+        texto += `\n`;
     });
 
     navigator.clipboard.writeText(texto);
@@ -354,12 +739,18 @@ function copiarTimes() {
     alert("Times copiados!");
 }
 
+// =========================================
+// BAIXAR IMAGEM
+// =========================================
 function baixarImagem() {
 
-    html2canvas(document.getElementById("areaTimes"))
-    .then(canvas => {
+    let area =
+        document.getElementById("areaTimes");
 
-        let link = document.createElement("a");
+    html2canvas(area).then(canvas => {
+
+        let link =
+            document.createElement("a");
 
         link.download = "times.png";
 
@@ -370,4 +761,7 @@ function baixarImagem() {
     });
 }
 
+// =========================================
+// START
+// =========================================
 listar();
