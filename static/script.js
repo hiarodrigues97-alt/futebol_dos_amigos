@@ -10,19 +10,35 @@ async function listar() {
 
     let dados = await res.json();
 
-    let lista = document.getElementById("listaJogadores");
+    let listaLinha = document.getElementById("listaJogadores");
 
-    lista.innerHTML = "";
+    let listaGoleiros = document.getElementById("listaGoleiros");
+
+    listaLinha.innerHTML = "";
+
+    listaGoleiros.innerHTML = "";
+
+    dados.sort((a, b) => {
+
+        // Goleiros primeiro por menos gols sofridos
+        if (a.posicao === "G" && b.posicao === "G") {
+            return a.gols - b.gols;
+        }
+
+        // Jogadores de linha por mais gols
+        return b.gols - a.gols;
+    });
 
     dados.forEach(j => {
 
-        lista.innerHTML += `
+        let linha = `
         <tr>
 
             <td>
                 <input
                     type="checkbox"
                     class="disponivel"
+                    onchange="atualizarContador()"
                     data-id="${j.id}"
                     data-nome="${j.nome}"
                     data-nota="${j.nota}"
@@ -36,13 +52,13 @@ async function listar() {
 
             <td>${j.gols}</td>
 
-            <td>${j.jogos}</td>
+            <td>${j.jogos || 0}</td>
 
-            <td>${j.vitorias}</td>
+            <td>${j.vitorias || 0}</td>
 
             <td>${j.nota}</td>
 
-            <td>
+            <td class="acoes">
 
                 <button
                     class="btn btn-success btn-sm"
@@ -76,6 +92,22 @@ async function listar() {
 
         </tr>
         `;
+
+        // =========================================
+        // GOLEIROS
+        // =========================================
+        if (j.posicao === "G") {
+
+            listaGoleiros.innerHTML += linha;
+
+        } else {
+
+            // =========================================
+            // JOGADORES DE LINHA
+            // =========================================
+            listaLinha.innerHTML += linha;
+        }
+
     });
 
     carregarRankingTimes();
