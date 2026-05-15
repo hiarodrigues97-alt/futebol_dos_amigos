@@ -10,19 +10,26 @@ body{
 
 .card{
     border:none;
-    border-radius:16px;
+    border-radius:18px;
 }
 
-.card-time{
-    background:white;
-    padding:15px;
-    border-radius:16px;
+#rankingTimes{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.card-ranking{
+    background:#198754;
+    color:white;
+    padding:10px 15px;
+    border-radius:12px;
+    font-weight:bold;
 }
 
 .campo{
     position:relative;
-    width:100%;
-    height:600px;
+    height:650px;
     background:green;
     border-radius:16px;
     overflow:hidden;
@@ -32,14 +39,13 @@ body{
     position:absolute;
     transform:translate(-50%,-50%);
     text-align:center;
-    cursor:grab;
 }
 
 .icone-jogador{
     width:55px;
     height:55px;
-    background:white;
     border-radius:50%;
+    background:white;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -49,7 +55,7 @@ body{
 .nome-jogador{
     background:white;
     border-radius:10px;
-    padding:3px 8px;
+    padding:3px 10px;
     margin-top:5px;
     font-size:12px;
     font-weight:bold;
@@ -57,19 +63,5 @@ body{
 
 .btn-vitoria{
     width:100%;
-    margin-top:15px;
-    border:none;
-    background:#15803d;
-    color:white;
-    padding:12px;
-    border-radius:12px;
-    font-weight:bold;
-}
-
-.card-ranking{
-    background:#2563eb;
-    color:white;
-    padding:10px;
-    border-radius:10px;
-    margin-bottom:10px;
+    margin-top:10px;
 }

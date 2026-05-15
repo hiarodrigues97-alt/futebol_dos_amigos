@@ -12,6 +12,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # CONEXÃO
 # =========================================
 def conectar():
+
     return psycopg2.connect(DATABASE_URL)
 
 
@@ -20,6 +21,7 @@ def conectar():
 # =========================================
 @app.route("/")
 def index():
+
     return render_template("index.html")
 
 
@@ -43,7 +45,7 @@ def jogadores():
             COALESCE(gols,0) AS gols,
             COALESCE(jogos,0) AS jogos,
             COALESCE(vitorias,0) AS vitorias,
-            COALESCE(nota,0) AS nota
+            nota
         FROM jogadores
         ORDER BY gols DESC, nome
     """)
@@ -57,7 +59,7 @@ def jogadores():
 
 
 # =========================================
-# ADD JOGADOR
+# ADICIONAR
 # =========================================
 @app.route("/jogadores", methods=["POST"])
 def add_jogador():
@@ -65,7 +67,6 @@ def add_jogador():
     data = request.json
 
     conn = conectar()
-
     cur = conn.cursor()
 
     cur.execute("""
@@ -130,11 +131,34 @@ def remover_gol():
 
     cur.execute("""
         UPDATE jogadores
-        SET gols =
-            CASE
-                WHEN gols > 0 THEN gols - 1
-                ELSE 0
-            END
+        SET gols = CASE
+            WHEN gols > 0 THEN gols - 1
+            ELSE 0
+        END
+        WHERE id = %s
+    """, (data["id"],))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({"ok": True})
+
+
+# =========================================
+# EXCLUIR
+# =========================================
+@app.route("/excluir-jogador", methods=["POST"])
+def excluir_jogador():
+
+    data = request.json
+
+    conn = conectar()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM jogadores
         WHERE id = %s
     """, (data["id"],))
 
@@ -150,7 +174,7 @@ def remover_gol():
 # EDITAR
 # =========================================
 @app.route("/editar-jogador", methods=["POST"])
-def editar():
+def editar_jogador():
 
     data = request.json
 
@@ -180,31 +204,7 @@ def editar():
 
 
 # =========================================
-# EXCLUIR
-# =========================================
-@app.route("/excluir-jogador", methods=["POST"])
-def excluir():
-
-    data = request.json
-
-    conn = conectar()
-    cur = conn.cursor()
-
-    cur.execute("""
-        DELETE FROM jogadores
-        WHERE id = %s
-    """, (data["id"],))
-
-    conn.commit()
-
-    cur.close()
-    conn.close()
-
-    return jsonify({"ok": True})
-
-
-# =========================================
-# REGISTRAR JOGO
+# REGISTRAR JOGOS
 # =========================================
 @app.route("/registrar-jogo", methods=["POST"])
 def registrar_jogo():
@@ -238,9 +238,9 @@ def registrar_jogo():
 @app.route("/salvar-partida", methods=["POST"])
 def salvar_partida():
 
-    dados = request.json
+    data = request.json
 
-    nome_time = dados["nome_time"]
+    nome_time = data["nome_time"]
 
     conn = conectar()
     cur = conn.cursor()
@@ -308,12 +308,12 @@ def dashboard():
             nome,
             gols
         FROM jogadores
-        WHERE posicao != 'G'
-        ORDER BY gols DESC
+        WHERE posicao <> 'G'
+        ORDER BY gols DESC, nome
         LIMIT 5
     """)
 
-    artilharia = cur.fetchall()
+    artilheiros = cur.fetchall()
 
     cur.execute("""
         SELECT
@@ -331,10 +331,14 @@ def dashboard():
     conn.close()
 
     return jsonify({
-        "artilharia": artilharia,
+        "artilheiros": artilheiros,
         "goleiro": goleiro
     })
 
 
+# =========================================
+# START
+# =========================================
 if __name__ == "__main__":
+
     app.run(debug=True)

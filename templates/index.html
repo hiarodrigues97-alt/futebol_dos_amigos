@@ -34,209 +34,204 @@
         <div class="row g-3">
 
             <div class="col-md-4">
+
                 <input
                     type="text"
                     id="nome"
                     class="form-control"
                     placeholder="Nome"
                 >
+
             </div>
 
             <div class="col-md-3">
+
                 <select
                     id="posicao"
                     class="form-select"
                 >
+
                     <option value="A">Atacante</option>
                     <option value="M">Meia</option>
                     <option value="Z">Zagueiro</option>
                     <option value="G">Goleiro</option>
+
                 </select>
+
             </div>
 
             <div class="col-md-2">
+
                 <input
                     type="number"
+                    step="0.1"
                     id="nota"
                     class="form-control"
                     placeholder="Nota"
                 >
+
             </div>
 
             <div class="col-md-3">
+
                 <button
                     onclick="addJogador()"
                     class="btn btn-success w-100"
                 >
                     Adicionar
                 </button>
+
             </div>
 
         </div>
 
     </div>
 
-    <div class="d-flex gap-3 mb-4 flex-wrap">
+    <div class="d-flex gap-2 mb-4 flex-wrap">
 
-        <button
-            onclick="sortear()"
-            class="btn btn-primary"
-        >
+        <button onclick="sortear()" class="btn btn-primary">
             ⚽ Sortear
         </button>
 
-        <button
-            onclick="registrarJogos()"
-            class="btn btn-success"
-        >
+        <button onclick="registrarJogos()" class="btn btn-success">
             🎮 Registrar Jogos
         </button>
 
-        <button
-            onclick="copiarTimes()"
-            class="btn btn-dark"
-        >
+        <button onclick="copiarTimes()" class="btn btn-dark">
             📋 Copiar
         </button>
 
-        <button
-            onclick="baixarImagem()"
-            class="btn btn-warning"
-        >
+        <button onclick="baixarImagem()" class="btn btn-warning">
             📸 Imagem
         </button>
 
     </div>
 
+    <!-- RANKING -->
+
     <div class="card p-4 mb-4">
 
-        <h3>
-            🏆 Ranking Times
-        </h3>
+        <h3>🏆 Ranking Times</h3>
 
         <div id="rankingTimes"></div>
 
     </div>
 
+    <!-- DASHBOARD -->
+
     <div class="card p-4 mb-4">
 
-        <h3>
+        <h3 class="mb-4">
             📊 Dashboard
         </h3>
 
         <div class="row">
 
             <div class="col-md-6">
-                <h5>Top 5 Artilharia</h5>
-                <div id="topArtilharia"></div>
+
+                <h4>
+                    Top 5 Artilharia
+                </h4>
+
+                <div id="topArtilheiros"></div>
+
             </div>
 
             <div class="col-md-6">
-                <h5>🧤 Goleiro Mais Vazado</h5>
-                <div id="topGoleiro"></div>
+
+                <h4>
+                    🧤 Goleiro Mais Vazado
+                </h4>
+
+                <div id="goleiroVazado"></div>
+
             </div>
 
         </div>
 
     </div>
+
+    <!-- JOGADORES -->
 
     <div class="card p-4 mb-4">
 
-        <table class="table">
+        <h3 class="mb-3">
+            ⚽ Jogadores de Linha
+        </h3>
 
-            <thead>
+        <div class="table-responsive">
 
-                <tr>
-                    <th></th>
-                    <th>Nome</th>
-                    <th>Posição</th>
-                    <th>Gols</th>
-                    <th>Jogos</th>
-                    <th>Vitórias</th>
-                    <th>Nota</th>
-                    <th>Ações</th>
-                </tr>
+            <table class="table table-striped">
 
-            </thead>
+                <thead>
 
-            <tbody id="listaJogadores"></tbody>
+                    <tr>
 
-        </table>
+                        <th></th>
+                        <th>Nome</th>
+                        <th>Posição</th>
+                        <th>Gols</th>
+                        <th>Jogos</th>
+                        <th>Vitórias</th>
+                        <th>Nota</th>
+                        <th>Ações</th>
 
-    </div>
+                    </tr>
 
-    <div class="row">
+                </thead>
 
-        <div class="col-lg-4 mb-4">
+                <tbody id="listaJogadores"></tbody>
 
-            <div class="card-time">
-
-                <h3>🔵 Time 1</h3>
-
-                <div id="notaTime1"></div>
-
-                <div class="campo" id="time1"></div>
-
-                <button
-                    class="btn-vitoria"
-                    onclick="salvarVitoria('TIME 1')"
-                >
-                    🏆 Vitória
-                </button>
-
-            </div>
-
-        </div>
-
-        <div class="col-lg-4 mb-4">
-
-            <div class="card-time">
-
-                <h3>🔴 Time 2</h3>
-
-                <div id="notaTime2"></div>
-
-                <div class="campo" id="time2"></div>
-
-                <button
-                    class="btn-vitoria"
-                    onclick="salvarVitoria('TIME 2')"
-                >
-                    🏆 Vitória
-                </button>
-
-            </div>
-
-        </div>
-
-        <div class="col-lg-4 mb-4">
-
-            <div class="card-time">
-
-                <h3>🟢 Time 3</h3>
-
-                <div id="notaTime3"></div>
-
-                <div class="campo" id="time3"></div>
-
-                <button
-                    class="btn-vitoria"
-                    onclick="salvarVitoria('TIME 3')"
-                >
-                    🏆 Vitória
-                </button>
-
-            </div>
+            </table>
 
         </div>
 
     </div>
+
+    <!-- GOLEIROS -->
+
+    <div class="card p-4 mb-4">
+
+        <h3 class="mb-3">
+            🧤 Goleiros
+        </h3>
+
+        <div class="table-responsive">
+
+            <table class="table table-striped">
+
+                <thead>
+
+                    <tr>
+
+                        <th></th>
+                        <th>Nome</th>
+                        <th>Posição</th>
+                        <th>Gols Sofridos</th>
+                        <th>Jogos</th>
+                        <th>Vitórias</th>
+                        <th>Nota</th>
+                        <th>Ações</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="listaGoleiros"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <div id="areaTimes" class="row"></div>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
 <script src="/static/script.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 </body>
 </html>
