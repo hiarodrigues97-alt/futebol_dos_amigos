@@ -1,3 +1,4 @@
+# app.py
 
 from flask import Flask, render_template, request, jsonify
 import psycopg2
@@ -240,7 +241,7 @@ def registrar_jogo():
 
 
 # =========================================
-# SALVAR VITÓRIA
+# SALVAR PARTIDA
 # =========================================
 @app.route("/salvar-partida", methods=["POST"])
 def salvar_partida():

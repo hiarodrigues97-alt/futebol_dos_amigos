@@ -1,3 +1,6 @@
+
+<!-- templates/index.html -->
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -28,8 +31,6 @@
     <h1 class="titulo">
         Futebol dos Amigos ⚽
     </h1>
-
-    <!-- CADASTRO -->
 
     <div class="card p-4 mb-4">
 
@@ -66,9 +67,9 @@
 
                 <input
                     type="number"
-                    step="0.1"
                     id="nota"
                     class="form-control"
+                    step="0.1"
                     placeholder="Nota"
                 >
 
@@ -89,29 +90,44 @@
 
     </div>
 
-    <!-- BOTÕES -->
+    <div
+        class="contador"
+        id="contadorSelecionados"
+    >
+        Selecionados: 0
+    </div>
 
-    <div class="d-flex gap-2 mb-4 flex-wrap">
+    <div class="d-flex gap-2 flex-wrap mb-4">
 
-        <button onclick="sortear()" class="btn btn-primary">
+        <button
+            onclick="sortear()"
+            class="btn btn-primary"
+        >
             ⚽ Sortear
         </button>
 
-        <button onclick="registrarJogos()" class="btn btn-success">
+        <button
+            onclick="registrarJogos()"
+            class="btn btn-success"
+        >
             🎮 Registrar Jogos
         </button>
 
-        <button onclick="copiarTimes()" class="btn btn-dark">
+        <button
+            onclick="copiarTimes()"
+            class="btn btn-dark"
+        >
             📋 Copiar
         </button>
 
-        <button onclick="baixarImagem()" class="btn btn-warning">
+        <button
+            onclick="baixarImagem()"
+            class="btn btn-warning"
+        >
             📸 Imagem
         </button>
 
     </div>
-
-    <!-- RANKING -->
 
     <div class="card p-4 mb-4">
 
@@ -121,113 +137,172 @@
 
     </div>
 
-    <!-- DASHBOARD -->
+    <div class="row">
 
-    <div class="card p-4 mb-4">
+        <div class="col-lg-8">
+
+            <div class="card p-4 mb-4">
+
+                <h3>⚽ Jogadores</h3>
+
+                <table class="table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th></th>
+                            <th>Nome</th>
+                            <th>Pos</th>
+                            <th>Gols</th>
+                            <th>Jogos</th>
+                            <th>Vitórias</th>
+                            <th>Nota</th>
+                            <th>Ações</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="listaJogadores"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card p-4 mb-4">
+
+                <h3>🧤 Goleiros</h3>
+
+                <table class="table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th></th>
+                            <th>Nome</th>
+                            <th>GS</th>
+                            <th>Jogos</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="listaGoleiros"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div
+        class="area-times"
+        id="areaTimes"
+    >
 
         <div class="row">
 
-            <div class="col-md-6">
+            <div class="col-lg-4">
 
-                <h4>
-                    ⚽ Top 5 Artilharia
-                </h4>
+                <div class="card-time">
 
-                <div id="topArtilheiros"></div>
+                    <div class="topo-time">
+
+                        <h3>🔵 TIME 1</h3>
+
+                        <div id="notaTime1">
+                            Nota: 0
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="campo"
+                        id="time1"
+                    ></div>
+
+                    <button
+                        class="btn-vitoria"
+                        onclick="salvarVitoria('TIME 1')"
+                    >
+                        🏆 Vitória
+                    </button>
+
+                </div>
 
             </div>
 
-            <div class="col-md-6">
+            <div class="col-lg-4">
 
-                <h4>
-                    🧤 Goleiro Mais Vazado
-                </h4>
+                <div class="card-time">
 
-                <div id="goleiroVazado"></div>
+                    <div class="topo-time">
+
+                        <h3>🔴 TIME 2</h3>
+
+                        <div id="notaTime2">
+                            Nota: 0
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="campo"
+                        id="time2"
+                    ></div>
+
+                    <button
+                        class="btn-vitoria"
+                        onclick="salvarVitoria('TIME 2')"
+                    >
+                        🏆 Vitória
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card-time">
+
+                    <div class="topo-time">
+
+                        <h3>🟢 TIME 3</h3>
+
+                        <div id="notaTime3">
+                            Nota: 0
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="campo"
+                        id="time3"
+                    ></div>
+
+                    <button
+                        class="btn-vitoria"
+                        onclick="salvarVitoria('TIME 3')"
+                    >
+                        🏆 Vitória
+                    </button>
+
+                </div>
 
             </div>
 
         </div>
 
     </div>
-
-    <!-- JOGADORES LINHA -->
-
-    <div class="card p-4 mb-4">
-
-        <h3 class="mb-3">
-            ⚽ Jogadores de Linha
-        </h3>
-
-        <div class="table-responsive">
-
-            <table class="table table-striped">
-
-                <thead>
-
-                    <tr>
-
-                        <th></th>
-                        <th>Nome</th>
-                        <th>Posição</th>
-                        <th>Gols</th>
-                        <th>Jogos</th>
-                        <th>Vitórias</th>
-                        <th>Nota</th>
-                        <th>Ações</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="listaJogadores"></tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!-- GOLEIROS -->
-
-    <div class="card p-4 mb-4">
-
-        <h3 class="mb-3">
-            🧤 Goleiros
-        </h3>
-
-        <div class="table-responsive">
-
-            <table class="table table-striped">
-
-                <thead>
-
-                    <tr>
-
-                        <th></th>
-                        <th>Nome</th>
-                        <th>Posição</th>
-                        <th>Gols Sofridos</th>
-                        <th>Jogos</th>
-                        <th>Vitórias</th>
-                        <th>Nota</th>
-                        <th>Ações</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="listaGoleiros"></tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!-- TIMES -->
-
-    <div id="areaTimes" class="row"></div>
 
 </div>
 

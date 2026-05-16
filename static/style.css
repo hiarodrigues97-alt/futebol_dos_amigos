@@ -1,69 +1,181 @@
-body{
-    background:#f4f4f4;
+/* static/style.css */
+
+body {
+
+    background: #f5f5f5;
+
+    font-family: Arial;
+
 }
 
-.titulo{
-    text-align:center;
-    font-weight:bold;
-    margin-bottom:30px;
+.titulo {
+
+    text-align: center;
+
+    margin-bottom: 30px;
+
+    font-weight: bold;
+
 }
 
-.card{
-    border:none;
-    border-radius:18px;
+.card {
+
+    border-radius: 18px;
+
+    border: none;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
 }
 
-#rankingTimes{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
+.contador {
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    margin-bottom: 20px;
+
 }
 
-.card-ranking{
-    background:#198754;
-    color:white;
-    padding:10px 15px;
-    border-radius:12px;
-    font-weight:bold;
+#rankingTimes {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
 }
 
-.campo{
-    position:relative;
-    height:650px;
-    background:linear-gradient(to bottom,#43a047,#2e7d32);
-    border-radius:16px;
-    overflow:hidden;
-    border:4px solid white;
+.card-ranking {
+
+    background: #16a34a;
+
+    color: white;
+
+    padding: 10px 15px;
+
+    border-radius: 10px;
+
+    font-weight: bold;
+
 }
 
-.jogador-campo{
-    position:absolute;
-    transform:translate(-50%,-50%);
-    text-align:center;
+.area-times {
+
+    margin-top: 30px;
+
 }
 
-.icone-jogador{
-    width:55px;
-    height:55px;
-    border-radius:50%;
-    background:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:28px;
-    border:3px solid #111827;
+.card-time {
+
+    background: white;
+
+    padding: 15px;
+
+    border-radius: 18px;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
 }
 
-.nome-jogador{
-    background:white;
-    border-radius:10px;
-    padding:3px 10px;
-    margin-top:5px;
-    font-size:12px;
-    font-weight:bold;
+.topo-time {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+
 }
 
-.btn-vitoria{
-    width:100%;
-    margin-top:10px;
+.campo {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 600px;
+
+    background: linear-gradient(
+        to bottom,
+        #4caf50,
+        #388e3c
+    );
+
+    border-radius: 15px;
+
+    overflow: hidden;
+
+}
+
+.jogador-campo {
+
+    position: absolute;
+
+    transform: translate(-50%, -50%);
+
+    text-align: center;
+
+    cursor: grab;
+
+}
+
+.icone-jogador {
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 28px;
+
+    border: 3px solid #111;
+
+}
+
+.nome-jogador {
+
+    margin-top: 5px;
+
+    background: white;
+
+    padding: 4px 10px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+}
+
+.btn-vitoria {
+
+    width: 100%;
+
+    margin-top: 15px;
+
+    border: none;
+
+    background: #15803d;
+
+    color: white;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    font-weight: bold;
+
 }
