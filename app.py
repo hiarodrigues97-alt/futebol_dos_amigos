@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, jsonify
 import psycopg2
 import psycopg2.extras
@@ -42,12 +43,12 @@ def jogadores():
             id,
             nome,
             posicao,
-            COALESCE(gols,0) AS gols,
+            gols,
+            nota,
             COALESCE(jogos,0) AS jogos,
-            COALESCE(vitorias,0) AS vitorias,
-            nota
+            COALESCE(vitorias,0) AS vitorias
         FROM jogadores
-        ORDER BY gols DESC, nome
+        ORDER BY nome
     """)
 
     dados = cur.fetchall()
@@ -67,6 +68,7 @@ def add_jogador():
     data = request.json
 
     conn = conectar()
+
     cur = conn.cursor()
 
     cur.execute("""
@@ -102,6 +104,7 @@ def gol():
     data = request.json
 
     conn = conectar()
+
     cur = conn.cursor()
 
     cur.execute("""
@@ -127,6 +130,7 @@ def remover_gol():
     data = request.json
 
     conn = conectar()
+
     cur = conn.cursor()
 
     cur.execute("""
@@ -150,11 +154,12 @@ def remover_gol():
 # EXCLUIR
 # =========================================
 @app.route("/excluir-jogador", methods=["POST"])
-def excluir_jogador():
+def excluir():
 
     data = request.json
 
     conn = conectar()
+
     cur = conn.cursor()
 
     cur.execute("""
@@ -174,11 +179,12 @@ def excluir_jogador():
 # EDITAR
 # =========================================
 @app.route("/editar-jogador", methods=["POST"])
-def editar_jogador():
+def editar():
 
     data = request.json
 
     conn = conectar()
+
     cur = conn.cursor()
 
     cur.execute("""
@@ -214,6 +220,7 @@ def registrar_jogo():
     jogadores = data["jogadores"]
 
     conn = conectar()
+
     cur = conn.cursor()
 
     for jogador_id in jogadores:
@@ -238,11 +245,12 @@ def registrar_jogo():
 @app.route("/salvar-partida", methods=["POST"])
 def salvar_partida():
 
-    data = request.json
+    dados = request.json
 
-    nome_time = data["nome_time"]
+    nome_time = dados["nome_time"]
 
     conn = conectar()
+
     cur = conn.cursor()
 
     cur.execute("""
@@ -289,51 +297,6 @@ def ranking_times():
     conn.close()
 
     return jsonify(dados)
-
-
-# =========================================
-# DASHBOARD
-# =========================================
-@app.route("/dashboard")
-def dashboard():
-
-    conn = conectar()
-
-    cur = conn.cursor(
-        cursor_factory=psycopg2.extras.RealDictCursor
-    )
-
-    cur.execute("""
-        SELECT
-            nome,
-            gols
-        FROM jogadores
-        WHERE posicao <> 'G'
-        ORDER BY gols DESC, nome
-        LIMIT 5
-    """)
-
-    artilheiros = cur.fetchall()
-
-    cur.execute("""
-        SELECT
-            nome,
-            gols
-        FROM jogadores
-        WHERE posicao = 'G'
-        ORDER BY gols DESC
-        LIMIT 1
-    """)
-
-    goleiro = cur.fetchone()
-
-    cur.close()
-    conn.close()
-
-    return jsonify({
-        "artilheiros": artilheiros,
-        "goleiro": goleiro
-    })
 
 
 # =========================================
