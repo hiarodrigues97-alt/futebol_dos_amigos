@@ -59,7 +59,7 @@ def jogadores():
 
 
 # =========================================
-# ADICIONAR
+# ADD JOGADOR
 # =========================================
 @app.route("/jogadores", methods=["POST"])
 def add_jogador():
@@ -204,7 +204,7 @@ def editar_jogador():
 
 
 # =========================================
-# REGISTRAR JOGOS
+# REGISTRAR JOGO
 # =========================================
 @app.route("/registrar-jogo", methods=["POST"])
 def registrar_jogo():

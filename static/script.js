@@ -4,6 +4,7 @@ let TIMES = {
     time3: []
 };
 
+
 // =========================================
 // LISTAR
 // =========================================
@@ -13,11 +14,13 @@ async function listar() {
 
     let dados = await res.json();
 
-    let listaLinha = document.getElementById("listaJogadores");
+    let listaJogadores =
+        document.getElementById("listaJogadores");
 
-    let listaGoleiros = document.getElementById("listaGoleiros");
+    let listaGoleiros =
+        document.getElementById("listaGoleiros");
 
-    listaLinha.innerHTML = "";
+    listaJogadores.innerHTML = "";
 
     listaGoleiros.innerHTML = "";
 
@@ -27,6 +30,7 @@ async function listar() {
         <tr>
 
             <td>
+
                 <input
                     type="checkbox"
                     class="disponivel"
@@ -35,13 +39,19 @@ async function listar() {
                     data-posicao="${j.posicao}"
                     data-nota="${j.nota}"
                 >
+
             </td>
 
             <td>${j.nome}</td>
+
             <td>${j.posicao}</td>
+
             <td>${j.gols}</td>
+
             <td>${j.jogos}</td>
+
             <td>${j.vitorias}</td>
+
             <td>${j.nota}</td>
 
             <td>
@@ -85,7 +95,7 @@ async function listar() {
 
         } else {
 
-            listaLinha.innerHTML += linha;
+            listaJogadores.innerHTML += linha;
         }
 
     });
@@ -97,15 +107,25 @@ async function listar() {
 
 
 // =========================================
-// ADD
+// ADICIONAR
 // =========================================
 async function addJogador() {
 
-    let nome = document.getElementById("nome").value;
+    let nome =
+        document.getElementById("nome").value;
 
-    let posicao = document.getElementById("posicao").value;
+    let posicao =
+        document.getElementById("posicao").value;
 
-    let nota = document.getElementById("nota").value;
+    let nota =
+        document.getElementById("nota").value;
+
+    if (!nome || !nota) {
+
+        alert("Preencha os campos");
+
+        return;
+    }
 
     await fetch("/jogadores", {
 
@@ -122,6 +142,10 @@ async function addJogador() {
         })
 
     });
+
+    document.getElementById("nome").value = "";
+
+    document.getElementById("nota").value = "";
 
     listar();
 }
@@ -174,6 +198,8 @@ async function removerGol(id) {
 // =========================================
 async function excluirJogador(id) {
 
+    if (!confirm("Deseja excluir?")) return;
+
     await fetch("/excluir-jogador", {
 
         method: "POST",
@@ -193,13 +219,30 @@ async function excluirJogador(id) {
 // =========================================
 // EDITAR
 // =========================================
-async function editarJogador(id, nomeAtual, posicaoAtual, notaAtual) {
+async function editarJogador(
+    id,
+    nomeAtual,
+    posicaoAtual,
+    notaAtual
+) {
 
     let nome = prompt("Nome", nomeAtual);
 
-    let posicao = prompt("Posição", posicaoAtual);
+    if (!nome) return;
 
-    let nota = prompt("Nota", notaAtual);
+    let posicao = prompt(
+        "Posição (A/M/Z/G)",
+        posicaoAtual
+    );
+
+    if (!posicao) return;
+
+    let nota = prompt(
+        "Nota",
+        notaAtual
+    );
+
+    if (!nota) return;
 
     await fetch("/editar-jogador", {
 
@@ -223,11 +266,21 @@ async function editarJogador(id, nomeAtual, posicaoAtual, notaAtual) {
 
 
 // =========================================
+// EMBARALHAR
+// =========================================
+function embaralhar(lista) {
+
+    return lista.sort(() => Math.random() - 0.5);
+}
+
+
+// =========================================
 // SORTEAR
 // =========================================
 function sortear() {
 
-    let checks = document.querySelectorAll(".disponivel:checked");
+    let checks =
+        document.querySelectorAll(".disponivel:checked");
 
     let jogadores = [];
 
@@ -237,18 +290,85 @@ function sortear() {
             id: c.dataset.id,
             nome: c.dataset.nome,
             posicao: c.dataset.posicao,
-            nota: c.dataset.nota
+            nota: Number(c.dataset.nota)
         });
 
     });
 
-    TIMES.time1 = jogadores.slice(0,7);
+    if (jogadores.length < 21) {
 
-    TIMES.time2 = jogadores.slice(7,14);
+        alert("Selecione 21 jogadores");
 
-    TIMES.time3 = jogadores.slice(14,21);
+        return;
+    }
+
+    TIMES = {
+        time1: [],
+        time2: [],
+        time3: []
+    };
+
+    let goleiros =
+        embaralhar(jogadores.filter(j => j.posicao === "G"));
+
+    let zagueiros =
+        embaralhar(jogadores.filter(j => j.posicao === "Z"));
+
+    let meias =
+        embaralhar(jogadores.filter(j => j.posicao === "M"));
+
+    let atacantes =
+        embaralhar(jogadores.filter(j => j.posicao === "A"));
+
+    distribuir(goleiros);
+
+    distribuir(zagueiros);
+
+    distribuir(meias);
+
+    distribuir(atacantes);
 
     renderizarTimes();
+}
+
+
+// =========================================
+// DISTRIBUIR
+// =========================================
+function distribuir(lista) {
+
+    lista.forEach((jogador, index) => {
+
+        let numero = index % 3;
+
+        if (numero === 0) {
+            TIMES.time1.push(jogador);
+        }
+
+        if (numero === 1) {
+            TIMES.time2.push(jogador);
+        }
+
+        if (numero === 2) {
+            TIMES.time3.push(jogador);
+        }
+
+    });
+}
+
+
+// =========================================
+// ICONE
+// =========================================
+function iconeJogador(posicao) {
+
+    if (posicao === "G") return "🧤";
+
+    if (posicao === "Z") return "🛡️";
+
+    if (posicao === "M") return "🎯";
+
+    return "🔥";
 }
 
 
@@ -257,7 +377,8 @@ function sortear() {
 // =========================================
 function renderizarTimes() {
 
-    let area = document.getElementById("areaTimes");
+    let area =
+        document.getElementById("areaTimes");
 
     area.innerHTML = "";
 
@@ -272,7 +393,10 @@ function renderizarTimes() {
                         Time ${index + 1}
                     </h2>
 
-                    <div class="campo" id="${nome}"></div>
+                    <div
+                        class="campo"
+                        id="${nome}"
+                    ></div>
 
                     <button
                         class="btn btn-success btn-vitoria"
@@ -286,34 +410,100 @@ function renderizarTimes() {
             </div>
         `;
 
-        let campo = document.getElementById(nome);
+        let campo =
+            document.getElementById(nome);
 
-        jogadores.forEach((j, i) => {
+        let goleiros =
+            jogadores.filter(j => j.posicao === "G");
 
-            let div = document.createElement("div");
+        let zagueiros =
+            jogadores.filter(j => j.posicao === "Z");
 
-            div.className = "jogador-campo";
+        let meias =
+            jogadores.filter(j => j.posicao === "M");
 
-            div.style.top = `${15 + (i * 10)}%`;
+        let atacantes =
+            jogadores.filter(j => j.posicao === "A");
 
-            div.style.left = `50%`;
+        goleiros.forEach(j => {
 
-            div.innerHTML = `
-                <div class="icone-jogador">
-                    ⚽
-                </div>
+            criarJogador(campo, j, "85%", "50%");
 
-                <div class="nome-jogador">
-                    ${j.nome}
-                </div>
-            `;
+        });
 
-            campo.appendChild(div);
+        zagueiros.forEach((j, i) => {
+
+            let posicoes = ["25%", "50%", "75%"];
+
+            criarJogador(
+                campo,
+                j,
+                "65%",
+                posicoes[i]
+            );
+
+        });
+
+        meias.forEach((j, i) => {
+
+            let posicoes = ["20%", "50%", "80%"];
+
+            criarJogador(
+                campo,
+                j,
+                "45%",
+                posicoes[i]
+            );
+
+        });
+
+        atacantes.forEach((j, i) => {
+
+            let posicoes = ["35%", "65%"];
+
+            criarJogador(
+                campo,
+                j,
+                "20%",
+                posicoes[i]
+            );
 
         });
 
     });
 
+}
+
+
+// =========================================
+// CRIAR JOGADOR
+// =========================================
+function criarJogador(
+    campo,
+    jogador,
+    top,
+    left
+) {
+
+    let div = document.createElement("div");
+
+    div.className = "jogador-campo";
+
+    div.style.top = top;
+
+    div.style.left = left;
+
+    div.innerHTML = `
+        <div class="icone-jogador">
+            ${iconeJogador(jogador.posicao)}
+        </div>
+
+        <div class="nome-jogador">
+            ${jogador.nome}
+        </div>
+    `;
+
+    campo.appendChild(div);
 }
 
 
@@ -384,11 +574,14 @@ async function salvarVitoria(numero) {
 // =========================================
 async function carregarRankingTimes() {
 
-    let res = await fetch("/ranking-times");
+    let res =
+        await fetch("/ranking-times");
 
-    let dados = await res.json();
+    let dados =
+        await res.json();
 
-    let div = document.getElementById("rankingTimes");
+    let div =
+        document.getElementById("rankingTimes");
 
     div.innerHTML = "";
 
@@ -410,11 +603,14 @@ async function carregarRankingTimes() {
 // =========================================
 async function carregarDashboard() {
 
-    let res = await fetch("/dashboard");
+    let res =
+        await fetch("/dashboard");
 
-    let dados = await res.json();
+    let dados =
+        await res.json();
 
-    let artilheiros = document.getElementById("topArtilheiros");
+    let artilheiros =
+        document.getElementById("topArtilheiros");
 
     artilheiros.innerHTML = "";
 
@@ -428,13 +624,17 @@ async function carregarDashboard() {
 
     });
 
-    let goleiro = document.getElementById("goleiroVazado");
+    let goleiro =
+        document.getElementById("goleiroVazado");
+
+    goleiro.innerHTML = "";
 
     if (dados.goleiro) {
 
         goleiro.innerHTML = `
             <div>
-                🧤 ${dados.goleiro.nome} - ${dados.goleiro.gols} gols
+                🧤 ${dados.goleiro.nome}
+                - ${dados.goleiro.gols} gols
             </div>
         `;
 
@@ -452,15 +652,15 @@ function copiarTimes() {
 
     Object.entries(TIMES).forEach(([nome, jogadores]) => {
 
-        texto += `${nome}\n`;
+        texto += `${nome.toUpperCase()}\n`;
 
         jogadores.forEach(j => {
 
-            texto += `${j.nome}\n`;
+            texto += `- ${j.nome}\n`;
 
         });
 
-        texto += `\n`;
+        texto += "\n";
 
     });
 
@@ -471,14 +671,16 @@ function copiarTimes() {
 
 
 // =========================================
-// IMAGEM
+// BAIXAR IMAGEM
 // =========================================
 function baixarImagem() {
 
-    html2canvas(document.getElementById("areaTimes"))
-    .then(canvas => {
+    html2canvas(
+        document.getElementById("areaTimes")
+    ).then(canvas => {
 
-        let link = document.createElement("a");
+        let link =
+            document.createElement("a");
 
         link.download = "times.png";
 
