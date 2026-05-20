@@ -1,4 +1,3 @@
-
 <!-- templates/index.html -->
 
 <!DOCTYPE html>
@@ -31,6 +30,8 @@
     <h1 class="titulo">
         Futebol dos Amigos ⚽
     </h1>
+
+    <!-- CADASTRO -->
 
     <div class="card p-4 mb-4">
 
@@ -90,12 +91,16 @@
 
     </div>
 
+    <!-- CONTADOR -->
+
     <div
         class="contador"
         id="contadorSelecionados"
     >
         Selecionados: 0
     </div>
+
+    <!-- BOTÕES -->
 
     <div class="d-flex gap-2 flex-wrap mb-4">
 
@@ -129,79 +134,137 @@
 
     </div>
 
+    <!-- RANKING -->
+
     <div class="card p-4 mb-4">
 
-        <h3>🏆 Ranking Times</h3>
+        <h3 class="mb-3">
+            🏆 Ranking Times
+        </h3>
 
         <div id="rankingTimes"></div>
 
     </div>
 
-    <div class="row">
+    <!-- DASHBOARD -->
 
-        <div class="col-lg-8">
+    <div class="row mb-4">
 
-            <div class="card p-4 mb-4">
+        <div class="col-lg-6">
 
-                <h3>⚽ Jogadores</h3>
+            <div class="card p-4 h-100">
 
-                <table class="table">
+                <h3 class="mb-3">
+                    ⚽ Top 5 Artilheiros
+                </h3>
 
-                    <thead>
-
-                        <tr>
-
-                            <th></th>
-                            <th>Nome</th>
-                            <th>Pos</th>
-                            <th>Gols</th>
-                            <th>Jogos</th>
-                            <th>Vitórias</th>
-                            <th>Nota</th>
-                            <th>Ações</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="listaJogadores"></tbody>
-
-                </table>
+                <div id="graficoArtilheiros"></div>
 
             </div>
 
         </div>
 
-        <div class="col-lg-4">
+        <div class="col-lg-6">
 
-            <div class="card p-4 mb-4">
+            <div class="card p-4 h-100">
 
-                <h3>🧤 Goleiros</h3>
+                <h3 class="mb-3">
+                    🧤 Goleiros Menos Vazados
+                </h3>
 
-                <table class="table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th></th>
-                            <th>Nome</th>
-                            <th>GS</th>
-                            <th>Jogos</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="listaGoleiros"></tbody>
-
-                </table>
+                <div id="graficoGoleiros"></div>
 
             </div>
 
         </div>
 
     </div>
+
+    <!-- TABELAS -->
+
+    <div class="row">
+
+        <!-- JOGADORES -->
+
+        <div class="col-lg-8">
+
+            <div class="card p-4 mb-4">
+
+                <h3 class="mb-3">
+                    ⚽ Jogadores
+                </h3>
+
+                <div class="table-responsive">
+
+                    <table class="table align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th></th>
+                                <th>Nome</th>
+                                <th>Pos</th>
+                                <th>Gols</th>
+                                <th>Jogos</th>
+                                <th>Vitórias</th>
+                                <th>Nota</th>
+                                <th>Ações</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="listaJogadores"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- GOLEIROS -->
+
+        <div class="col-lg-4">
+
+            <div class="card p-4 mb-4">
+
+                <h3 class="mb-3">
+                    🧤 Goleiros
+                </h3>
+
+                <div class="table-responsive">
+
+                    <table class="table align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th></th>
+                                <th>Nome</th>
+                                <th>GS</th>
+                                <th>Jogos</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="listaGoleiros"></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TIMES -->
 
     <div
         class="area-times"
@@ -210,15 +273,22 @@
 
         <div class="row">
 
-            <div class="col-lg-4">
+            <!-- TIME 1 -->
+
+            <div class="col-lg-4 mb-4">
 
                 <div class="card-time">
 
                     <div class="topo-time">
 
-                        <h3>🔵 TIME 1</h3>
+                        <h3>
+                            🔵 TIME 1
+                        </h3>
 
-                        <div id="notaTime1">
+                        <div
+                            class="nota-time"
+                            id="notaTime1"
+                        >
                             Nota: 0
                         </div>
 
@@ -240,15 +310,22 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <!-- TIME 2 -->
+
+            <div class="col-lg-4 mb-4">
 
                 <div class="card-time">
 
                     <div class="topo-time">
 
-                        <h3>🔴 TIME 2</h3>
+                        <h3>
+                            🔴 TIME 2
+                        </h3>
 
-                        <div id="notaTime2">
+                        <div
+                            class="nota-time"
+                            id="notaTime2"
+                        >
                             Nota: 0
                         </div>
 
@@ -270,15 +347,22 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <!-- TIME 3 -->
+
+            <div class="col-lg-4 mb-4">
 
                 <div class="card-time">
 
                     <div class="topo-time">
 
-                        <h3>🟢 TIME 3</h3>
+                        <h3>
+                            🟢 TIME 3
+                        </h3>
 
-                        <div id="notaTime3">
+                        <div
+                            class="nota-time"
+                            id="notaTime3"
+                        >
                             Nota: 0
                         </div>
 
@@ -305,6 +389,8 @@
     </div>
 
 </div>
+
+<!-- SCRIPTS -->
 
 <script src="/static/script.js"></script>
 
