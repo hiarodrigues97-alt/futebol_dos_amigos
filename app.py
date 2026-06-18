@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import psycopg2
 import psycopg2.extras
 import os
@@ -20,10 +20,7 @@ def conectar():
 # ==================================================
 @app.route("/")
 def home():
-    return jsonify({
-        "sistema": "Futebol dos Amigos",
-        "status": "online"
-    })
+    return render_template("index.html")
 
 
 # ==================================================
