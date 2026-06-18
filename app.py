@@ -47,7 +47,7 @@ def listar_jogadores():
             COALESCE(jogos,0) as jogos,
             COALESCE(vitorias,0) as vitorias
         FROM jogadores
-        ORDER BY gols
+        ORDER BY desc gols
     """)
 
     dados = cur.fetchall()
@@ -313,6 +313,10 @@ def ranking_jogos():
     conn.close()
 
     return jsonify(dados)
+
+@app.route("/top10-imagem")
+def top10_imagem():
+    return "Em desenvolvimento"
 
 
 # ==================================================

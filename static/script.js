@@ -193,6 +193,14 @@ async function carregarRanking() {
     });
 
 }
+function gerarTop10() {
+
+    window.open(
+        "/top10-imagem",
+        "_blank"
+    );
+
+}
 
 // =========================================
 // START
