@@ -93,20 +93,13 @@
 
     <!-- Ações -->
 
-    <div class="mb-4 d-flex gap-2 flex-wrap">
-
-        <button
-            class="btn btn-primary"
-            onclick="sortear()"
-        >
-            Sortear Times
-        </button>
+    <div class="mb-4">
 
         <button
             class="btn btn-warning"
             onclick="gerarTop10()"
         >
-            Top 10
+            🏆 Gerar Imagem Top 10
         </button>
 
     </div>
@@ -127,14 +120,14 @@
 
     </div>
 
-    <!-- Jogadores -->
+    <!-- Jogadores de Linha -->
 
     <div class="card mb-4">
 
         <div class="card-body">
 
             <h5>
-                Jogadores
+                ⚽ Jogadores de Linha
             </h5>
 
             <div class="table-responsive">
@@ -147,9 +140,9 @@
 
                             <th>Nome</th>
                             <th>Pos</th>
-                            <th>⚽</th>
-                            <th>🎮</th>
-                            <th>🏆</th>
+                            <th>⚽ Gols</th>
+                            <th>🎮 Jogos</th>
+                            <th>🏆 Vitórias</th>
                             <th>Ações</th>
 
                         </tr>
@@ -166,56 +159,36 @@
 
     </div>
 
-    <!-- Times -->
+    <!-- Goleiros -->
 
-    <div
-        class="row"
-        id="areaTimes"
-    >
+    <div class="card mb-4">
 
-        <div class="col-md-4">
+        <div class="card-body">
 
-            <div class="card">
+            <h5>
+                🧤 Goleiros
+            </h5>
 
-                <div class="card-body">
+            <div class="table-responsive">
 
-                    <h5>🔵 Time 1</h5>
+                <table class="table table-striped">
 
-                    <div id="time1"></div>
+                    <thead>
 
-                </div>
+                        <tr>
 
-            </div>
+                            <th>Nome</th>
+                            <th>🎮 Jogos</th>
+                            <th>🏆 Vitórias</th>
+                            <th>Ações</th>
 
-        </div>
+                        </tr>
 
-        <div class="col-md-4">
+                    </thead>
 
-            <div class="card">
+                    <tbody id="listaGoleiros"></tbody>
 
-                <div class="card-body">
-
-                    <h5>🔴 Time 2</h5>
-
-                    <div id="time2"></div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="card">
-
-                <div class="card-body">
-
-                    <h5>🟢 Time 3</h5>
-
-                    <div id="time3"></div>
-
-                </div>
+                </table>
 
             </div>
 
@@ -230,4 +203,3 @@
 </body>
 
 </html>
-
