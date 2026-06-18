@@ -1,24 +1,20 @@
 async function carregarJogadores() {
 
-    console.log("Entrou na função");
-
-    const resposta = await fetch("/jogadores");
-
-    console.log("Resposta:", resposta);
-
-    const jogadores = await resposta.json();
-
-    console.log("Jogadores:", jogadores);
-
     try {
+
+        console.log("Carregando jogadores...");
 
         const resposta = await fetch("/jogadores");
 
         if (!resposta.ok) {
-            throw new Error("Erro ao carregar jogadores");
+            throw new Error(
+                `Erro HTTP: ${resposta.status}`
+            );
         }
 
         const jogadores = await resposta.json();
+
+        console.log(jogadores);
 
         const tabelaJogadores =
             document.getElementById("listaJogadores");
@@ -27,12 +23,12 @@ async function carregarJogadores() {
             document.getElementById("listaGoleiros");
 
         if (!tabelaJogadores) {
-            console.error("Elemento listaJogadores não encontrado.");
+            console.error("listaJogadores não encontrada");
             return;
         }
 
         if (!tabelaGoleiros) {
-            console.error("Elemento listaGoleiros não encontrado.");
+            console.error("listaGoleiros não encontrada");
             return;
         }
 
@@ -41,110 +37,120 @@ async function carregarJogadores() {
 
         jogadores.forEach(j => {
 
-            const linha = `
+            const linhaJogador = `
                 <tr>
-
                     <td>${j.nome}</td>
+                    <td>${j.posicao}</td>
 
-                    ${j.posicao !== "G"
-                        ? `<td>${j.posicao}</td>`
-                        : ""}
-
-                    ${j.posicao !== "G"
-                        ? `
-                        <td>
-                            ${j.gols}
-
-                            <button
-                                class="btn btn-success btn-sm"
-                                onclick="alterar(${j.id},'gols','somar')"
-                            >
-                                +
-                            </button>
-
-                            <button
-                                class="btn btn-danger btn-sm"
-                                onclick="alterar(${j.id},'gols','subtrair')"
-                            >
-                                -
-                            </button>
-                        </td>
-                        `
-                        : ""}
+                    <td>
+                        ${j.gols}
+                        <button class="btn btn-success btn-sm"
+                            onclick="alterar(${j.id},'gols','somar')">
+                            +
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                            onclick="alterar(${j.id},'gols','subtrair')">
+                            -
+                        </button>
+                    </td>
 
                     <td>
                         ${j.jogos}
-
-                        <button
-                            class="btn btn-success btn-sm"
-                            onclick="alterar(${j.id},'jogos','somar')"
-                        >
+                        <button class="btn btn-success btn-sm"
+                            onclick="alterar(${j.id},'jogos','somar')">
                             +
                         </button>
-
-                        <button
-                            class="btn btn-danger btn-sm"
-                            onclick="alterar(${j.id},'jogos','subtrair')"
-                        >
+                        <button class="btn btn-danger btn-sm"
+                            onclick="alterar(${j.id},'jogos','subtrair')">
                             -
                         </button>
                     </td>
 
                     <td>
                         ${j.vitorias}
-
-                        <button
-                            class="btn btn-success btn-sm"
-                            onclick="alterar(${j.id},'vitorias','somar')"
-                        >
+                        <button class="btn btn-success btn-sm"
+                            onclick="alterar(${j.id},'vitorias','somar')">
                             +
                         </button>
-
-                        <button
-                            class="btn btn-danger btn-sm"
-                            onclick="alterar(${j.id},'vitorias','subtrair')"
-                        >
+                        <button class="btn btn-danger btn-sm"
+                            onclick="alterar(${j.id},'vitorias','subtrair')">
                             -
                         </button>
                     </td>
 
                     <td>
-
-                        <button
-                            class="btn btn-primary btn-sm"
+                        <button class="btn btn-primary btn-sm"
                             onclick="editarJogador(
                                 ${j.id},
                                 '${j.nome}',
                                 '${j.posicao}',
                                 '${j.nota}'
-                            )"
-                        >
+                            )">
                             Editar
                         </button>
 
-                        <button
-                            class="btn btn-danger btn-sm"
-                            onclick="excluirJogador(${j.id})"
-                        >
+                        <button class="btn btn-danger btn-sm"
+                            onclick="excluirJogador(${j.id})">
                             Excluir
                         </button>
+                    </td>
+                </tr>
+            `;
 
+            const linhaGoleiro = `
+                <tr>
+                    <td>${j.nome}</td>
+
+                    <td>
+                        ${j.jogos}
+                        <button class="btn btn-success btn-sm"
+                            onclick="alterar(${j.id},'jogos','somar')">
+                            +
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                            onclick="alterar(${j.id},'jogos','subtrair')">
+                            -
+                        </button>
                     </td>
 
+                    <td>
+                        ${j.vitorias}
+                        <button class="btn btn-success btn-sm"
+                            onclick="alterar(${j.id},'vitorias','somar')">
+                            +
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                            onclick="alterar(${j.id},'vitorias','subtrair')">
+                            -
+                        </button>
+                    </td>
+
+                    <td>
+                        <button class="btn btn-primary btn-sm"
+                            onclick="editarJogador(
+                                ${j.id},
+                                '${j.nome}',
+                                '${j.posicao}',
+                                '${j.nota}'
+                            )">
+                            Editar
+                        </button>
+
+                        <button class="btn btn-danger btn-sm"
+                            onclick="excluirJogador(${j.id})">
+                            Excluir
+                        </button>
+                    </td>
                 </tr>
             `;
 
             if (j.posicao === "G") {
-                tabelaGoleiros.innerHTML += linha;
+                tabelaGoleiros.innerHTML += linhaGoleiro;
             } else {
-                tabelaJogadores.innerHTML += linha;
+                tabelaJogadores.innerHTML += linhaJogador;
             }
 
         });
-
-        console.log(
-            `Carregados ${jogadores.length} jogadores`
-        );
 
     } catch (erro) {
 
