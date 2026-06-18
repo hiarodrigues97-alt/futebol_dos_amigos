@@ -162,3 +162,14 @@ async function carregarJogadores() {
     }
 
 }
+
+// =========================================
+// START
+// =========================================
+
+window.onload = function () {
+
+    carregarJogadores();
+    carregarRanking();
+
+};
