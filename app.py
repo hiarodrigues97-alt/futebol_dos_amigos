@@ -29,6 +29,8 @@ def home():
 @app.route("/jogadores", methods=["GET"])
 def listar_jogadores():
 
+    print("Entrou na rota /jogadores")
+
     conn = conectar()
 
     cur = conn.cursor(
@@ -45,10 +47,12 @@ def listar_jogadores():
             COALESCE(jogos,0) as jogos,
             COALESCE(vitorias,0) as vitorias
         FROM jogadores
-        ORDER BY gols
+        ORDER BY nome
     """)
 
     dados = cur.fetchall()
+
+    print("Dados encontrados:", dados)
 
     cur.close()
     conn.close()
