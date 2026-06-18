@@ -1,5 +1,15 @@
 async function carregarJogadores() {
 
+    console.log("Entrou na função");
+
+    const resposta = await fetch("/jogadores");
+
+    console.log("Resposta:", resposta);
+
+    const jogadores = await resposta.json();
+
+    console.log("Jogadores:", jogadores);
+
     try {
 
         const resposta = await fetch("/jogadores");
