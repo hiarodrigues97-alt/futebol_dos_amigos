@@ -162,6 +162,37 @@ async function carregarJogadores() {
     }
 
 }
+async function carregarRanking() {
+
+    console.log("Entrou no ranking");
+
+    const resposta =
+        await fetch("/ranking/artilharia");
+
+    console.log("Resposta ranking:", resposta);
+
+    const ranking =
+        await resposta.json();
+
+    console.log("Dados ranking:", ranking);
+
+    const div =
+        document.getElementById("ranking");
+
+    div.innerHTML = "";
+
+    ranking.forEach((j, index) => {
+
+        div.innerHTML += `
+            <div class="ranking-item">
+                <span>${index + 1}º ${j.nome}</span>
+                <strong>${j.gols} gols</strong>
+            </div>
+        `;
+
+    });
+
+}
 
 // =========================================
 // START

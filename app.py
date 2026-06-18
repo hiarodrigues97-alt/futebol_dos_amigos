@@ -47,7 +47,7 @@ def listar_jogadores():
             COALESCE(jogos,0) as jogos,
             COALESCE(vitorias,0) as vitorias
         FROM jogadores
-        ORDER BY nome
+        ORDER BY gols
     """)
 
     dados = cur.fetchall()
