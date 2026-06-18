@@ -439,4 +439,4 @@ window.onload = () => {
     carregarJogadores();
     carregarRanking();
 
-};
+}
