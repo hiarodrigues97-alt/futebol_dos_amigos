@@ -1,7 +1,21 @@
-from flask import Flask, jsonify, request, render_template
+from flask import (
+    Flask,
+    jsonify,
+    request,
+    render_template,
+    send_file
+)
+
 import psycopg2
 import psycopg2.extras
 import os
+import io
+
+from PIL import (
+    Image,
+    ImageDraw,
+    ImageFont
+)
 
 app = Flask(__name__)
 
@@ -29,8 +43,6 @@ def home():
 @app.route("/jogadores", methods=["GET"])
 def listar_jogadores():
 
-    print("Entrou na rota /jogadores")
-
     conn = conectar()
 
     cur = conn.cursor(
@@ -43,16 +55,14 @@ def listar_jogadores():
             nome,
             posicao,
             nota,
-            COALESCE(gols,0) as gols,
-            COALESCE(jogos,0) as jogos,
-            COALESCE(vitorias,0) as vitorias
+            COALESCE(gols,0) AS gols,
+            COALESCE(jogos,0) AS jogos,
+            COALESCE(vitorias,0) AS vitorias
         FROM jogadores
-        ORDER BY desc gols
+        ORDER BY gols DESC, nome
     """)
 
     dados = cur.fetchall()
-
-    print("Dados encontrados:", dados)
 
     cur.close()
     conn.close()
@@ -162,7 +172,10 @@ def excluir_jogador(id):
 # ==================================================
 # ATUALIZAR ESTATÍSTICAS
 # ==================================================
-@app.route("/jogadores/<int:id>/estatistica", methods=["POST"])
+@app.route(
+    "/jogadores/<int:id>/estatistica",
+    methods=["POST"]
+)
 def atualizar_estatistica(id):
 
     dados = request.json
@@ -177,6 +190,7 @@ def atualizar_estatistica(id):
     ]
 
     if campo not in campos_validos:
+
         return jsonify({
             "erro": "Campo inválido"
         }), 400
@@ -188,7 +202,8 @@ def atualizar_estatistica(id):
 
         cur.execute(f"""
             UPDATE jogadores
-            SET {campo} = COALESCE({campo},0) + 1
+            SET {campo} =
+                COALESCE({campo},0) + 1
             WHERE id = %s
         """, (id,))
 
@@ -207,6 +222,9 @@ def atualizar_estatistica(id):
 
     else:
 
+        cur.close()
+        conn.close()
+
         return jsonify({
             "erro": "Ação inválida"
         }), 400
@@ -222,7 +240,7 @@ def atualizar_estatistica(id):
 
 
 # ==================================================
-# TOP ARTILHEIROS
+# RANKING ARTILHARIA
 # ==================================================
 @app.route("/ranking/artilharia")
 def ranking_artilharia():
@@ -240,7 +258,7 @@ def ranking_artilharia():
             jogos,
             vitorias
         FROM jogadores
-        where posicao != 'G'
+        WHERE posicao <> 'G'
         ORDER BY gols DESC, nome
         LIMIT 10
     """)
@@ -254,7 +272,7 @@ def ranking_artilharia():
 
 
 # ==================================================
-# TOP VITÓRIAS
+# RANKING VITÓRIAS
 # ==================================================
 @app.route("/ranking/vitorias")
 def ranking_vitorias():
@@ -285,7 +303,7 @@ def ranking_vitorias():
 
 
 # ==================================================
-# TOP PRESENÇA
+# RANKING JOGOS
 # ==================================================
 @app.route("/ranking/jogos")
 def ranking_jogos():
@@ -314,9 +332,114 @@ def ranking_jogos():
 
     return jsonify(dados)
 
+
+# ==================================================
+# GERAR IMAGEM TOP 10
+# ==================================================
 @app.route("/top10-imagem")
 def top10_imagem():
-    return "Em desenvolvimento"
+
+    conn = conectar()
+
+    cur = conn.cursor(
+        cursor_factory=psycopg2.extras.RealDictCursor
+    )
+
+    cur.execute("""
+        SELECT
+            nome,
+            gols
+        FROM jogadores
+        WHERE posicao <> 'G'
+        ORDER BY gols DESC, nome
+        LIMIT 10
+    """)
+
+    ranking = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    largura = 900
+    altura = 700
+
+    imagem = Image.new(
+        "RGB",
+        (largura, altura),
+        (25, 135, 84)
+    )
+
+    draw = ImageDraw.Draw(imagem)
+
+    try:
+
+        titulo_font = ImageFont.truetype(
+            "arial.ttf",
+            42
+        )
+
+        texto_font = ImageFont.truetype(
+            "arial.ttf",
+            28
+        )
+
+    except:
+
+        titulo_font = ImageFont.load_default()
+        texto_font = ImageFont.load_default()
+
+    draw.text(
+        (250, 30),
+        "TOP 10 ARTILHEIROS",
+        fill="white",
+        font=titulo_font
+    )
+
+    y = 120
+
+    for posicao, jogador in enumerate(
+        ranking,
+        start=1
+    ):
+
+        medalha = ""
+
+        if posicao == 1:
+            medalha = "🥇"
+        elif posicao == 2:
+            medalha = "🥈"
+        elif posicao == 3:
+            medalha = "🥉"
+
+        linha = (
+            f"{medalha} "
+            f"{posicao}º - "
+            f"{jogador['nome']} "
+            f"({jogador['gols']} gols)"
+        )
+
+        draw.text(
+            (60, y),
+            linha,
+            fill="white",
+            font=texto_font
+        )
+
+        y += 50
+
+    arquivo = io.BytesIO()
+
+    imagem.save(
+        arquivo,
+        format="PNG"
+    )
+
+    arquivo.seek(0)
+
+    return send_file(
+        arquivo,
+        mimetype="image/png"
+    )
 
 
 # ==================================================
