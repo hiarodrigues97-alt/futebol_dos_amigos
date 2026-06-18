@@ -334,7 +334,7 @@ def ranking_jogos():
 
 
 # ==================================================
-# GERAR IMAGEM TOP 10
+# GERAR IMAGEM TOP 10 ARTILHEIROS
 # ==================================================
 @app.route("/top10-imagem")
 def top10_imagem():
@@ -360,42 +360,83 @@ def top10_imagem():
     cur.close()
     conn.close()
 
-    largura = 900
-    altura = 700
+    # ==========================
+    # CARREGA IMAGEM DE FUNDO
+    # ==========================
 
-    imagem = Image.new(
-        "RGB",
-        (largura, altura),
-        (25, 135, 84)
+    imagem = Image.open(
+        "static/fundo_ranking.png"
+    ).convert("RGBA")
+
+    largura, altura = imagem.size
+
+    # ==========================
+    # CAMADA ESCURA
+    # ==========================
+
+    overlay = Image.new(
+        "RGBA",
+        imagem.size,
+        (0, 0, 0, 140)
+    )
+
+    imagem = Image.alpha_composite(
+        imagem,
+        overlay
     )
 
     draw = ImageDraw.Draw(imagem)
+
+    # ==========================
+    # FONTES
+    # ==========================
 
     try:
 
         titulo_font = ImageFont.truetype(
             "arial.ttf",
-            42
+            50
         )
 
-        texto_font = ImageFont.truetype(
+        ranking_font = ImageFont.truetype(
             "arial.ttf",
-            28
+            30
+        )
+
+        rodape_font = ImageFont.truetype(
+            "arial.ttf",
+            22
         )
 
     except:
 
         titulo_font = ImageFont.load_default()
-        texto_font = ImageFont.load_default()
+        ranking_font = ImageFont.load_default()
+        rodape_font = ImageFont.load_default()
+
+    # ==========================
+    # TÍTULO
+    # ==========================
 
     draw.text(
-        (250, 30),
-        "TOP 10 ARTILHEIROS",
-        fill="white",
+        (150, 40),
+        "🏆 TOP 10 ARTILHEIROS",
+        fill="#FFD700",
         font=titulo_font
     )
 
-    y = 120
+    draw.text(
+        (250, 100),
+        "Futebol dos Amigos",
+        fill="white",
+        font=rodape_font
+    )
+
+    # ==========================
+    # LISTA
+    # ==========================
+
+    y = 180
 
     for posicao, jogador in enumerate(
         ranking,
@@ -406,30 +447,52 @@ def top10_imagem():
 
         if posicao == 1:
             medalha = "🥇"
+
         elif posicao == 2:
             medalha = "🥈"
+
         elif posicao == 3:
             medalha = "🥉"
 
         linha = (
-            f"{medalha} "
-            f"{posicao}º - "
-            f"{jogador['nome']} "
-            f"({jogador['gols']} gols)"
+            f"{medalha} {posicao:>2}º  "
+            f"{jogador['nome'][:20]}"
         )
 
         draw.text(
             (60, y),
             linha,
             fill="white",
-            font=texto_font
+            font=ranking_font
         )
 
-        y += 50
+        draw.text(
+            (650, y),
+            f"{jogador['gols']} ⚽",
+            fill="#FFD700",
+            font=ranking_font
+        )
+
+        y += 45
+
+    # ==========================
+    # DATA
+    # ==========================
+
+    draw.text(
+        (220, altura - 50),
+        f"Atualizado em {datetime.now().strftime('%d/%m/%Y')}",
+        fill="white",
+        font=rodape_font
+    )
+
+    # ==========================
+    # RETORNA PNG
+    # ==========================
 
     arquivo = io.BytesIO()
 
-    imagem.save(
+    imagem.convert("RGB").save(
         arquivo,
         format="PNG"
     )
