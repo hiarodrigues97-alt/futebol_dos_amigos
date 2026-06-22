@@ -376,7 +376,7 @@ def top10_imagem():
         #
         caminho_imagem = os.path.join(
             "static",
-            "top10.png"
+            "ChatGPT Image 18 de jun. de 2026, 17_14_57 (2)"
         )
 
         imagem = Image.open(
