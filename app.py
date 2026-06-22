@@ -335,166 +335,170 @@ def ranking_jogos():
 
 
 # ==================================================
-# GERAR IMAGEM TOP 10 ARTILHEIROS
+# GERAR IMAGEM TOP 10
 # ==================================================
+
+from flask import send_file
+from PIL import Image, ImageDraw, ImageFont
+import psycopg2.extras
+import io
+import os
+
+
 @app.route("/top10-imagem")
 def top10_imagem():
 
-    conn = conectar()
-
-    cur = conn.cursor(
-        cursor_factory=psycopg2.extras.RealDictCursor
-    )
-
-    cur.execute("""
-        SELECT
-            nome,
-            gols
-        FROM jogadores
-        WHERE posicao <> 'G'
-        ORDER BY gols DESC, nome
-        LIMIT 10
-    """)
-
-    ranking = cur.fetchall()
-
-    cur.close()
-    conn.close()
-
-    # ==========================================
-    # TEMPLATE
-    # ==========================================
-
-    imagem = Image.open(
-        "static/top10_template.png"
-    ).convert("RGBA")
-
-    draw = ImageDraw.Draw(imagem)
-
-    # ==========================================
-    # FONTES
-    # ==========================================
-
     try:
 
-        fonte_nome = ImageFont.truetype(
-            "arialbd.ttf",
-            38
+        conn = conectar()
+
+        cur = conn.cursor(
+            cursor_factory=psycopg2.extras.RealDictCursor
         )
 
-        fonte_gols = ImageFont.truetype(
-            "arialbd.ttf",
-            44
+        cur.execute("""
+            SELECT
+                nome,
+                gols
+            FROM jogadores
+            WHERE posicao <> 'G'
+            ORDER BY gols DESC, nome
+            LIMIT 10
+        """)
+
+        ranking = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        #
+        # IMAGEM DE FUNDO
+        #
+        caminho_imagem = os.path.join(
+            "static",
+            "top10.png"
         )
 
-        fonte_data = ImageFont.truetype(
-            "arial.ttf",
-            20
+        imagem = Image.open(
+            caminho_imagem
+        ).convert("RGB")
+
+        draw = ImageDraw.Draw(imagem)
+
+        #
+        # FONTES
+        #
+        try:
+
+            fonte_posicao = ImageFont.truetype(
+                "arial.ttf",
+                42
+            )
+
+            fonte_nome = ImageFont.truetype(
+                "arial.ttf",
+                34
+            )
+
+            fonte_gols = ImageFont.truetype(
+                "arial.ttf",
+                34
+            )
+
+        except:
+
+            fonte_posicao = ImageFont.load_default()
+            fonte_nome = ImageFont.load_default()
+            fonte_gols = ImageFont.load_default()
+
+        #
+        # LIMPA ÁREA DO RANKING
+        #
+        draw.rectangle(
+            (
+                720,
+                300,
+                1365,
+                1280
+            ),
+            fill=(0, 0, 0)
         )
 
-    except:
-
-        fonte_nome = ImageFont.load_default()
-        fonte_gols = ImageFont.load_default()
-        fonte_data = ImageFont.load_default()
-
-    # ==========================================
-    # APAGA ÁREA ANTIGA DO RANKING
-    # ==========================================
-
-    x_inicio = 730
-    y_inicio = 420
-    x_fim = 2040
-    y_fim = 1620
-
-    draw.rectangle(
-        [
-            (x_inicio, y_inicio),
-            (x_fim, y_fim)
-        ],
-        fill=(0, 0, 0, 180)
-    )
-
-    # ==========================================
-    # POSIÇÕES DAS LINHAS
-    # ==========================================
-
-    posicoes_y = [
-        455,
-        565,
-        675,
-        785,
-        895,
-        1005,
-        1115,
-        1225,
-        1335,
-        1445
-    ]
-
-    # ==========================================
-    # DESENHA RANKING
-    # ==========================================
-
-    for indice in range(10):
-
-        if indice < len(ranking):
-
-            nome = ranking[indice]["nome"].upper()[:18]
-            gols = str(ranking[indice]["gols"])
-
-        else:
-
-            nome = "-"
-            gols = "0"
-
-        y = posicoes_y[indice]
+        #
+        # TÍTULO
+        #
+        draw.text(
+            (760, 120),
+            "TOP 10",
+            fill=(255, 193, 7),
+            font=fonte_posicao
+        )
 
         draw.text(
-            (865, y),
-            nome,
-            fill="white",
-            font=fonte_nome
+            (760, 170),
+            "ARTILHEIROS",
+            fill=(255, 255, 255),
+            font=fonte_posicao
         )
 
-        draw.text(
-            (1690, y),
-            gols,
-            fill="#f7c948",
-            font=fonte_gols
+        #
+        # RANKING
+        #
+        y = 300
+
+        for posicao, jogador in enumerate(
+            ranking,
+            start=1
+        ):
+
+            nome = jogador["nome"]
+            gols = jogador["gols"]
+
+            draw.text(
+                (760, y),
+                f"{posicao}º",
+                fill=(255, 193, 7),
+                font=fonte_posicao
+            )
+
+            draw.text(
+                (860, y),
+                nome,
+                fill=(255, 255, 255),
+                font=fonte_nome
+            )
+
+            draw.text(
+                (1180, y),
+                f"{gols} gols",
+                fill=(255, 193, 7),
+                font=fonte_gols
+            )
+
+            y += 85
+
+        #
+        # RETORNO
+        #
+        buffer = io.BytesIO()
+
+        imagem.save(
+            buffer,
+            format="PNG"
         )
 
-    # ==========================================
-    # DATA
-    # ==========================================
+        buffer.seek(0)
 
-    draw.text(
-        (1450, 1540),
-        datetime.now().strftime(
-            "%d/%m/%Y %H:%M"
-        ),
-        fill="white",
-        font=fonte_data
-    )
+        return send_file(
+            buffer,
+            mimetype="image/png"
+        )
 
-    # ==========================================
-    # RETORNO
-    # ==========================================
+    except Exception as erro:
 
-    buffer = io.BytesIO()
-
-    imagem.save(
-        buffer,
-        format="PNG"
-    )
-
-    buffer.seek(0)
-
-    return send_file(
-        buffer,
-        mimetype="image/png",
-        download_name="top10_artilheiros.png"
-    )
+        return {
+            "erro": str(erro)
+        }, 500
 
 
 # ==================================================
