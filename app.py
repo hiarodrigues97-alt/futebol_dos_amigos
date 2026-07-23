@@ -97,7 +97,9 @@ def jogadores():
             """
             SELECT id, nome, posicao, nota, COALESCE(gols, 0) AS gols,
                    COALESCE(jogos, 0) AS jogos, COALESCE(vitorias, 0) AS vitorias
-            FROM jogadores ORDER BY gols DESC
+            FROM jogadores
+            WHERE posicao <> 'G'
+            ORDER BY gols DESC
             """
         )
         return jsonify(cur.fetchall())
