@@ -14,7 +14,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 ESTATISTICAS_VALIDAS = {"gols", "jogos", "vitorias"}
 RANKINGS = {
     "artilheiros": {"coluna": "gols", "titulo": "TOP 10 ARTILHEIROS", "filtro": "WHERE posicao <> 'G'"},
-    "vitoriosos": {"coluna": "vitorias", "titulo": "TOP 10 VITORIOSOS", "filtro": ""},
+    "vitoriosos": {"coluna": "vitorias", "titulo": "TOP 10 VITORIOSOS", "filtro": "WHERE posicao <> 'G'"},
 }
 
 
