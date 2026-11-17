@@ -5,14 +5,14 @@ LIMITE_RANKING = 10
 RANKINGS = {
     "artilheiros": {
         "coluna": "gols",
-        "titulo": "TOP 10 ARTILHEIROS",
-        "rotulo": "GOLS",
+        "rotulo_singular": "gol",
+        "rotulo_plural": "gols",
         "filtro": "WHERE posicao <> 'G'",
     },
     "vitoriosos": {
         "coluna": "vitorias",
-        "titulo": "TOP 10 VITORIOSOS",
-        "rotulo": "VITÓRIAS",
+        "rotulo_singular": "vitória",
+        "rotulo_plural": "vitórias",
         "filtro": "WHERE posicao <> 'G'",
     },
 }

@@ -10,8 +10,7 @@ async function atualizar() {
 
 document.addEventListener(EVENTO_ALTERACAO, atualizar);
 document.getElementById("btnAdicionar").addEventListener("click", adicionarJogador);
-document.querySelectorAll("[data-imagem]").forEach((el) =>
-    el.addEventListener("click", () => gerarImagem(el.dataset.imagem, el))
-);
+const btnImagem = document.getElementById("btnImagem");
+btnImagem.addEventListener("click", () => gerarImagem(btnImagem));
 
 atualizar();

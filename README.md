@@ -25,11 +25,12 @@ python app.py
 ```
 
 ## Imagem do Top 10
-- Coloque seu fundo em `futebol/static/img/fundo-top10.png` (renomeie o arquivo "ChatGPT Image ...png").
-  Sem ele, a imagem usa um fundo verde gerado.
-- Coloque uma fonte `.ttf` em `futebol/static/fonts/` (ex.: DejaVuSans-Bold.ttf ou Roboto-Bold.ttf).
-  Sem fontes no sistema, o Pillow usa a fonte padrão, que funciona mas é menos bonita.
-- Teste direto no navegador: `/top10-imagem/artilheiros` e `/top10-imagem/vitoriosos`.
+- A arte fica em `futebol/static/img/fundo-top10.png` (já incluída). A cada geração, o código
+  apaga os nomes/números de exemplo da arte e escreve o ranking atual do banco.
+- As fontes ficam em `futebol/static/fonts/` (DejaVu Sans Condensed, já incluídas).
+- Veja direto no navegador: `/top10-imagem` (ou `/top10-imagem?download=1` para baixar).
+- Se trocar a arte por outra com posições diferentes, ajuste o dicionário `LAYOUT` em
+  `futebol/services/imagem.py` (medidas da arte de 1536x1024).
 
 ## Novo ranking
-Adicione uma entrada em `futebol/rankings.py` (a rota e a imagem já passam a funcionar).
+Adicione uma entrada em `futebol/rankings.py` (API e tela). Para entrar na imagem, a arte precisa de uma lista a mais e uma entrada em `LAYOUT`.

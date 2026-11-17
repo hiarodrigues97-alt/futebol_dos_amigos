@@ -1,7 +1,11 @@
-"""Geração da imagem de Top 10 (PNG) com Pillow.
+"""Gera a imagem "Top 10" a partir da arte pronta (static/img/fundo-top10.png).
 
+A arte tem duas listas: artilheiros (esquerda) e mais vitórias (direita). Para cada
+linha, o serviço apaga o nome e o número que vieram na arte e escreve os do banco.
 Não depende de Flask nem do banco: recebe os dados prontos e devolve o PNG.
-O layout é proporcional ao tamanho do fundo, então qualquer imagem serve.
+
+As medidas abaixo são da arte original (1536x1024) e são escaladas se o tamanho mudar.
+Se você trocar a arte por outra, ajuste só o dicionário LAYOUT.
 """
 from __future__ import annotations
 
@@ -12,162 +16,137 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from ..errors import ErroConfiguracao
+
 log = logging.getLogger(__name__)
 
-TAMANHO_PADRAO = (1536, 1024)  # usado quando não há imagem de fundo
-SUBTITULO = "FUTEBOL DOS AMIGOS"
+REF_LARGURA, REF_ALTURA = 1536, 1024
 
-COR_PAINEL = (12, 22, 38)
-COR_LINHA = (27, 45, 70)
-COR_DESTAQUE = (255, 204, 0)
-COR_TEXTO = (255, 255, 255)
-COR_VALOR = (143, 240, 178)
-MEDALHAS = {1: (255, 204, 0), 2: (192, 198, 210), 3: (205, 127, 50)}
+LAYOUT = {
+    # borda inferior da 1ª linha, distância entre linhas e altura de cada barra
+    "base_y": 428.5,
+    "passo_y": 56.9,
+    "altura_linha": 51,
+    "baseline_acima_da_borda": 12,  # onde assenta o texto, contando de baixo da barra
+    "limite": 10,
+    "listas": {
+        "artilheiros": {"nome_x": 138, "valor_dir": 532, "limpar": (128, 538), "amostra_x": 124},
+        "vitoriosos": {"nome_x": 1090, "valor_dir": 1480, "limpar": (1086, 1488), "amostra_x": 1082},
+    },
+}
 
-# Fontes procuradas nesta ordem (depois das que estiverem em static/fonts).
-FONTES_SISTEMA = (
-    "DejaVuSans-Bold.ttf",
-    "LiberationSans-Bold.ttf",
-    "arialbd.ttf",
-    "Arial Bold.ttf",
-    "Helvetica.ttc",
-)
+COR_NOME = (246, 246, 246)
+COR_NUMERO = (255, 232, 20)
+COR_ROTULO = (236, 236, 236)
+COR_SOMBRA = (0, 0, 0, 170)
+
+FONTE_NEGRITO = "DejaVuSansCondensed-BoldOblique.ttf"
+FONTE_NORMAL = "DejaVuSansCondensed-Oblique.ttf"
+FONTES_SISTEMA_NEGRITO = ("DejaVuSansCondensed-BoldOblique.ttf", "DejaVuSans-Bold.ttf", "LiberationSans-Bold.ttf", "arialbd.ttf")
+FONTES_SISTEMA_NORMAL = ("DejaVuSansCondensed-Oblique.ttf", "DejaVuSans.ttf", "LiberationSans-Regular.ttf", "arial.ttf")
 
 
 @lru_cache(maxsize=64)
-def carregar_fonte(tamanho: int, pasta_fontes: str | None = None):
-    """Devolve uma fonte TrueType no tamanho pedido.
-
-    O erro clássico era usar "arial.ttf": no Linux ela não existe e o Pillow caía
-    em load_default(), que ignora o tamanho e gera texto minúsculo.
-    """
+def carregar_fonte(negrito: bool, tamanho: int, pasta_fontes: str | None):
     tamanho = max(int(tamanho), 8)
-    candidatas = []
-    if pasta_fontes:
-        candidatas += [str(p) for p in sorted(Path(pasta_fontes).glob("*.[tToO][tT][fFcC]"))]
-    candidatas += FONTES_SISTEMA
-
+    nomes = FONTES_SISTEMA_NEGRITO if negrito else FONTES_SISTEMA_NORMAL
+    candidatas = ([str(Path(pasta_fontes) / nomes[0])] if pasta_fontes else []) + list(nomes)
     for candidata in candidatas:
         try:
             return ImageFont.truetype(candidata, tamanho)
         except OSError:
             continue
-
-    log.warning("Nenhuma fonte TrueType encontrada; usando a fonte padrão do Pillow.")
+    log.warning("Fonte TrueType não encontrada; usando a fonte padrão do Pillow.")
     try:
         return ImageFont.load_default(size=tamanho)  # Pillow >= 10.1
     except TypeError:
         return ImageFont.load_default()
 
 
-def _fundo_gradiente(tamanho):
-    largura, altura = tamanho
-    imagem = Image.new("RGB", tamanho)
-    draw = ImageDraw.Draw(imagem)
-    for y in range(altura):
-        t = y / max(altura - 1, 1)
-        draw.line([(0, y), (largura, y)], fill=(int(11 + 8 * t), int(61 + 50 * t), int(46 + 24 * t)))
-    return imagem
-
-
 def _abrir_fundo(caminho):
-    if caminho:
-        try:
-            return Image.open(caminho).convert("RGB")
-        except OSError as erro:  # inclui FileNotFoundError
-            log.warning("Fundo '%s' indisponível (%s); usando fundo gerado.", caminho, erro)
-    return _fundo_gradiente(TAMANHO_PADRAO)
-
-
-def _texto(draw, xy, conteudo, fonte, cor, ancora="la"):
     try:
-        draw.text(xy, conteudo, fill=cor, font=fonte, anchor=ancora)
-    except ValueError:  # fonte bitmap antiga não aceita âncora
-        draw.text(xy, conteudo, fill=cor, font=fonte)
+        return Image.open(caminho).convert("RGB")
+    except OSError as erro:  # inclui FileNotFoundError
+        raise ErroConfiguracao(
+            f"Imagem de fundo não encontrada ({caminho}). "
+            "Coloque a arte em futebol/static/img/fundo-top10.png."
+        ) from erro
 
 
-def _cabe(draw, conteudo, fonte, largura_max):
-    return draw.textlength(conteudo, font=fonte) <= largura_max
+def _limpar_linha(imagem, caixa, amostra_x, sx):
+    """Apaga o texto da arte repetindo uma faixa vazia da própria barra (preserva o brilho)."""
+    x0, y0, x1, y1 = caixa
+    amostra = imagem.crop((amostra_x, y0, amostra_x + max(int(4 * sx), 2), y1))
+    faixa = amostra.resize((1, y1 - y0), Image.BOX).resize((x1 - x0, y1 - y0), Image.NEAREST)
+    imagem.paste(faixa, (x0, y0))
+
+
+def _texto(draw, xy, conteudo, fonte, cor, sombra=1.5):
+    """Escreve com a base do texto em xy (âncora 'ls'), com sombra leve."""
+    for deslocamento, preenchimento in (((sombra, sombra), COR_SOMBRA), ((0, 0), cor)):
+        pos = (xy[0] + deslocamento[0], xy[1] + deslocamento[1])
+        try:
+            draw.text(pos, conteudo, fill=preenchimento, font=fonte, anchor="ls")
+        except ValueError:  # fonte bitmap antiga não aceita âncora
+            draw.text((pos[0], pos[1] - fonte.size), conteudo, fill=preenchimento, font=fonte)
 
 
 def _truncar(draw, conteudo, fonte, largura_max):
-    if _cabe(draw, conteudo, fonte, largura_max):
+    if draw.textlength(conteudo, font=fonte) <= largura_max:
         return conteudo
-    while len(conteudo) > 1 and not _cabe(draw, conteudo + "...", fonte, largura_max):
+    while len(conteudo) > 1 and draw.textlength(conteudo + "...", font=fonte) > largura_max:
         conteudo = conteudo[:-1]
     return conteudo.rstrip() + "..."
 
 
-def _fonte_que_cabe(draw, conteudo, tamanho, largura_max, pasta_fontes):
-    tamanho = int(tamanho)
-    fonte = carregar_fonte(tamanho, pasta_fontes)
-    while tamanho > 12 and not _cabe(draw, conteudo, fonte, largura_max):
-        tamanho -= 2
-        fonte = carregar_fonte(tamanho, pasta_fontes)
-    return fonte
+def gerar_top10_png(listas, caminho_fundo, pasta_fontes=None):
+    """listas: {"artilheiros": [(nome, valor, rotulo), ...], "vitoriosos": [...]}
 
-
-def gerar_top10_png(titulo, rotulo, linhas, caminho_fundo=None, pasta_fontes=None, limite=10):
-    """Gera o PNG do ranking.
-
-    linhas: lista de (nome, valor), já ordenada.
-    Retorna um BytesIO posicionado no início, pronto para send_file().
+    Cada lista já vem ordenada; `rotulo` é o texto ao lado do número (ex.: "gols").
+    Retorna um BytesIO pronto para send_file().
     """
-    pasta = str(pasta_fontes) if pasta_fontes else None
     imagem = _abrir_fundo(caminho_fundo)
-    draw = ImageDraw.Draw(imagem, "RGBA")
-
     largura, altura = imagem.size
-    base = min(largura, altura)
-    margem = max(int(base * 0.05), 24)
+    sx, sy = largura / REF_LARGURA, altura / REF_ALTURA
+    fs = min(sx, sy)  # escala das fontes
+    pasta = str(pasta_fontes) if pasta_fontes else None
 
-    # Painel na metade direita (mesmo desenho original, mas proporcional).
-    x0, x1 = int(largura * 0.50), largura - margem
-    y0, y1 = margem, altura - margem
-    draw.rounded_rectangle((x0, y0, x1, y1), radius=int(base * 0.03), fill=(*COR_PAINEL, 235))
+    limite = LAYOUT["limite"]
+    altura_linha = LAYOUT["altura_linha"]
 
-    largura_painel = x1 - x0
-    interno = int(largura_painel * 0.06)
-    cx0, cx1 = x0 + interno, x1 - interno
+    # 1) apaga os textos de exemplo da arte
+    for chave, cfg in LAYOUT["listas"].items():
+        for i in range(limite):
+            borda = LAYOUT["base_y"] + i * LAYOUT["passo_y"]
+            caixa = (
+                int(cfg["limpar"][0] * sx),
+                int((borda - altura_linha + 4) * sy),
+                int(cfg["limpar"][1] * sx),
+                int((borda - 3) * sy),
+            )
+            _limpar_linha(imagem, caixa, int(cfg["amostra_x"] * sx), sx)
 
-    # Cabeçalho
-    f_titulo = _fonte_que_cabe(draw, titulo, largura_painel * 0.075, cx1 - cx0, pasta)
-    y_titulo = y0 + interno
-    _texto(draw, (cx0, y_titulo), titulo, f_titulo, COR_DESTAQUE)
+    # 2) escreve os dados atuais
+    draw = ImageDraw.Draw(imagem, "RGBA")
+    f_nome = carregar_fonte(True, altura_linha * 0.62 * fs, pasta)
+    f_numero = carregar_fonte(True, altura_linha * 0.76 * fs, pasta)
+    f_rotulo = carregar_fonte(False, altura_linha * 0.52 * fs, pasta)
 
-    f_sub = carregar_fonte(largura_painel * 0.035, pasta)
-    y_sub = y_titulo + int(f_titulo.size * 1.35) if hasattr(f_titulo, "size") else y_titulo + 60
-    _texto(draw, (cx0, y_sub), SUBTITULO, f_sub, COR_TEXTO)
+    for chave, cfg in LAYOUT["listas"].items():
+        for i, (nome, valor, rotulo) in enumerate(listas.get(chave, [])[:limite]):
+            base_y = (LAYOUT["base_y"] + i * LAYOUT["passo_y"] - LAYOUT["baseline_acima_da_borda"]) * sy
+            direita = cfg["valor_dir"] * sx
 
-    # Lista: o espaço disponível é dividido por `limite`, então nunca estoura o painel.
-    topo_lista = y_sub + int(largura_painel * 0.035 * 2.2)
-    passo = (y1 - interno - topo_lista) / limite
-    alt_linha = passo * 0.82
-    recuo = alt_linha * 0.3
+            largura_rotulo = draw.textlength(rotulo, font=f_rotulo)
+            largura_numero = draw.textlength(str(valor), font=f_numero)
+            x_rotulo = direita - largura_rotulo
+            x_numero = x_rotulo - 8 * sx - largura_numero
+            _texto(draw, (x_rotulo, base_y), rotulo, f_rotulo, COR_ROTULO)
+            _texto(draw, (x_numero, base_y), str(valor), f_numero, COR_NUMERO)
 
-    f_pos = carregar_fonte(alt_linha * 0.42, pasta)
-    f_nome = carregar_fonte(alt_linha * 0.40, pasta)
-    f_valor = carregar_fonte(alt_linha * 0.34, pasta)
-
-    if not linhas:
-        _texto(draw, ((cx0 + cx1) / 2, (topo_lista + y1) / 2), "SEM DADOS AINDA", f_nome, COR_TEXTO, "mm")
-
-    for i, (nome, valor) in enumerate(linhas[:limite]):
-        topo = topo_lista + i * passo
-        meio = topo + alt_linha / 2
-        draw.rounded_rectangle(
-            (cx0, int(topo), cx1, int(topo + alt_linha)), radius=int(alt_linha * 0.25), fill=COR_LINHA
-        )
-
-        _texto(draw, (cx0 + recuo, meio), f"{i + 1}º", f_pos, MEDALHAS.get(i + 1, COR_DESTAQUE), "lm")
-
-        texto_valor = f"{valor} {rotulo}"
-        _texto(draw, (cx1 - recuo, meio), texto_valor, f_valor, COR_VALOR, "rm")
-
-        x_nome = cx0 + recuo + draw.textlength("10º", font=f_pos) + recuo
-        largura_nome = (cx1 - recuo) - draw.textlength(texto_valor, font=f_valor) - recuo - x_nome
-        nome_final = _truncar(draw, str(nome), f_nome, largura_nome)
-        _texto(draw, (x_nome, meio), nome_final, f_nome, COR_TEXTO, "lm")
+            x_nome = cfg["nome_x"] * sx
+            nome_final = _truncar(draw, str(nome), f_nome, x_numero - 16 * sx - x_nome)
+            _texto(draw, (x_nome, base_y), nome_final, f_nome, COR_NOME)
 
     buffer = io.BytesIO()
     imagem.save(buffer, format="PNG", optimize=True)

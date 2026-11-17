@@ -26,10 +26,10 @@ export function carregarRankings() {
     return Promise.all(RANKINGS.map(carregarRanking));
 }
 
-export async function gerarImagem(tipo, botaoClicado) {
+export async function gerarImagem(botaoClicado) {
     if (botaoClicado) botaoClicado.disabled = true;
     try {
-        await baixarArquivo(`/top10-imagem/${tipo}?download=1`, `top10-${tipo}.png`);
+        await baixarArquivo("/top10-imagem?download=1", "top10-futebol-dos-amigos.png");
     } catch (erro) {
         mensagem(erro.message, "danger");
     } finally {

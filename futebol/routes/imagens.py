@@ -1,35 +1,36 @@
 from pathlib import Path
 
-from flask import Blueprint, current_app, jsonify, request, send_file
+from flask import Blueprint, current_app, request, send_file
 
-from ..rankings import LIMITE_RANKING, RANKINGS
+from ..rankings import RANKINGS
 from ..repositories import jogadores as repo
 from ..services.imagem import gerar_top10_png
 
 bp = Blueprint("imagens", __name__)
 
 
-@bp.get("/top10-imagem/<string:tipo>")
-def top10_imagem(tipo):
-    config = RANKINGS.get(tipo)
-    if config is None:
-        return jsonify(erro="Ranking não encontrado."), 404
+def _linhas(tipo):
+    config = RANKINGS[tipo]
+    linhas = []
+    for jogador in repo.ranking(tipo):
+        valor = jogador[config["coluna"]]
+        rotulo = config["rotulo_singular"] if valor == 1 else config["rotulo_plural"]
+        linhas.append((jogador["nome"], valor, rotulo))
+    return linhas
 
-    linhas = [(j["nome"], j[config["coluna"]]) for j in repo.ranking(tipo)]
+
+@bp.get("/top10-imagem")
+def top10_imagem():
     static = Path(current_app.static_folder)
-
     buffer = gerar_top10_png(
-        titulo=config["titulo"],
-        rotulo=config["rotulo"],
-        linhas=linhas,
+        listas={tipo: _linhas(tipo) for tipo in RANKINGS},
         caminho_fundo=static / current_app.config["IMAGEM_FUNDO"],
         pasta_fontes=static / "fonts",
-        limite=LIMITE_RANKING,
     )
     return send_file(
         buffer,
         mimetype="image/png",
-        download_name=f"top10-{tipo}.png",
+        download_name="top10-futebol-dos-amigos.png",
         as_attachment=request.args.get("download") == "1",
         max_age=0,
     )
