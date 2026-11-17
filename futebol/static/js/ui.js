@@ -1,4 +1,9 @@
 export const EVENTO_ALTERACAO = "dados:alterados";
+export const EVENTO_SELECAO = "selecao:alterada";
+
+export function notificarSelecao() {
+    document.dispatchEvent(new CustomEvent(EVENTO_SELECAO));
+}
 
 export function notificarAlteracao() {
     document.dispatchEvent(new CustomEvent(EVENTO_ALTERACAO));

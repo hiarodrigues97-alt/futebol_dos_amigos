@@ -11,7 +11,11 @@ def conectar():
     url = current_app.config.get("DATABASE_URL")
     if not url:
         raise ErroConfiguracao("DATABASE_URL não configurada.")
-    return psycopg2.connect(url)
+    conn = psycopg2.connect(url)
+    # Servidores costumam rodar em UTC: sem isto, o "ranking do dia" zeraria às 21h no Brasil.
+    with conn.cursor() as cur:
+        cur.execute("SET TIME ZONE %s", (current_app.config.get("FUSO_HORARIO", "America/Sao_Paulo"),))
+    return conn
 
 
 @contextmanager

@@ -26,3 +26,23 @@ def validar_estatistica(dados):
     if campo not in CAMPOS_ESTATISTICA or acao not in ACOES_ESTATISTICA:
         raise ErroValidacao("Campo ou ação inválidos.")
     return campo, acao
+
+
+TIMES_VALIDOS = {"TIME 1", "TIME 2", "TIME 3"}
+
+
+def validar_ids_jogadores(dados):
+    ids = (dados or {}).get("jogadores")
+    if not isinstance(ids, list) or not ids:
+        raise ErroValidacao("Informe os jogadores da partida.")
+    try:
+        return sorted({int(i) for i in ids})
+    except (TypeError, ValueError):
+        raise ErroValidacao("Lista de jogadores inválida.") from None
+
+
+def validar_time(dados):
+    nome_time = str((dados or {}).get("nome_time", "")).strip().upper()
+    if nome_time not in TIMES_VALIDOS:
+        raise ErroValidacao("Time inválido.")
+    return nome_time

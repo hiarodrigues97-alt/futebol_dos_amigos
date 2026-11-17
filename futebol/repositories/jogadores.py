@@ -8,14 +8,14 @@ _NAO_ENCONTRADO = "Jogador não encontrado."
 
 
 def listar():
+    """Todos os jogadores, goleiros incluídos (para o sorteio). A tela separa linha e goleiros."""
     with cursor_banco(dict_cursor=True) as cur:
         cur.execute(
             """
             SELECT id, nome, posicao, nota, COALESCE(gols, 0) AS gols,
                    COALESCE(jogos, 0) AS jogos, COALESCE(vitorias, 0) AS vitorias
             FROM jogadores
-            WHERE posicao <> 'G'
-            ORDER BY gols DESC
+            ORDER BY gols DESC, nome ASC
             """
         )
         return cur.fetchall()
@@ -79,3 +79,12 @@ def ranking(tipo):
             """
         )
         return cur.fetchall()
+
+
+def registrar_jogos(ids):
+    with cursor_banco() as cur:
+        cur.execute(
+            "UPDATE jogadores SET jogos = COALESCE(jogos, 0) + 1 WHERE id = ANY(%s)",
+            (ids,),
+        )
+        return cur.rowcount
