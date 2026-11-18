@@ -1,11 +1,12 @@
 import { api, enviarJson } from "./api.js";
 import { MINIMO_JOGADORES, contarPosicao, distribuirTimes } from "./sorteio.js";
-import { EVENTO_SELECAO, mensagem, notificarAlteracao } from "./ui.js";
+import { EVENTO_SELECAO, fecharAoClicarFora, mensagem, notificarAlteracao } from "./ui.js";
 
 // Estado em memória: quem está em cada time no momento
 const TIMES = { time1: [], time2: [], time3: [] };
 const NOMES = { time1: "TIME 1", time2: "TIME 2", time3: "TIME 3" };
 const ICONES = { G: "🧤", Z: "🛡️", M: "🎯", A: "🔥" };
+const ICONES_TIME = { time1: "🔵", time2: "🔴", time3: "🟢" };
 const LINHAS_CAMPO = [["G", "85%"], ["Z", "65%"], ["M", "45%"], ["A", "20%"]]; // posição -> altura no campo
 
 function lerSelecionados() {
@@ -59,6 +60,8 @@ function criarJogadorNoCampo(jogador, topo, esquerda, origem) {
         div.classList.add("dragging");
     });
     div.addEventListener("dragend", () => div.classList.remove("dragging"));
+    // Toque/clique: funciona no celular, onde arrastar e soltar do navegador não existe
+    div.addEventListener("click", () => abrirMover(jogador, origem));
     return div;
 }
 
@@ -84,23 +87,43 @@ function renderizarTodosTimes() {
     Object.keys(TIMES).forEach((chave, i) => renderizarTime(chave, i + 1));
 }
 
+function moverJogador(id, origem, destino) {
+    if (!TIMES[origem] || !TIMES[destino] || origem === destino) return null;
+    const jogador = TIMES[origem].find((j) => String(j.id) === String(id));
+    if (!jogador) return null;
+    TIMES[origem] = TIMES[origem].filter((j) => String(j.id) !== String(id));
+    TIMES[destino].push(jogador);
+    renderizarTodosTimes();
+    return jogador;
+}
+
 function ativarArrastar() {
     document.querySelectorAll(".campo").forEach((campo) => {
         campo.addEventListener("dragover", (e) => e.preventDefault());
         campo.addEventListener("drop", (e) => {
             e.preventDefault();
-            const id = e.dataTransfer.getData("id");
-            const origem = e.dataTransfer.getData("origem");
-            const destino = campo.id;
-            if (!TIMES[origem] || origem === destino) return;
-
-            const jogador = TIMES[origem].find((j) => String(j.id) === id);
-            if (!jogador) return;
-            TIMES[origem] = TIMES[origem].filter((j) => String(j.id) !== id);
-            TIMES[destino].push(jogador);
-            renderizarTodosTimes();
+            moverJogador(e.dataTransfer.getData("id"), e.dataTransfer.getData("origem"), campo.id);
         });
     });
+}
+
+// Modal "Mover para..." (toque)
+function abrirMover(jogador, origem) {
+    document.getElementById("tituloMover").textContent = `Mover ${jogador.nome}`;
+    const opcoes = document.getElementById("opcoesMover");
+    opcoes.replaceChildren();
+    Object.keys(TIMES).filter((chave) => chave !== origem).forEach((destino) => {
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "btn btn-outline-dark btn-lg";
+        botao.textContent = `${ICONES_TIME[destino]} ${NOMES[destino]}`;
+        botao.addEventListener("click", () => {
+            document.getElementById("dlgMover").close();
+            if (moverJogador(jogador.id, origem, destino)) mensagem(`${jogador.nome} foi para o ${NOMES[destino]}.`);
+        });
+        opcoes.append(botao);
+    });
+    document.getElementById("dlgMover").showModal();
 }
 
 // ---------- AÇÕES ----------
@@ -180,6 +203,9 @@ export function iniciarTimes() {
     document.querySelectorAll("[data-time]").forEach((el) =>
         el.addEventListener("click", () => salvarVitoria(el.dataset.time))
     );
+    const dialogoMover = document.getElementById("dlgMover");
+    fecharAoClicarFora(dialogoMover);
+    document.getElementById("btnCancelarMover").addEventListener("click", () => dialogoMover.close());
     ativarArrastar();
     renderizarTodosTimes();
     atualizarContador();

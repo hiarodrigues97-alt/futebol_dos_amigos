@@ -18,12 +18,19 @@ export function mensagem(texto, tipo = "success") {
     temporizador = setTimeout(() => (area.className = "alert d-none"), 3500);
 }
 
-export function botao(texto, estilo, acao, titulo) {
+export function botao(texto, estilo, acao, titulo, classeExtra = "") {
     const elemento = document.createElement("button");
     elemento.type = "button";
-    elemento.className = `btn ${estilo} btn-sm`;
+    elemento.className = `btn ${estilo} btn-sm ${classeExtra}`.trim();
     elemento.textContent = texto;
     elemento.title = titulo || texto;
     elemento.addEventListener("click", acao);
     return elemento;
+}
+
+// Fecha o <dialog> ao tocar fora da caixa (o fundo escuro é o próprio <dialog>).
+export function fecharAoClicarFora(dialogo) {
+    dialogo.addEventListener("click", (e) => {
+        if (e.target === dialogo) dialogo.close();
+    });
 }

@@ -8,3 +8,11 @@ class NaoEncontrado(LookupError):
 
 class ErroConfiguracao(RuntimeError):
     """Configuração obrigatória ausente (HTTP 500)."""
+
+
+class ErroNaoAutorizado(Exception):
+    """Ação exige login de administrador (HTTP 401)."""
+
+
+class ErroMuitasTentativas(Exception):
+    """Muitas tentativas de login erradas (HTTP 429)."""

@@ -1,6 +1,11 @@
+export const EVENTO_NAO_AUTORIZADO = "sessao:nao-autorizada";
+
 export async function api(url, opcoes = {}) {
     const resposta = await fetch(url, opcoes);
     const dados = await resposta.json().catch(() => ({}));
+    if (resposta.status === 401 && !url.startsWith("/auth/login")) {
+        document.dispatchEvent(new CustomEvent(EVENTO_NAO_AUTORIZADO)); // sessão expirou ou não é admin
+    }
     if (!resposta.ok) throw new Error(dados.erro || `Erro HTTP ${resposta.status}`);
     return dados;
 }

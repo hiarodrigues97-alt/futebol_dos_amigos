@@ -11,13 +11,15 @@ futebol/
   validators.py             validação dos dados recebidos
   errors.py                 exceções do projeto
   repositories/jogadores.py todo o SQL
-  routes/                   paginas, jogadores, rankings, imagens (blueprints)
+  auth.py                   login de admin (sessão assinada, limite de tentativas)
+  routes/                   paginas, auth, jogadores, rankings, imagens, times (blueprints)
   repositories/partidas.py  vitórias de time (tabela `partidas`)
   services/imagem.py        geração do PNG com Pillow (sem Flask/banco)
   templates/index.html
   static/css, static/img, static/fonts
   static/js/sorteio.js      algoritmo do sorteio (puro, sem DOM)
   static/js/times.js        campos, arrastar, registrar jogos, vitória, copiar, imagem dos times
+  static/js/auth.js         login/logout e modo admin na tela
   static/js/*.js            demais módulos ES (api, ui, jogadores, rankings, main)
 ```
 
@@ -48,3 +50,27 @@ Adicione uma entrada em `futebol/rankings.py` (API e tela). Para entrar na image
 
 Requer a tabela `partidas (nome_time, data_partida)` no banco. O "ranking do dia" usa o fuso
 `America/Sao_Paulo` (mude com a variável `FUSO_HORARIO`).
+
+## Senha de administrador
+Visitantes **veem** tudo (tabelas, rankings, imagem do Top 10) e podem **sortear** e ajustar os times
+na tela, mas só o admin pode cadastrar/editar/excluir jogadores, somar gols/jogos/vitórias,
+registrar jogos e salvar vitórias. Os botões de edição só aparecem depois do login, e o servidor
+recusa (401) qualquer escrita sem login, mesmo que alguém chame a API direto.
+
+Configure no servidor (Render > Environment):
+| Variável | Valor |
+|---|---|
+| `ADMIN_PASSWORD` | a senha do grupo (use uma longa) |
+| `SECRET_KEY` | `python -c "import secrets; print(secrets.token_hex(32))"` (igual em todos os workers) |
+| `COOKIE_SEGURO` | `1` em produção (https) / `0` local |
+| `TRUST_PROXY` | `1` no Render/Railway/Heroku |
+
+- Sem `ADMIN_PASSWORD` a proteção fica desligada e a tela mostra um aviso amarelo.
+- Com `ADMIN_PASSWORD` e sem `SECRET_KEY`, o app se recusa a iniciar (para não ficar inseguro sem querer).
+- 5 senhas erradas bloqueiam novas tentativas por 5 minutos. O login dura 30 dias no aparelho.
+- Para trocar a senha, mude `ADMIN_PASSWORD`. Para deslogar todo mundo, mude `SECRET_KEY`.
+
+## Uso no celular
+- As tabelas viram cartões, e os botões têm tamanho de toque.
+- Para trocar um jogador de time: toque nele no campo e escolha o time (arrastar também funciona no computador).
+- Editar jogador e login abrem janelas próprias (nada de `prompt()` do navegador).

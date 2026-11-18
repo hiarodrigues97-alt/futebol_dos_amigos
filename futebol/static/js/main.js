@@ -1,4 +1,5 @@
-import { adicionarJogador, carregarJogadores } from "./jogadores.js";
+import { iniciarAuth } from "./auth.js";
+import { adicionarJogador, carregarJogadores, iniciarEdicao } from "./jogadores.js";
 import { carregarRankings, gerarImagem } from "./rankings.js";
 import { carregarRankingTimes, iniciarTimes } from "./times.js";
 import { EVENTO_ALTERACAO, mensagem } from "./ui.js";
@@ -15,5 +16,7 @@ document.getElementById("btnAdicionar").addEventListener("click", adicionarJogad
 const btnImagem = document.getElementById("btnImagem");
 btnImagem.addEventListener("click", () => gerarImagem(btnImagem));
 
+iniciarAuth();
+iniciarEdicao();
 iniciarTimes();
 atualizar();

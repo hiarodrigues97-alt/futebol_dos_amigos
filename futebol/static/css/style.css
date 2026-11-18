@@ -319,3 +319,158 @@ body {
         font-size: 10px;
     }
 }
+
+
+/* =========================
+   LOGIN / MODO ADMIN
+========================= */
+
+/* Controles de edição só aparecem para o administrador (body.admin é ligado em auth.js) */
+body:not(.admin) .somente-admin {
+    display: none !important;
+}
+
+.barra-topo {
+    display: flex;
+    justify-content: flex-end;
+    min-height: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+/* =========================
+   MODAIS (<dialog>)
+========================= */
+
+dialog {
+    width: min(92vw, 420px);
+    padding: 0;
+    border: 0;
+    border-radius: 1rem;
+    color: #1e293b;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.35);
+}
+
+dialog::backdrop {
+    background: rgba(15, 23, 42, 0.55);
+}
+
+.dialogo-corpo {
+    padding: 1.25rem;
+}
+
+.erro-dialogo {
+    min-height: 1.25rem;
+    margin-top: 0.5rem;
+    color: #b91c1c;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.valor-estatistica {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.jogador-campo {
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================
+   CELULAR: tabelas viram cartões, alvos de toque maiores
+========================= */
+
+@media (max-width: 767px) {
+    .table.tabela-cartoes,
+    .table.tabela-cartoes > tbody {
+        display: block;
+    }
+
+    .table.tabela-cartoes > thead {
+        display: none;
+    }
+
+    /* Cartão compacto: [nome .......... caixa] / [pos | nota] / gols / jogos / vitórias / ações */
+    .table.tabela-cartoes > tbody > tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-flow: row dense;
+        column-gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem 0.9rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.8rem;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    }
+
+    .table.tabela-cartoes > tbody > tr > td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        min-width: 0;
+        padding: 0.3rem 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .table.tabela-cartoes > tbody > tr > td[data-label]::before {
+        content: attr(data-label);
+        color: #64748b;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .table.tabela-cartoes td[data-campo="nome"] {
+        grid-column: 1;
+        grid-row: 1;
+        color: #0f172a;
+        font-size: 1.1rem;
+        font-weight: 800;
+    }
+
+    .table.tabela-cartoes td[data-campo="sel"] {
+        grid-column: 2;
+        grid-row: 1;
+        justify-content: flex-end;
+    }
+
+    .table.tabela-cartoes td[data-campo="nome"]::before,
+    .table.tabela-cartoes td[data-campo="sel"]::before {
+        display: none;
+    }
+
+    .table.tabela-cartoes td[data-campo="gols"],
+    .table.tabela-cartoes td[data-campo="jogos"],
+    .table.tabela-cartoes td[data-campo="vitorias"],
+    .table.tabela-cartoes td.celula-acoes {
+        grid-column: 1 / -1;
+    }
+
+    .table.tabela-cartoes > tbody > tr > td.celula-acoes {
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .table .btn-sm {
+        min-width: 44px;
+        min-height: 40px;
+    }
+
+    .tabela-cartoes .disponivel {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .nome-jogador {
+        font-size: 11px;
+    }
+}
