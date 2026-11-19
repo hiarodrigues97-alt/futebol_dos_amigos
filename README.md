@@ -14,12 +14,15 @@ futebol/
   auth.py                   login de admin (sessão assinada, limite de tentativas)
   routes/                   paginas, auth, jogadores, rankings, imagens, times (blueprints)
   repositories/partidas.py  vitórias de time (tabela `partidas`)
+  repositories/dia.py       fechamento do dia (+1 vitória ao time campeão)
   services/imagem.py        geração do PNG com Pillow (sem Flask/banco)
   templates/index.html
   static/css, static/img, static/fonts
   static/js/sorteio.js      algoritmo do sorteio (puro, sem DOM)
   static/js/times.js        campos, arrastar, registrar jogos, vitória, copiar, imagem dos times
   static/js/auth.js         login/logout e modo admin na tela
+  static/js/dia.js          janela "Fechar o dia"
+sql/                        scripts SQL de referência
   static/js/*.js            demais módulos ES (api, ui, jogadores, rankings, main)
 ```
 
@@ -74,3 +77,19 @@ Configure no servidor (Render > Environment):
 - As tabelas viram cartões, e os botões têm tamanho de toque.
 - Para trocar um jogador de time: toque nele no campo e escolha o time (arrastar também funciona no computador).
 - Editar jogador e login abrem janelas próprias (nada de `prompt()` do navegador).
+
+## Fechar o dia (vitórias em massa)
+No fim da noite, o time com **mais vitórias no dia** (botão **Vitória** de cada time) ganha **+1 na coluna
+`vitorias`** dos seus jogadores, alimentando o ranking "Mais vitórias".
+
+1. Admin: clique em **🏁 Fechar o dia**.
+2. A janela mostra o time líder e a lista de jogadores dele (vinda do sorteio). **Goleiros vêm desmarcados**
+   (não entram no ranking de vitórias); marque/desmarque como quiser.
+3. **Confirmar +1 vitória** soma 1 para cada marcado, tudo numa transação.
+
+Regras de segurança:
+- Só dá para fechar **uma vez por dia** (o banco barra o segundo clique). Errou? **↩️ Desfazer fechamento** remove o +1.
+- O servidor confere que o time informado é mesmo o líder do dia. Em **empate**, a janela deixa escolher entre os empatados.
+- Se o sorteio não estiver neste aparelho (ex.: outro celular), a janela lista todos os jogadores para você marcar quem jogou.
+- O sorteio agora fica guardado no aparelho durante o dia, então recarregar a página não o perde.
+- Cria sozinha a tabela `fechamentos_dia` (script de referência em `sql/001_fechamentos_dia.sql`).

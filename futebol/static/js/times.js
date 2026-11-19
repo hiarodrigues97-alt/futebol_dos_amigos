@@ -9,6 +9,30 @@ const ICONES = { G: "🧤", Z: "🛡️", M: "🎯", A: "🔥" };
 const ICONES_TIME = { time1: "🔵", time2: "🔴", time3: "🟢" };
 const LINHAS_CAMPO = [["G", "85%"], ["Z", "65%"], ["M", "45%"], ["A", "20%"]]; // posição -> altura no campo
 
+// O sorteio fica guardado neste aparelho (só do dia de hoje) para não se perder ao recarregar a página.
+const CHAVE_TIMES = "futebol:times";
+const hoje = () => new Date().toLocaleDateString("sv-SE"); // AAAA-MM-DD no fuso do aparelho
+
+function salvarTimes() {
+    try { localStorage.setItem(CHAVE_TIMES, JSON.stringify({ dia: hoje(), times: TIMES })); } catch { /* sem armazenamento */ }
+}
+
+function restaurarTimes() {
+    try {
+        const salvo = JSON.parse(localStorage.getItem(CHAVE_TIMES) || "null");
+        if (!salvo || salvo.dia !== hoje()) return;
+        Object.keys(TIMES).forEach((chave) => {
+            TIMES[chave] = Array.isArray(salvo.times?.[chave]) ? salvo.times[chave] : [];
+        });
+    } catch { /* dado corrompido: ignora */ }
+}
+
+// Usado no fechamento do dia: quem está no time ("TIME 1", ...) neste momento
+export function jogadoresDoTime(nomeTime) {
+    const chave = Object.keys(NOMES).find((k) => NOMES[k] === nomeTime);
+    return chave ? [...TIMES[chave]] : [];
+}
+
 function lerSelecionados() {
     return Array.from(document.querySelectorAll(".disponivel:checked"), (c) => ({
         id: c.dataset.id,
@@ -31,6 +55,7 @@ function sortear() {
     }
     const equilibrar = document.getElementById("equilibrarNotas").checked;
     [TIMES.time1, TIMES.time2, TIMES.time3] = distribuirTimes(jogadores, { numTimes: 3, equilibrarNotas: equilibrar });
+    salvarTimes();
     renderizarTodosTimes();
 
     const goleiros = contarPosicao(jogadores, "G");
@@ -93,6 +118,7 @@ function moverJogador(id, origem, destino) {
     if (!jogador) return null;
     TIMES[origem] = TIMES[origem].filter((j) => String(j.id) !== String(id));
     TIMES[destino].push(jogador);
+    salvarTimes();
     renderizarTodosTimes();
     return jogador;
 }
@@ -207,6 +233,7 @@ export function iniciarTimes() {
     fecharAoClicarFora(dialogoMover);
     document.getElementById("btnCancelarMover").addEventListener("click", () => dialogoMover.close());
     ativarArrastar();
+    restaurarTimes();
     renderizarTodosTimes();
     atualizarContador();
 }

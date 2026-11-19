@@ -46,3 +46,11 @@ def validar_time(dados):
     if nome_time not in TIMES_VALIDOS:
         raise ErroValidacao("Time inválido.")
     return nome_time
+
+
+def validar_fechamento(dados):
+    nome_time = validar_time(dados)
+    ids = validar_ids_jogadores(dados)
+    if len(ids) > 30:
+        raise ErroValidacao("Jogadores demais para um único time.")
+    return nome_time, ids
