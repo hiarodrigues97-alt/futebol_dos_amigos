@@ -193,38 +193,50 @@ export async function carregarRankingTimes() {
     area.replaceChildren(fragmento);
 }
 
-async function copiarTimes() {
-    if (!idsEmCampo().length) return mensagem("Faça o sorteio antes de copiar.", "warning");
-    const texto = Object.entries(TIMES)
-        .map(([chave, jogadores]) => [NOMES[chave], ...jogadores.map((j) => `- ${j.nome}`)].join("\n"))
-        .join("\n\n");
-    try {
-        await navigator.clipboard.writeText(texto);
-        mensagem("Times copiados!");
-    } catch {
-        mensagem("Não foi possível copiar (o navegador exige HTTPS).", "danger");
-    }
+const pausa = (ms) => new Promise((resolver) => setTimeout(resolver, ms));
+
+function baixarCanvas(canvas, nomeArquivo) {
+    const link = document.createElement("a");
+    link.download = nomeArquivo;
+    link.href = canvas.toDataURL("image/png");
+    document.body.append(link);
+    link.click();
+    link.remove();
 }
 
+// Uma imagem por time (time-1-AAAA-MM-DD.png, ...), sem o botão "Vitória" aparecendo na foto.
 async function baixarImagemTimes() {
+    if (!idsEmCampo().length) return mensagem("Faça o sorteio antes de baixar as imagens.", "warning");
     if (!window.html2canvas) return mensagem("Biblioteca de imagem não carregou. Recarregue a página.", "danger");
+
+    const botao = document.getElementById("btnImagemTimes");
+    botao.disabled = true;
     try {
-        const canvas = await window.html2canvas(document.getElementById("areaTimes"), {
-            backgroundColor: "#f1f5f9",
-            scale: 2,
-        });
-        const link = document.createElement("a");
-        link.download = "times.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-    } catch (erro) { mensagem("Não foi possível gerar a imagem dos times.", "danger"); }
+        let baixadas = 0;
+        for (const [chave, nomeTime] of Object.entries(NOMES)) {
+            if (!TIMES[chave].length) continue; // time vazio não gera imagem
+            const cartao = document.getElementById(chave).closest(".card-time");
+            const canvas = await window.html2canvas(cartao, {
+                backgroundColor: "#ffffff",
+                scale: 2,
+                ignoreElements: (elemento) => elemento.classList.contains("btn-vitoria"),
+            });
+            baixarCanvas(canvas, `${nomeTime.toLowerCase().replace(" ", "-")}-${hoje()}.png`);
+            baixadas += 1;
+            await pausa(500); // o navegador recusa downloads colados um no outro
+        }
+        mensagem(`${baixadas} ${baixadas === 1 ? "imagem baixada" : "imagens baixadas (uma por time)"}.`);
+    } catch {
+        mensagem("Não foi possível gerar as imagens dos times.", "danger");
+    } finally {
+        botao.disabled = false;
+    }
 }
 
 export function iniciarTimes() {
     document.addEventListener(EVENTO_SELECAO, atualizarContador);
     document.getElementById("btnSortear").addEventListener("click", sortear);
     document.getElementById("btnRegistrarJogos").addEventListener("click", registrarJogos);
-    document.getElementById("btnCopiar").addEventListener("click", copiarTimes);
     document.getElementById("btnImagemTimes").addEventListener("click", baixarImagemTimes);
     document.querySelectorAll("[data-time]").forEach((el) =>
         el.addEventListener("click", () => salvarVitoria(el.dataset.time))

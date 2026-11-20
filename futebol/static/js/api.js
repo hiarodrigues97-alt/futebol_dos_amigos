@@ -29,7 +29,9 @@ export async function baixarArquivo(url, nomeArquivo) {
     const href = URL.createObjectURL(await resposta.blob());
     const link = document.createElement("a");
     link.href = href;
-    link.download = nomeArquivo;
+    // usa o nome que o servidor sugere (ex.: top10-2026-11-19.png, com a data)
+    const sugerido = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(resposta.headers.get("Content-Disposition") || "");
+    link.download = sugerido ? decodeURIComponent(sugerido[1]) : nomeArquivo;
     document.body.append(link);
     link.click();
     link.remove();

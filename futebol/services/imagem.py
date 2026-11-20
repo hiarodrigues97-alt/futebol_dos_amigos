@@ -29,11 +29,15 @@ LAYOUT = {
     "altura_linha": 51,
     "baseline_acima_da_borda": 12,  # onde assenta o texto, contando de baixo da barra
     "limite": 10,
+    # etiqueta com a data, no gramado sob "Mais vitórias" (canto inferior direito)
+    "data": {"direita": 1500, "base_y": 1003, "tamanho": 26},
     "listas": {
         "artilheiros": {"nome_x": 138, "valor_dir": 532, "limpar": (128, 538), "amostra_x": 124},
         "vitoriosos": {"nome_x": 1090, "valor_dir": 1480, "limpar": (1086, 1488), "amostra_x": 1082},
     },
 }
+
+COR_DATA = (255, 214, 10)
 
 COR_NOME = (246, 246, 246)
 COR_NUMERO = (255, 232, 20)
@@ -99,10 +103,27 @@ def _truncar(draw, conteudo, fonte, largura_max):
     return conteudo.rstrip() + "..."
 
 
-def gerar_top10_png(listas, caminho_fundo, pasta_fontes=None):
+def _desenhar_data(draw, texto, fs, sx, sy, pasta):
+    cfg = LAYOUT["data"]
+    fonte = carregar_fonte(False, cfg["tamanho"] * fs, pasta)
+    direita, base = cfg["direita"] * sx, cfg["base_y"] * sy
+    largura = draw.textlength(texto, font=fonte)
+    pad_x, pad_y = 16 * fs, 8 * fs
+    altura = cfg["tamanho"] * fs
+    # etiqueta escura translúcida: a data fica legível sobre qualquer trecho do gramado
+    draw.rounded_rectangle(
+        (direita - largura - pad_x, base - altura - pad_y, direita + pad_x, base + pad_y),
+        radius=int(10 * fs),
+        fill=(0, 0, 0, 165),
+    )
+    _texto(draw, (direita - largura, base), texto, fonte, COR_DATA, sombra=0)
+
+
+def gerar_top10_png(listas, caminho_fundo, pasta_fontes=None, data_texto=None):
     """listas: {"artilheiros": [(nome, valor, rotulo), ...], "vitoriosos": [...]}
 
     Cada lista já vem ordenada; `rotulo` é o texto ao lado do número (ex.: "gols").
+    `data_texto` (ex.: "Atualizado em 19/11/2026") é escrito no rodapé, se informado.
     Retorna um BytesIO pronto para send_file().
     """
     imagem = _abrir_fundo(caminho_fundo)
@@ -147,6 +168,9 @@ def gerar_top10_png(listas, caminho_fundo, pasta_fontes=None):
             x_nome = cfg["nome_x"] * sx
             nome_final = _truncar(draw, str(nome), f_nome, x_numero - 16 * sx - x_nome)
             _texto(draw, (x_nome, base_y), nome_final, f_nome, COR_NOME)
+
+    if data_texto:
+        _desenhar_data(draw, data_texto, fs, sx, sy, pasta)
 
     buffer = io.BytesIO()
     imagem.save(buffer, format="PNG", optimize=True)

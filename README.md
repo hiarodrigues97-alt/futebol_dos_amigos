@@ -19,7 +19,7 @@ futebol/
   templates/index.html
   static/css, static/img, static/fonts
   static/js/sorteio.js      algoritmo do sorteio (puro, sem DOM)
-  static/js/times.js        campos, arrastar, registrar jogos, vitória, copiar, imagem dos times
+  static/js/times.js        campos, arrastar, registrar jogos, vitória, imagens dos times
   static/js/auth.js         login/logout e modo admin na tela
   static/js/dia.js          janela "Fechar o dia"
 sql/                        scripts SQL de referência
@@ -37,7 +37,8 @@ python app.py
 - A arte fica em `futebol/static/img/fundo-top10.png` (já incluída). A cada geração, o código
   apaga os nomes/números de exemplo da arte e escreve o ranking atual do banco.
 - As fontes ficam em `futebol/static/fonts/` (DejaVu Sans Condensed, já incluídas).
-- Veja direto no navegador: `/top10-imagem` (ou `/top10-imagem?download=1` para baixar).
+- Veja direto no navegador: `/top10-imagem` (ou `/top10-imagem?download=1` para baixar). A imagem sai com
+  a data de geração ("Atualizado em DD/MM/AAAA", no fuso `FUSO_HORARIO`) e o arquivo baixa como `top10-AAAA-MM-DD.png`.
 - Se trocar a arte por outra com posições diferentes, ajuste o dicionário `LAYOUT` em
   `futebol/services/imagem.py` (medidas da arte de 1536x1024).
 
@@ -49,7 +50,7 @@ Adicione uma entrada em `futebol/rankings.py` (API e tela). Para entrar na image
 2. **Sortear** divide em 3 times, com o mesmo número de jogadores e as posições distribuídas por igual.
    Com **Equilibrar notas** ligado, a soma das notas também fica parecida entre os times.
 3. Arraste jogadores entre os campos para ajustar. **Registrar jogos** soma +1 jogo para todos;
-   **Vitória** registra a vitória do time no ranking do dia; **Copiar** e **Imagem dos times** exportam.
+   **Vitória** registra a vitória do time no ranking do dia; **Imagens dos times** baixa uma imagem por time (`time-1-AAAA-MM-DD.png`, ...).
 
 Requer a tabela `partidas (nome_time, data_partida)` no banco. O "ranking do dia" usa o fuso
 `America/Sao_Paulo` (mude com a variável `FUSO_HORARIO`).
